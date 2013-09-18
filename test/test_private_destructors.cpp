@@ -34,6 +34,10 @@ struct ptr
         ptr_count++;
     }
 
+	explicit operator bool() const {
+		return p != nullptr;
+	}
+
     template <class U>
     ptr(ptr<U> const& other)
       : p(other.p)
@@ -103,8 +107,7 @@ void test_main(lua_State* L)
     using namespace luabind;
 
     module(L) [
-        class_<X, ptr<X> >("X"),
-
+        class_<X, bases<>, detail::null_type, ptr<X> >("X"),
         def("get", &get),
 
         def("f1", &f1),

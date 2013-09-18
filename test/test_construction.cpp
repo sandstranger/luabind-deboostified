@@ -80,7 +80,7 @@ void test_main(lua_State* L)
 			.def(constructor<const A&>())
 			.def(constructor<>()),
 
-		class_<B, A>("B")
+		class_<B, bases< A >>("B")
 			.def(constructor<int>())
 			.def(constructor<>())
 			.def_readonly("test2", &B::test2),

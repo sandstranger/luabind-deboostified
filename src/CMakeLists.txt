@@ -72,6 +72,7 @@ set(LUABIND_API
 source_group(API FILES ${LUABIND_API})
 
 set(LUABIND_DETAIL_API
+    ../luabind/detail/meta.hpp
 	../luabind/detail/call_function.hpp
 	../luabind/detail/call.hpp
 	../luabind/detail/call_member.hpp
@@ -112,6 +113,19 @@ set(LUABIND_DETAIL_API
 	../luabind/detail/yes_no.hpp)
 source_group(Internal FILES ${LUABIND_DETAIL_API})
 
+set(LUABIND_POLICIES
+    ../luabind/detail/conversion_policies/pointer_converter.hpp
+	../luabind/detail/conversion_policies/reference_converter.hpp
+	../luabind/detail/conversion_policies/value_converter.hpp
+	../luabind/detail/conversion_policies/enum_converter.hpp
+	../luabind/detail/conversion_policies/conversion_base.hpp
+	../luabind/detail/conversion_policies/conversion_policies.hpp
+	../luabind/detail/conversion_policies/value_wrapper_converter.hpp
+	../luabind/detail/conversion_policies/native_converter.hpp
+	)
+source_group(Policies FILES ${LUABIND_POLICIES} )
+
+
 set(LUABIND_EXTRA_LIBS)
 if(MSVC)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4251")
@@ -119,7 +133,7 @@ elseif(CMAKE_COMPILER_IS_GNUCXX)
 	list(APPEND LUABIND_EXTRA_LIBS m)
 endif()
 
-add_library(luabind ${LUABIND_SRCS} ${LUABIND_API} ${LUABIND_DETAIL_API})
+add_library(luabind ${LUABIND_SRCS} ${LUABIND_API} ${LUABIND_DETAIL_API} ${LUABIND_POLICIES})
 target_link_libraries(luabind ${LUA_LIBRARIES} ${LUABIND_EXTRA_LIBS})
 set_property(TARGET
 	luabind PROPERTY

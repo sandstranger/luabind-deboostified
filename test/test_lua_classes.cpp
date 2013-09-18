@@ -25,7 +25,8 @@
 #include <luabind/luabind.hpp>
 #include <luabind/wrapper_base.hpp>
 #include <luabind/adopt_policy.hpp>
-#include <boost/shared_ptr.hpp>
+#include <luabind\detail\debug.hpp>
+#include <memory>
 
 namespace luabind {
 
@@ -137,19 +138,19 @@ void test_main(lua_State* L)
 {
 	module(L)
 	[
-		class_<A, A_wrap, boost::shared_ptr<A> >("A")
+		class_<A, bases<>, A_wrap, std::shared_ptr<A> >("A")
 			.def(constructor<>())
 			.def("f", &A::f, &A_wrap::default_f)
 			.def("g", &A::g, &A_wrap::default_g),
 
-		class_<B, A, B_wrap, boost::shared_ptr<A> >("B")
+		class_<B, bases<A>, B_wrap, std::shared_ptr<A> >("B")
 			.def(constructor<>())
 			.def("f", &B::f, &B_wrap::default_f)
 			.def("g", &B::g, &B_wrap::default_g),
 
         def("filter", &filter),
 
-        class_<base, base_wrap>("base")
+        class_<base, bases<>, base_wrap>("base")
 			.def(constructor<>())
 			.def("f", &base::f, &base_wrap::default_f)
 			.def("g", &base::g),
@@ -157,7 +158,7 @@ void test_main(lua_State* L)
 		class_<T_>("T")
 			.def("f", &T_::f),
 
-		class_<U, T_>("U")
+		class_<U, bases< T_ > >("U")
 			.def(constructor<>())
 			.def("f", &T_::f)
 			.def("f", &U::f)
@@ -249,7 +250,7 @@ void test_main(lua_State* L)
 		A a;
 
 		DOSTRING(L, "function test_ref(x) end");
-		call_function<void>(L, "test_ref", boost::ref(a));
+		call_function<void>(L, "test_ref", std::ref(a));
 	}
 
 	{
@@ -301,12 +302,12 @@ void test_main(lua_State* L)
 			);
 	}
 
-	std::auto_ptr<base> own_ptr;
+	std::unique_ptr<base> own_ptr;
 	{
 		LUABIND_CHECK_STACK(L);
 
 		TEST_NOTHROW(
-		    own_ptr = std::auto_ptr<base>(
+		    own_ptr = std::unique_ptr<base>(
                 call_function<base*>(L, "make_derived") [ adopt(result) ])
 			);
 	}
@@ -323,18 +324,18 @@ void test_main(lua_State* L)
     TEST_NOTHROW(
         TEST_CHECK(own_ptr->f() == "derived:f() : base:f()")
     );
-	own_ptr = std::auto_ptr<base>();
+	own_ptr = std::unique_ptr<base>();
 
 	// test virtual functions that are not overridden by lua
     TEST_NOTHROW(
-        own_ptr = std::auto_ptr<base>(
+        own_ptr = std::unique_ptr<base>(
             call_function<base*>(L, "make_empty_derived") [ adopt(result) ])
         );
     TEST_NOTHROW(
         TEST_CHECK(own_ptr->f() == "base:f()")
 	);
     TEST_NOTHROW(
-        call_function<void>(L, "adopt_ptr", own_ptr.get()) [ adopt(_1) ]
+        call_function<void>(L, "adopt_ptr", own_ptr.get()) [ adopt(meta::index<1>()) ]
     );
 	own_ptr.release();
 

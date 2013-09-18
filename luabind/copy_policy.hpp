@@ -30,8 +30,7 @@ namespace detail
       }
   };
 
-  template <int N>
-  struct copy_policy : conversion_policy<N>
+  struct copy_policy : conversion_policy<>
   {
       static void precall(lua_State*, index_map const&)
       {}
@@ -49,10 +48,10 @@ namespace detail
 } // namespace detail
 
 template <int N>
-detail::policy_cons<detail::copy_policy<N>, detail::null_type>
+meta::type_list< converter_policy_injector< N, detail::copy_policy > >
 copy(LUABIND_PLACEHOLDER_ARG(N))
 {
-    return detail::policy_cons<detail::copy_policy<N>, detail::null_type>();
+	return meta::type_list< converter_policy_injector< N, detail::copy_policy > >();
 }
 
 } // namespace luabind

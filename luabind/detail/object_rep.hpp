@@ -24,7 +24,7 @@
 #ifndef LUABIND_OBJECT_REP_HPP_INCLUDED
 #define LUABIND_OBJECT_REP_HPP_INCLUDED
 
-#include <boost/aligned_storage.hpp>
+#include <boost/aligned_storage.hpp>	// TODO: std::aligned_storage
 #include <luabind/config.hpp>
 #include <luabind/detail/class_rep.hpp>
 #include <luabind/detail/instance_holder.hpp>

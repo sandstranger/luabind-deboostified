@@ -4,6 +4,7 @@
 
 #define LUABIND_BUILDING
 
+#include <luabind/detail/object.hpp>
 #include <luabind/make_function.hpp>
 
 namespace luabind { namespace detail {

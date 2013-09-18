@@ -51,7 +51,7 @@ void test_main(lua_State* L)
     disable_super_deprecation();
 
     module(L) [
-        class_<Base, Base_wrap>("Base")
+        class_<Base, bases<>, Base_wrap>("Base")
             .def(constructor<>()),
 
         def("take_ownership", &take_ownership, adopt(_1)),

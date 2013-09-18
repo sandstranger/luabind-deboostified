@@ -31,11 +31,8 @@ namespace luabind { namespace detail  {
 
 	struct raw_converter
 	{
-        int consumed_args(...) const
-        {
-            return 0;
-        }
-
+		enum { consumed_args = 0 };
+        
         lua_State* apply(lua_State* L, by_pointer<lua_State>, int)
 		{
 			return L;
@@ -49,8 +46,7 @@ namespace luabind { namespace detail  {
 		void converter_postcall(lua_State*, by_pointer<lua_State>, int) {}
 	};
 
-	template<int N>
-	struct raw_policy : conversion_policy<N, false>
+	struct raw_policy : conversion_policy<false>
 	{
 		static void precall(lua_State*, const index_map&) {}
 		static void postcall(lua_State*, const index_map&) {}
@@ -67,16 +63,10 @@ namespace luabind { namespace detail  {
 namespace luabind {
 
 	template<int N>
-	detail::policy_cons<
-		detail::raw_policy<N>
-	  , detail::null_type
-	>
+	meta::type_list< converter_policy_injector< N, detail::raw_policy > >
 	inline raw(LUABIND_PLACEHOLDER_ARG(N))
 	{ 
-		return detail::policy_cons<
-			detail::raw_policy<N>
-		  , detail::null_type
-		>(); 
+		return meta::type_list< converter_policy_injector< N, detail::raw_policy > >();
 	}
 
 } // namespace luabind

@@ -9,9 +9,6 @@
 #include <vector>
 #include <queue>
 #include <boost/dynamic_bitset.hpp>
-#include <boost/foreach.hpp>
-#include <boost/tuple/tuple.hpp>
-#include <boost/tuple/tuple_comparison.hpp>
 #include <luabind/typeid.hpp>
 #include <luabind/detail/inheritance.hpp>
 
@@ -69,7 +66,7 @@ namespace
       void invalidate();
 
   private:
-      typedef boost::tuple<
+      typedef std::tuple<
           class_id, class_id, class_id, std::ptrdiff_t> key_type;
       typedef std::map<key_type, cache_entry> map_type;
       map_type m_cache;
@@ -181,8 +178,7 @@ std::pair<void*, int> cast_graph::impl::cast(
             return std::make_pair(qe.p, qe.distance);
         }
 
-        BOOST_FOREACH(edge const& e, v.edges)
-        {
+		for (auto const& e : v.edges) {
             if (visited[e.target])
                 continue;
             if (void* casted = e.cast(qe.p))

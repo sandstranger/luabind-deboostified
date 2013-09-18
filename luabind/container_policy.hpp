@@ -25,24 +25,19 @@
 #define LUABIND_CONTAINER_POLICY_HPP_INCLUDED
 
 #include <luabind/config.hpp>
-#include <luabind/detail/policy.hpp>    // for policy_cons, etc
+#include <luabind/detail/policy.hpp>
 #include <luabind/detail/decorate_type.hpp>  // for LUABIND_DECORATE_TYPE
 #include <luabind/detail/primitives.hpp>  // for null_type (ptr only), etc
-#include <boost/mpl/apply_wrap.hpp>
-#include <boost/mpl/if.hpp>             // for if_
-#include <boost/type_traits/is_same.hpp>  // for is_same
 
 namespace luabind { namespace detail {
 
+	// TODO: Remove BOOST, this code is unfunctional!
 	namespace mpl = boost::mpl;
 
 	template<class Policies>
 	struct container_converter_lua_to_cpp
 	{
-        int consumed_args(...) const
-        {
-            return 1;
-        }
+		enum { consumed_args = 1 };
 
         template<class T>
 		T apply(lua_State* L, by_const_reference<T>, int index)
@@ -104,12 +99,9 @@ namespace luabind { namespace detail {
 		}
 	};
 
-	template<int N, class Policies>
-//	struct container_policy : converter_policy_tag
-	struct container_policy : conversion_policy<N>
+	template<class Policies = no_injectors>
+	struct container_policy : conversion_policy<>
 	{
-//		BOOST_STATIC_CONSTANT(int, index = N);
-
 		static void precall(lua_State*, const index_map&) {}
 		static void postcall(lua_State*, const index_map&) {}
 
@@ -118,9 +110,9 @@ namespace luabind { namespace detail {
 		template<class T, class Direction>
 		struct apply
 		{
-			typedef typename boost::mpl::if_<boost::is_same<lua_to_cpp, Direction>
-				, container_converter_lua_to_cpp<Policies>
-				, container_converter_cpp_to_lua<Policies>
+			typedef typename meta::select_ <
+				meta::case_ < std::is_same<Direction, lua_to_cpp>, container_converter_lua_to_cpp<Policies> >,
+				meta::case_ < std::is_same<Direction, cpp_to_lua>, container_converter_cpp_to_lua<Policies> >
 			>::type type;
 		};
 	};
@@ -130,17 +122,19 @@ namespace luabind { namespace detail {
 namespace luabind
 {
 	template<int N>
-	detail::policy_cons<detail::container_policy<N, detail::null_type>, detail::null_type> 
+	meta::type_list< converter_policy_injector<N, detail::container_policy<> > >
+	//detail::policy_cons<detail::container_policy<N, detail::null_type>, detail::null_type> 
 	container(LUABIND_PLACEHOLDER_ARG(N)) 
 	{ 
-		return detail::policy_cons<detail::container_policy<N, detail::null_type>, detail::null_type>(); 
+		return meta::type_list< converter_policy_injector<N, detail::container_policy<> > >();
+		//return detail::policy_cons<detail::container_policy<N, detail::null_type>, detail::null_type>(); 
 	}
 
 	template<int N, class Policies>
-	detail::policy_cons<detail::container_policy<N, Policies>, detail::null_type> 
+	meta::type_list< converter_policy_injector<N, detail::container_policy<Policies> > >
 	container(LUABIND_PLACEHOLDER_ARG(N), const Policies&) 
 	{ 
-		return detail::policy_cons<detail::container_policy<N, Policies>, detail::null_type>(); 
+		return meta::type_list< converter_policy_injector<N, detail::container_policy<Policies> > >();
 	}
 }
 

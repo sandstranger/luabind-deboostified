@@ -111,7 +111,7 @@ void test_main(lua_State* L)
 	[
 		class_<test_t>("test_t")
 		.def("make", &test_t::make, adopt(return_value))
-		.def("take", &test_t::take, adopt(_2))
+		.def("take", &test_t::take, adopt(meta::index<2>()))
 	];
 	
 	module(L)
@@ -119,7 +119,7 @@ void test_main(lua_State* L)
 		class_<policies_test_class>("test")
 			.def(constructor<>())
 			.def("member_out_val", &policies_test_class::member_out_val, pure_out_value(_3))
-			.def("member_secret", &policies_test_class::member_secret, discard_result)
+			.def("member_secret", &policies_test_class::member_secret, discard_result())
 			.def("f", &policies_test_class::f, adopt(_2))
 			.def("make", &policies_test_class::make, adopt(return_value))
 			.def("internal_ref", &policies_test_class::internal_ref, dependency(result, _1))
@@ -128,13 +128,13 @@ void test_main(lua_State* L)
 		def("out_val", &out_val, pure_out_value(_1)),
 		def("copy_val", &copy_val, copy(result)),
 		def("copy_val_const", &copy_val_const, copy(result)),
-		def("secret", &secret, discard_result),
+		def("secret", &secret, discard_result()),
 
 		class_<MI1>("mi1")
 			.def(constructor<>())
 			.def("add",&MI1::add,adopt(_2)),
 
-		class_<MI2,MI2W,MI1>("mi2")
+		class_<MI2,bases<MI1>,MI2W>("mi2")
 			.def(constructor<>())
 	];
 
@@ -169,6 +169,7 @@ void test_main(lua_State* L)
 		"a = nil\n"
 		"collectgarbage()");
 
+	// This one goes wrong
 	// a is kept alive as long as b is alive
 	TEST_CHECK(policies_test_class::count == 2);
 

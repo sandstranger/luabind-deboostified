@@ -17,16 +17,18 @@ namespace detail
       static void precall(lua_State*, index_map const&)
       {}
 
-      static void postcall(lua_State*, index_map const&)
+      static void postcall(lua_State*, int results, meta::index_list_tag)
       {}
   };
 
-  typedef policy_cons<no_dependency_policy, null_type>
+  // wozu sind die gut?
+  typedef meta::type_list<no_dependency_policy>
       no_dependency_node;
 
 } // namespace detail
 
-detail::no_dependency_node const no_dependency = {};
+// wozu sind die gut?
+meta::type_list< call_policy_injector< detail::no_dependency_policy > > const no_dependency = {};
 
 namespace detail
 {

@@ -3,13 +3,13 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
 #ifndef LUABIND_MAKE_FUNCTION_081014_HPP
-# define LUABIND_MAKE_FUNCTION_081014_HPP
+#define LUABIND_MAKE_FUNCTION_081014_HPP
 
-# include <luabind/config.hpp>
-# include <luabind/detail/object.hpp>
-# include <luabind/detail/call.hpp>
-# include <luabind/detail/deduce_signature.hpp>
-# include <luabind/detail/format_signature.hpp>
+#include <luabind/config.hpp>
+#include <luabind/detail/object.hpp>
+#include <luabind/detail/call.hpp>
+#include <luabind/detail/deduce_signature.hpp>
+#include <luabind/detail/format_signature.hpp>
 
 namespace luabind {
 
@@ -26,18 +26,17 @@ namespace detail
 #  pragma pack(16)
 # endif
 
-  template <class F, class Signature, class Policies>
+  template <class F, class Signature, class InjectorList>
   struct function_object_impl : function_object
   {
-      function_object_impl(F f, Policies const& policies)
+      function_object_impl(F f)
         : function_object(&entry_point)
         , f(f)
-        , policies(policies)
       {}
 
-      int call(lua_State* L, invoke_context& ctx) const
+      int call(lua_State* L, invoke_context& ctx) /*const*/
       {
-          return invoke(L, *this, ctx, f, Signature(), policies);
+          return invoke(L, *this, ctx, f, Signature(), InjectorList());
       }
 
       void format_signature(lua_State* L, char const* function) const
@@ -45,28 +44,52 @@ namespace detail
           detail::format_signature(L, function, Signature());
       }
 
+
+	  static bool invoke_defer(lua_State* L, function_object_impl* impl, invoke_context& ctx, F& f, int& results)
+	  {
+		  bool exception_caught = false;
+		  
+		  try
+		  {
+			  results = invoke(L, *impl, ctx, impl->f, Signature(), InjectorList());
+		  }
+		  catch (...)
+		  {
+			  exception_caught = true;
+			  handle_exception_aux(L);
+		  }
+
+		  return exception_caught;
+	  }
+
+
+
       static int entry_point(lua_State* L)
       {
-          function_object_impl const* impl =
+          function_object_impl const* impl_const =
               *(function_object_impl const**)lua_touserdata(L, lua_upvalueindex(1));
 
+		  // TODO: Can this be done differently?
+		  function_object_impl* impl = const_cast<function_object_impl*>(impl_const);
           invoke_context ctx;
 
           int results = 0;
 
 # ifndef LUABIND_NO_EXCEPTIONS
-          bool exception_caught = false;
-
+          bool exception_caught = invoke_defer( L, impl, ctx, impl->f, results );
+		  /*
+		  // TODO: Move this try-block into another call context for exceptions to work with luajit.
           try
           {
-              results = invoke(
-                  L, *impl, ctx, impl->f, Signature(), impl->policies);
+			  // why doesn't this hit tag function overload?
+              results = invoke( L, *impl, ctx, impl->f, Signature(), InjectorList());
           }
           catch (...)
           {
               exception_caught = true;
               handle_exception_aux(L);
           }
+		  */
 
           if (exception_caught)
               lua_error(L);
@@ -84,7 +107,6 @@ namespace detail
       }
 
       F f;
-      Policies policies;
   };
 
 # ifdef BOOST_MSVC
@@ -99,22 +121,25 @@ namespace detail
 
 } // namespace detail
 
-template <class F, class Signature, class Policies>
-object make_function(lua_State* L, F f, Signature, Policies)
+template <class F, typename... SignatureElements, typename... PolicyInjectors >
+object make_function(lua_State* L, F f, meta::type_list< SignatureElements... > const&, meta::type_list< PolicyInjectors... > const& )
 {
-    return detail::make_function_aux(
-        L
-      , new detail::function_object_impl<F, Signature, Policies>(
-            f, Policies()
-        )
-    );
+    return detail::make_function_aux( L, new detail::function_object_impl<F, meta::type_list< SignatureElements... >, meta::type_list< PolicyInjectors...> >( f ) );
+}
+
+template <class F, typename... PolicyInjectors >
+object make_function(lua_State* L, F f, meta::type_list< PolicyInjectors... > const&)
+{
+	return make_function(L, f, typename detail::call_types<F>::signature_type(), meta::type_list< PolicyInjectors... >());
+	//return detail::make_function_aux(L, new detail::function_object_impl<F, typename detail::call_types<F>::signature_type, meta::type_list< PolicyInjectors...> >(f));
 }
 
 template <class F>
 object make_function(lua_State* L, F f)
 {
-    return make_function(L, detail::deduce_signature(f), detail::null_type());
+    return make_function(L, typename detail::call_types<F>::signature_type(), no_injectors() );
 }
+
 
 } // namespace luabind
 

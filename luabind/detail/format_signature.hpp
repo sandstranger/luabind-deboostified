@@ -5,13 +5,10 @@
 #ifndef LUABIND_FORMAT_SIGNATURE_081014_HPP
 # define LUABIND_FORMAT_SIGNATURE_081014_HPP
 
-# include <luabind/config.hpp>
-# include <luabind/lua_include.hpp>
-# include <luabind/typeid.hpp>
-
-# include <boost/mpl/begin_end.hpp>
-# include <boost/mpl/next.hpp>
-# include <boost/mpl/size.hpp>
+#include <luabind/config.hpp>
+#include <luabind/lua_include.hpp>
+#include <luabind/typeid.hpp>
+#include <luabind/detail/meta.hpp>
 
 namespace luabind { namespace adl
 {
@@ -114,25 +111,25 @@ struct type_to_string<table<Base> >
     }
 };
 
-template <class End>
-void format_signature_aux(lua_State*, bool, End, End)
+inline void format_signature_aux(lua_State*, bool, meta::type_list< >)
 {}
 
-template <class Iter, class End>
-void format_signature_aux(lua_State* L, bool first, Iter, End end)
+template <class Signature>
+void format_signature_aux(lua_State* L, bool first, Signature)
 {
     if (!first)
         lua_pushstring(L, ",");
-    type_to_string<typename Iter::type>::get(L);
-    format_signature_aux(L, false, typename mpl::next<Iter>::type(), end);
+    type_to_string<typename meta::front<Signature>::type>::get(L);
+    format_signature_aux(L, false, typename meta::pop_front<Signature>::type() );
 }
 
 template <class Signature>
 void format_signature(lua_State* L, char const* function, Signature)
 {
-    typedef typename mpl::begin<Signature>::type first;
+    //typedef typename mpl::begin<Signature>::type first;
+	typedef meta::front<Signature>::type first;
 
-    type_to_string<typename first::type>::get(L);
+    type_to_string<first>::get(L);
 
     lua_pushstring(L, " ");
     lua_pushstring(L, function);
@@ -141,12 +138,11 @@ void format_signature(lua_State* L, char const* function, Signature)
     format_signature_aux(
         L
       , true
-      , typename mpl::next<first>::type()
-      , typename mpl::end<Signature>::type()
+	  , typename meta::pop_front<Signature>::type()
     );
     lua_pushstring(L, ")");
 
-    lua_concat(L, static_cast<int>(mpl::size<Signature>()) * 2 + 2);
+    lua_concat(L, static_cast<int>(meta::size<Signature>::value) * 2 + 2);
 }
 
 }} // namespace luabind::detail

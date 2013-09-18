@@ -41,14 +41,14 @@ struct Unregistered : Base
     {}
 };
 
-std::auto_ptr<Base> make_derived()
+std::unique_ptr<Base> make_derived()
 {
-    return std::auto_ptr<Base>(new Derived);
+    return std::unique_ptr<Base>(new Derived);
 }
 
-std::auto_ptr<Base> make_unregistered()
+std::unique_ptr<Base> make_unregistered()
 {
-    return std::auto_ptr<Base>(new Unregistered);
+    return std::unique_ptr<Base>(new Unregistered);
 }
 
 void test_main(lua_State* L)
@@ -58,7 +58,7 @@ void test_main(lua_State* L)
     module(L) [
         class_<Base>("Base")
             .def("g", &Base::g),
-        class_<Derived, Base>("Derived")
+        class_<Derived, bases< Base > >("Derived")
             .def("f", &Derived::f),
         def("make_derived", &make_derived),
         def("make_unregistered", &make_unregistered)

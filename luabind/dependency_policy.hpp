@@ -36,18 +36,48 @@ namespace luabind { namespace detail
 	template<int A, int B>
 	struct dependency_policy
 	{
-		static void postcall(lua_State* L, const index_map& indices)
+		template< unsigned int... StackIndices >
+		static void postcall(lua_State* L, int results, meta::index_list<StackIndices...> )
 		{
-			int nurse_index = indices[A];
-			int patient = indices[B];
-
-			object_rep* nurse = static_cast<object_rep*>(lua_touserdata(L, nurse_index));
+			object_rep* nurse = static_cast<object_rep*>(lua_touserdata(L, meta::get<meta::index_list<StackIndices...>, A>::value));
 
 			// If the nurse isn't an object_rep, just make this a nop.
 			if (nurse == 0)
 				return;
 
-			nurse->add_dependency(L, patient);
+			nurse->add_dependency(L, meta::get<meta::index_list<StackIndices...>, B>::value);
+		}
+	};
+
+	template<int B>
+	struct dependency_policy<0,B>
+	{
+		template< unsigned int... StackIndices >
+		static void postcall(lua_State* L, int results, meta::index_list<StackIndices...> )
+		{
+			object_rep* nurse = static_cast<object_rep*>(lua_touserdata(L, meta::get<meta::index_list<StackIndices...>, 0>::value+results));
+
+			// If the nurse isn't an object_rep, just make this a nop.
+			if (nurse == 0)
+				return;
+
+			nurse->add_dependency(L, meta::get<meta::index_list<StackIndices...>, B>::value);
+		}
+	};
+
+	template<int A>
+	struct dependency_policy<A, 0>
+	{
+		template< unsigned int... StackIndices >
+		static void postcall(lua_State* L, int results, meta::index_list<StackIndices...> )
+		{
+			object_rep* nurse = static_cast<object_rep*>(lua_touserdata(L, meta::get<meta::index_list<StackIndices...>, A>::value));
+
+			// If the nurse isn't an object_rep, just make this a nop.
+			if (nurse == 0)
+				return;
+
+			nurse->add_dependency(L, meta::get<meta::index_list<StackIndices...>, 0>::value + results);
 		}
 	};
 
@@ -100,18 +130,18 @@ namespace luabind
 
 namespace luabind
 {
-	template<int A, int B>
-	detail::policy_cons<detail::dependency_policy<A, B>, detail::null_type>
+	template<unsigned int A, unsigned int B>
+	meta::type_list< call_policy_injector< detail::dependency_policy<A,B> > >
 	dependency(LUABIND_PLACEHOLDER_ARG(A), LUABIND_PLACEHOLDER_ARG(B))
 	{
-		return detail::policy_cons<detail::dependency_policy<A, B>, detail::null_type>();
+		return meta::type_list< call_policy_injector < detail::dependency_policy < A, B > > > ();
 	}
 
-	template<int A>
-	detail::policy_cons<detail::dependency_policy<0, A>, detail::null_type>
+	template<unsigned int A>
+	meta::type_list < call_policy_injector < detail::dependency_policy < 0, A > > >
 	return_internal_reference(LUABIND_PLACEHOLDER_ARG(A))
 	{
-		return detail::policy_cons<detail::dependency_policy<0, A>, detail::null_type>();
+		return meta::type_list < call_policy_injector < detail::dependency_policy < 0, A > >> ();
 	}
 }
 

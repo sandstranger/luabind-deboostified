@@ -20,8 +20,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
 // OR OTHER DEALINGS IN THE SOFTWARE.
 
-#if !BOOST_PP_IS_ITERATING
-
 #ifndef LUABIND_WRAPPER_BASE_HPP_INCLUDED
 #define LUABIND_WRAPPER_BASE_HPP_INCLUDED
 
@@ -29,10 +27,7 @@
 #include <luabind/weak_ref.hpp>
 #include <luabind/detail/ref.hpp>
 #include <luabind/detail/call_member.hpp>
-
-#include <boost/preprocessor/repetition/enum_trailing_params.hpp>
-#include <boost/preprocessor/repetition/enum_trailing_binary_params.hpp>
-
+#include <type_traits>
 #include <stdexcept>
 
 namespace luabind
@@ -54,63 +49,30 @@ namespace luabind
 	{
 		detail::lua_reference m_strong_ref;
 	};
+	
+	namespace detail {
 
+		template< typename R, typename... Args >
+		struct ProxyType {
+			typedef typename std::conditional <
+				std::is_void<R>::value,
+				proxy_member_void_caller<std::tuple<Args*...> >,
+				proxy_member_caller<R, std::tuple<Args*...> >
+			> ::type type;
+		};
+
+	}
+	
 	struct wrap_base
 	{
 		friend struct detail::wrap_access;
 		wrap_base() {}
 
-    #define BOOST_PP_ITERATION_PARAMS_1 (4, (0, LUABIND_MAX_ARITY, <luabind/wrapper_base.hpp>, 1))
-	#include BOOST_PP_ITERATE()
-
-	private:
-		wrapped_self_t m_self;
-	};
-
-#define BOOST_PP_ITERATION_PARAMS_1 (4, (0, LUABIND_MAX_ARITY, <luabind/wrapper_base.hpp>, 2))
-#include BOOST_PP_ITERATE()
-
-	namespace detail
-	{
-		struct wrap_access
+		template<class R, typename... Args>
+		typename detail::ProxyType<R, Args...>::type
+			call(char const* name, detail::type_<R>* = 0, Args&&... args ) const
 		{
-			static wrapped_self_t const& ref(wrap_base const& b)
-			{
-				return b.m_self;
-			}
-
-			static wrapped_self_t& ref(wrap_base& b)
-			{
-				return b.m_self;
-			}
-		};
-	}
-}
-
-#endif // LUABIND_WRAPPER_BASE_HPP_INCLUDED
-
-#else
-#if BOOST_PP_ITERATION_FLAGS() == 1
-
-#define LUABIND_TUPLE_PARAMS(z, n, data) const A##n *
-#define LUABIND_OPERATOR_PARAMS(z, n, data) const A##n & a##n
-
-	template<class R BOOST_PP_COMMA_IF(BOOST_PP_ITERATION()) BOOST_PP_ENUM_PARAMS(BOOST_PP_ITERATION(), class A)>
-		typename boost::mpl::if_<boost::is_void<R>
-				, luabind::detail::proxy_member_void_caller<boost::tuples::tuple<BOOST_PP_ENUM(BOOST_PP_ITERATION(), LUABIND_TUPLE_PARAMS, _)> >
-				, luabind::detail::proxy_member_caller<R, boost::tuples::tuple<BOOST_PP_ENUM(BOOST_PP_ITERATION(), LUABIND_TUPLE_PARAMS, _)> > >::type
-				call(char const* name BOOST_PP_COMMA_IF(BOOST_PP_ITERATION()) BOOST_PP_ENUM(BOOST_PP_ITERATION(), LUABIND_OPERATOR_PARAMS, _), detail::type_<R>* = 0) const
-		{
-			typedef boost::tuples::tuple<BOOST_PP_ENUM(BOOST_PP_ITERATION(), LUABIND_TUPLE_PARAMS, _)> tuple_t;
-	#if BOOST_PP_ITERATION() == 0
-			tuple_t args;
-	#else
-			tuple_t args(BOOST_PP_ENUM_PARAMS(BOOST_PP_ITERATION(), &a));
-	#endif
-
-			typedef typename boost::mpl::if_<boost::is_void<R>
-				, luabind::detail::proxy_member_void_caller<boost::tuples::tuple<BOOST_PP_ENUM(BOOST_PP_ITERATION(), LUABIND_TUPLE_PARAMS, _)> >
-				, luabind::detail::proxy_member_caller<R, boost::tuples::tuple<BOOST_PP_ENUM(BOOST_PP_ITERATION(), LUABIND_TUPLE_PARAMS, _)> > >::type proxy_type;
+			auto args_tuple = std::tuple<const Args*...>(&std::forward<Args>(args)...);
 
 			// this will be cleaned up by the proxy object
 			// once the call has been made
@@ -137,56 +99,35 @@ namespace luabind
 			// now the function and self objects
 			// are on the stack. These will both
 			// be popped by pcall
-			return proxy_type(L, args);
+			return detail::ProxyType<R,Args...>::type(L, args_tuple);
 		}
 
-#undef LUABIND_CALL_MEMBER_NAME
-#undef LUABIND_OPERATOR_PARAMS
-#undef LUABIND_TUPLE_PARAMS
+	private:
+		wrapped_self_t m_self;
+	};
 
-#else // free call_member forwardarding functions
+	template <class R, typename... Args>
+	typename detail::ProxyType<R,Args...>::type
+	call_member( wrap_base const* self, char const* fn, Args&&... args /*, detail::type_<R>* = 0*/ )
+	{
+		return self->call(fn, (detail::type_<R>*)0, std::forward<Args>(args)... );
+	}
 
-#define N BOOST_PP_ITERATION()
+	namespace detail
+	{
+		struct wrap_access
+		{
+			static wrapped_self_t const& ref(wrap_base const& b)
+			{
+				return b.m_self;
+			}
 
-#define LUABIND_TUPLE_PARAMS(z, n, data) const A##n *
-#define LUABIND_OPERATOR_PARAMS(z, n, data) const A##n & a##n
+			static wrapped_self_t& ref(wrap_base& b)
+			{
+				return b.m_self;
+			}
+		};
+	}
+}
 
-    template<
-        class R 
-        BOOST_PP_ENUM_TRAILING_PARAMS(N, class A)
-    >
-    typename boost::mpl::if_<
-        boost::is_void<R>
-      , detail::proxy_member_void_caller<
-            boost::tuples::tuple<
-                BOOST_PP_ENUM(N, LUABIND_TUPLE_PARAMS, _)
-            >
-        >
-      , detail::proxy_member_caller<
-            R
-          , boost::tuples::tuple<
-                BOOST_PP_ENUM(N, LUABIND_TUPLE_PARAMS, _)
-            >
-        >
-    >::type
-    call_member(
-        wrap_base const* self
-      , char const* fn
-        BOOST_PP_ENUM_TRAILING_BINARY_PARAMS(N, A, &a)
-      , detail::type_<R>* = 0
-    )
-    {
-        return self->call(
-            fn
-            BOOST_PP_ENUM_TRAILING_PARAMS(N, a)
-         , (detail::type_<R>*)0
-        );
-    }
-
-#undef LUABIND_OPERATOR_PARAMS
-#undef LUABIND_TUPLE_PARAMS
-
-#undef N
-
-#endif
-#endif
+#endif // LUABIND_WRAPPER_BASE_HPP_INCLUDED

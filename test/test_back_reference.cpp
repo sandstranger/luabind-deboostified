@@ -22,16 +22,8 @@
 
 #include "test.hpp"
 #include <luabind/luabind.hpp>
-#include <boost/shared_ptr.hpp>
 
 using namespace luabind;
-
-#ifdef BOOST_NO_ARGUMENT_DEPENDENT_LOOKUP
-namespace luabind
-{
-  using boost::get_pointer;
-}
-#endif
 
 struct base0
 {
@@ -54,7 +46,7 @@ base0* filter0(base0* p)
     return p;
 }
 
-boost::shared_ptr<base1> filter1(boost::shared_ptr<base1> const& p)
+std::shared_ptr<base1> filter1(std::shared_ptr<base1> const& p)
 {
     return p;
 }
@@ -63,11 +55,11 @@ void test_main(lua_State* L)
 {
     module(L)
     [
-        class_<base0, base_wrap0>("base0")
+        class_<base0, bases< >, base_wrap0>("base0")
           .def(constructor<>()),
         def("filter0", &filter0),
 
-        class_<base1, base_wrap1, boost::shared_ptr<base1> >("base1")
+        class_<base1, bases< >, base_wrap1, std::shared_ptr<base1> >("base1")
           .def(constructor<>()),
         def("filter1", &filter1)
     ];

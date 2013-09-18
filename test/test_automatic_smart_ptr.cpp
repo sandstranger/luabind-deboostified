@@ -4,7 +4,7 @@
 
 #include "test.hpp"
 #include <luabind/luabind.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 struct X
 {
@@ -38,6 +38,10 @@ struct ptr
         const_cast<ptr&>(other).p = 0;
     }
 
+	explicit operator bool() const {
+		return p != nullptr;
+	}
+
     ~ptr()
     {
         delete p;
@@ -51,14 +55,14 @@ X* get_pointer(ptr const& p)
     return p.p;
 }
 
-std::auto_ptr<X> make1()
+std::unique_ptr<X> make1()
 {
-    return std::auto_ptr<X>(new X(1));
+    return std::unique_ptr<X>(new X(1));
 }
 
-boost::shared_ptr<X> make2()
+std::shared_ptr<X> make2()
 {
-    return boost::shared_ptr<X>(new X(2));
+    return std::shared_ptr<X>(new X(2));
 }
 
 ptr make3()

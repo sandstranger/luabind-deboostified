@@ -38,6 +38,10 @@
 // Internal Includes
 #include <luabind/function_introspection.hpp>
 #include <luabind/config.hpp>           // for LUABIND_API
+
+#include <luabind/wrapper_base.hpp>
+#include <luabind/detail/call_member.hpp>
+
 #include <luabind/detail/stack_utils.hpp>  // for stack_pop
 #include <luabind/function.hpp>         // for def, is_luabind_function
 #include <luabind/detail/call.hpp>      // for function_object

@@ -2,117 +2,120 @@
 // subject to the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-#if !BOOST_PP_IS_ITERATING
-
 # ifndef LUABIND_DEDUCE_SIGNATURE_080911_HPP
-#  define LUABIND_DEDUCE_SIGNATURE_080911_HPP
+# define LUABIND_DEDUCE_SIGNATURE_080911_HPP
 
-#  include <luabind/detail/most_derived.hpp>
-
-#  if LUABIND_MAX_ARITY <= 8
-#   include <boost/mpl/vector/vector10.hpp>
-#  else
-#   include <boost/mpl/vector/vector50.hpp>
-#  endif
-#  include <boost/preprocessor/cat.hpp>
-#  include <boost/preprocessor/iteration/iterate.hpp>
-#  include <boost/preprocessor/repetition/enum_params.hpp>
+#include <luabind/detail/meta.hpp>
+#include <luabind/detail/most_derived.hpp>
+//#include <luabind/tag_function.hpp>
 
 namespace luabind { namespace detail {
 
-namespace mpl = boost::mpl;
+template< typename, typename > struct tagged_function;
 
-template <class R>
-mpl::vector1<R> deduce_signature(R(*)(), ...)
+
+
+template< typename T, typename WrappedType = detail::null_type >
+struct call_types;
+
+template< typename R, typename... Args, typename WrappedType >
+struct call_types < R(*)(Args...), WrappedType >
 {
-    return mpl::vector1<R>();
+	typedef meta::type_list< R, Args... > signature_type;
+};
+
+template< typename R, typename Class, typename... Args >
+struct call_types < R(Class::*)(Args...), detail::null_type >
+{
+	typedef meta::type_list< R, Class&, Args... > signature_type;
+};
+
+template< typename R, typename Class, typename... Args >
+struct call_types < R(Class::*)(Args...) const, detail::null_type >
+{
+	typedef meta::type_list< R, Class const&, Args... > signature_type;
+};
+
+template< typename R, typename Class, typename... Args, class WrappedType >
+struct call_types < R(Class::*)(Args...), WrappedType >
+{
+	typedef meta::type_list< R, typename most_derived<Class, WrappedType>::type&, Args... > signature_type;
+};
+
+template< typename R, typename Class, typename... Args, class WrappedType >
+struct call_types < R(Class::*)(Args...) const, WrappedType >
+{
+	typedef meta::type_list< R, typename most_derived<Class, WrappedType>::type const&, Args... > signature_type;
+};
+
+template< typename Signature, typename F, class WrappedType >
+struct call_types< tagged_function< Signature, F >, WrappedType >
+{
+	typedef Signature signature_type;
+};
+
+/* Apply policy injectors to a policy list */
+template< typename PolicyList, typename InjectorList >
+struct apply_injectors;
+
+template< typename PolicyList, unsigned int Injector0_Index, typename Injector0_Type, typename... Injectors >
+struct apply_injectors< PolicyList, meta::type_list< converter_policy_injector<Injector0_Index, Injector0_Type>, Injectors... > >
+{
+	typedef typename apply_injectors< typename meta::replace< PolicyList, Injector0_Index, Injector0_Type >::type, meta::type_list< Injectors... > >::type type;
+};
+
+template< typename PolicyList >
+struct apply_injectors< PolicyList, meta::type_list< > >
+{
+	typedef PolicyList type;
+};
+
+
+
+
+/*
+
+template< typename R, typename... Args >
+meta::type_list<R,Args...> deduce_signature(R(*)(Args...), ...)
+{
+	return meta::type_list<R,Args...>();
 }
 
-template <class R, class T>
-mpl::vector2<R,T&> deduce_signature(R(T::*)())
+template< typename R, typename Class, typename... Args >
+meta::type_list< R, Class&, Args... > deduce_signature(R(Class::*)(Args...))
 {
-    return mpl::vector2<R,T&>();
+	return meta::type_list< R, Class&, Args... >();
 }
 
-template <class R, class T, class Wrapped>
-mpl::vector2<R,typename most_derived<T,Wrapped>::type&>
-deduce_signature(R(T::*)(), Wrapped*)
+template< typename R, typename Class, typename... Args >
+meta::type_list< R, const Class&, Args... > deduce_signature(R(Class::*)(Args...) const)
 {
-    return mpl::vector2<R,typename most_derived<T,Wrapped>::type&>();
+	return meta::type_list< R, Class const&, Args... >();
 }
 
-template <class R, class T>
-mpl::vector2<R,T const&> deduce_signature(R(T::*)() const)
+template< typename R, class Class, class Wrapped, typename... Args >
+meta::type_list<R, typename most_derived<Class, Wrapped>::type&, Args... > deduce_signature(R(Class::*)(Args...), Wrapped*)
 {
-    return mpl::vector2<R,T const&>();
+	return meta::type_list<R, typename most_derived<Class, Wrapped>::type&, Args... >();
 }
 
-template <class R, class T, class Wrapped>
-mpl::vector2<R,typename most_derived<T,Wrapped>::type const&>
-deduce_signature(R(T::*)() const, Wrapped*)
+template< typename R, class Class, class Wrapped, typename... Args >
+meta::type_list<R, typename most_derived<Class, Wrapped>::type const&, Args... > deduce_signature(R(Class::*)(Args...) const, Wrapped*)
 {
-    return mpl::vector2<R,typename most_derived<T,Wrapped>::type const&>();
+	return meta::type_list<R, typename most_derived<Class, Wrapped>::type const&, Args... >();
 }
 
-#  define BOOST_PP_ITERATION_PARAMS_1 \
-    (3, (1, LUABIND_MAX_ARITY, <luabind/detail/deduce_signature.hpp>))
-#  include BOOST_PP_ITERATE()
+*/
+
+
+
+
+
+/*
+	Need to create an overload that deduces the signature of a no-argument operator() ?
+	Some client code inside luabind creates a custom typelist, because deduce_signature cannot deduce the signature of functors
+*/
 
 }} // namespace luabind::detail
 
 # endif // LUABIND_DEDUCE_SIGNATURE_080911_HPP
-
-#else // BOOST_PP_IS_ITERATING
-
-# define N BOOST_PP_ITERATION()
-# define NPLUS1 BOOST_PP_INC(N)
-
-template <class R, BOOST_PP_ENUM_PARAMS(N,class A)>
-BOOST_PP_CAT(mpl::vector,NPLUS1)<R, BOOST_PP_ENUM_PARAMS(N,A)>
-deduce_signature(R(*)(BOOST_PP_ENUM_PARAMS(N,A)), ...)
-{
-    return BOOST_PP_CAT(mpl::vector,NPLUS1)<R,BOOST_PP_ENUM_PARAMS(N,A)>();
-}
-
-# define NPLUS2 BOOST_PP_INC(NPLUS1)
-
-template <class R, class T, BOOST_PP_ENUM_PARAMS(N,class A)>
-BOOST_PP_CAT(mpl::vector,NPLUS2)<R, T&, BOOST_PP_ENUM_PARAMS(N,A)>
-deduce_signature(R(T::*)(BOOST_PP_ENUM_PARAMS(N,A)))
-{
-    return BOOST_PP_CAT(mpl::vector,NPLUS2)<R,T&,BOOST_PP_ENUM_PARAMS(N,A)>();
-}
-
-template <class R, class T, BOOST_PP_ENUM_PARAMS(N,class A), class Wrapped>
-BOOST_PP_CAT(mpl::vector,NPLUS2)<
-    R, typename most_derived<T,Wrapped>::type&, BOOST_PP_ENUM_PARAMS(N,A)
->
-deduce_signature(R(T::*)(BOOST_PP_ENUM_PARAMS(N,A)), Wrapped*)
-{
-    return BOOST_PP_CAT(mpl::vector,NPLUS2)<
-        R,typename most_derived<T,Wrapped>::type&,BOOST_PP_ENUM_PARAMS(N,A)>();
-}
-
-template <class R, class T, BOOST_PP_ENUM_PARAMS(N,class A)>
-BOOST_PP_CAT(mpl::vector,NPLUS2)<R, T const&, BOOST_PP_ENUM_PARAMS(N,A)>
-deduce_signature(R(T::*)(BOOST_PP_ENUM_PARAMS(N,A)) const)
-{
-    return BOOST_PP_CAT(mpl::vector,NPLUS2)<R,T const&,BOOST_PP_ENUM_PARAMS(N,A)>();
-}
-
-template <class R, class T, BOOST_PP_ENUM_PARAMS(N,class A), class Wrapped>
-BOOST_PP_CAT(mpl::vector,NPLUS2)<
-    R, typename most_derived<T,Wrapped>::type const&, BOOST_PP_ENUM_PARAMS(N,A)
->
-deduce_signature(R(T::*)(BOOST_PP_ENUM_PARAMS(N,A)) const, Wrapped*)
-{
-    return BOOST_PP_CAT(mpl::vector,NPLUS2)<
-        R,typename most_derived<T,Wrapped>::type const&,BOOST_PP_ENUM_PARAMS(N,A)>();
-}
-
-# undef NPLUS2
-# undef NPLUS1
-# undef N
-
-#endif  // BOOST_PP_IS_ITERATING
-

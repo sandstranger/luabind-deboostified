@@ -25,24 +25,20 @@
 
 #include <boost/implicit_cast.hpp> // detail::push()
 #include <boost/ref.hpp> // detail::push()
-#include <boost/mpl/bool.hpp> // value_wrapper_traits specializations
-#include <boost/mpl/apply_wrap.hpp>
-#include <boost/tuple/tuple.hpp>
-#include <boost/optional.hpp>
+#include <boost/config.hpp>
+#include <boost/optional.hpp>	// :-(
+#include <tuple>
 
 #include <luabind/nil.hpp>
-#include <luabind/value_wrapper.hpp>
 #include <luabind/detail/pcall.hpp>
 #include <luabind/handle.hpp>
 #include <luabind/from_stack.hpp>
-#include <luabind/detail/policy.hpp>
+#include <luabind/detail/policy.hpp>	// policy includes backref which in turn needs object.hpp -.-
 #include <luabind/detail/stack_utils.hpp>
 #include <luabind/detail/convert_to_lua.hpp> // REFACTOR
 #include <luabind/typeid.hpp>
 
 #include <boost/iterator/iterator_facade.hpp> // iterator
-
-#include <boost/preprocessor/iteration/iterate.hpp>
 #include <boost/utility/enable_if.hpp>
 
 #if LUA_VERSION_NUM < 502
@@ -56,37 +52,25 @@
 namespace luabind {
 
 namespace detail 
-{
-  namespace mpl = boost::mpl;
-  
+{ 
   template<class T, class ConverterGenerator>
   void push_aux(lua_State* interpreter, T& value, ConverterGenerator*)
   {
-      typedef typename boost::mpl::if_<
-          boost::is_reference_wrapper<T>
-        , BOOST_DEDUCED_TYPENAME boost::unwrap_reference<T>::type&
+
+      typedef typename std::conditional<
+          boost::is_reference_wrapper<T>::value
+        , typename boost::unwrap_reference<T>::type&
         , T
       >::type unwrapped_type;
-
-      typename mpl::apply_wrap2<
-          ConverterGenerator,unwrapped_type,cpp_to_lua
-      >::type cv;
-
-      cv.apply(
-          interpreter
-        , boost::implicit_cast<
-              BOOST_DEDUCED_TYPENAME boost::unwrap_reference<T>::type&
-          >(value)
-      );
+ 
+	  typename ConverterGenerator::apply< unwrapped_type, cpp_to_lua >::type cv;
+      cv.apply( interpreter, boost::implicit_cast<typename boost::unwrap_reference<T>::type&>(value) );
   }
 
   template<class T, class Policies>
   void push(lua_State* interpreter, T& value, Policies const&)
   {
-      typedef typename find_conversion_policy<
-          0
-        , Policies
-      >::type converter_policy;
+      typedef typename get_converter_policy<0, Policies>::type converter_policy;
 
       push_aux(interpreter, value, (converter_policy*)0);
   }
@@ -94,7 +78,7 @@ namespace detail
   template<class T>
   void push(lua_State* interpreter, T& value)
   {
-      push(interpreter, value, null_type());
+      push(interpreter, value, no_injectors());
   }
 
 } // namespace detail
@@ -118,11 +102,8 @@ namespace adl
     template <class T>
     struct impl 
     {
-        BOOST_STATIC_CONSTANT(bool, value =
-            sizeof(is_object_interface_aux::check((T*)0)) == sizeof(yes)
-        );
-
-        typedef mpl::bool_<value> type;
+		static const bool value = sizeof(is_object_interface_aux::check((T*) 0)) == sizeof(yes);
+        typedef std::integral_constant<bool,value> type;
     };
 
   } // namespace detail
@@ -134,24 +115,13 @@ namespace adl
 
   template <class R, class T, class U>
   struct enable_binary
-# ifndef BOOST_NO_SFINAE
-    : boost::enable_if<
-          mpl::or_<
-              is_object_interface<T>
-            , is_object_interface<U>
-          >
+    : std::enable_if< is_object_interface<T>::value ||  is_object_interface<U>::value
         , R
       >
   {};
-# else
-  {
-      typedef R type;
-  };
-# endif
 
   template<class T, class U>
-  int binary_interpreter(lua_State*& L, T const& lhs, U const& rhs
-    , boost::mpl::true_, boost::mpl::true_)
+  int binary_interpreter(lua_State*& L, T const& lhs, U const& rhs, std::true_type, std::true_type)
   {
        L = value_wrapper_traits<T>::interpreter(lhs);
 		 lua_State* L2 = value_wrapper_traits<U>::interpreter(rhs);
@@ -170,14 +140,14 @@ namespace adl
 	
   template<class T, class U>
   int binary_interpreter(lua_State*& L, T const& x, U const&
-    , boost::mpl::true_, boost::mpl::false_)
+    , std::true_type, std::false_type)
   {
        L = value_wrapper_traits<T>::interpreter(x);
        return 0;
   }
 
   template<class T, class U>
-  int binary_interpreter(lua_State*& L, T const&, U const& x, boost::mpl::false_, boost::mpl::true_)
+  int binary_interpreter(lua_State*& L, T const&, U const& x, std::false_type, std::true_type)
   {
       L = value_wrapper_traits<U>::interpreter(x);
       return 0;
@@ -223,8 +193,7 @@ LUABIND_BINARY_OP_DEF(==, LUA_OPEQ)
 LUABIND_BINARY_OP_DEF(<, LUA_OPLT)
 
   template<class ValueWrapper>
-  std::ostream& operator<<(std::ostream& os
-    , object_interface<ValueWrapper> const& v)
+  std::ostream& operator<<(std::ostream& os, object_interface<ValueWrapper> const& v)
   {
       using namespace luabind;
       lua_State* interpreter = value_wrapper_traits<ValueWrapper>::interpreter(
@@ -283,40 +252,12 @@ LUABIND_BINARY_OP_DEF(<, LUA_OPLT)
   public:
       ~object_interface() {}
 
-      call_proxy<Derived, boost::tuples::tuple<> > operator()();
-
-      template<class A0>
-      call_proxy<
-          Derived
-        , boost::tuples::tuple<A0 const*>
-      > operator()(A0 const& a0)
-      {
-          typedef boost::tuples::tuple<A0 const*> arguments;
-
-          return call_proxy<Derived, arguments>(
-              derived()
-            , arguments(&a0)
-          );
-      }
-
-      template<class A0, class A1>
-      call_proxy<
-          Derived
-        , boost::tuples::tuple<A0 const*, A1 const*>
-      > operator()(A0 const& a0, A1 const& a1)
-      {
-          typedef boost::tuples::tuple<A0 const*, A1 const*> arguments;
-
-          return call_proxy<Derived, arguments>(
-              derived()
-            , arguments(&a0, &a1)
-          );
-      }
-
-      // The rest of the overloads are PP-generated.
-      #define BOOST_PP_ITERATION_PARAMS_1 (3, \
-          (3, LUABIND_MAX_ARITY, <luabind/detail/object_call.hpp>))
-      #include BOOST_PP_ITERATE()
+	  template<typename... Args> 
+	  call_proxy <Derived, std::tuple < const Args*... > > operator()(const Args&... args)
+	  {
+		  typedef std::tuple < const Args*... > arguments;
+		  return call_proxy<Derived, arguments>( derived(), arguments(&args...) );
+	  }
 
       operator safe_bool_type*() const
       {
@@ -684,7 +625,7 @@ template<>
 struct value_wrapper_traits<adl::index_proxy_tag>
 #endif
 {
-    typedef boost::mpl::true_ is_specialized;
+    typedef std::true_type is_specialized;
 
     template<class Next>
     static lua_State* interpreter(adl::index_proxy<Next> const& proxy)
@@ -707,7 +648,7 @@ template<>
 struct value_wrapper_traits<adl::iterator_proxy_tag>
 #endif
 {
-    typedef boost::mpl::true_ is_specialized;
+    typedef std::true_type is_specialized;
 
     template<class Proxy>
     static lua_State* interpreter(Proxy const& p)
@@ -840,7 +781,7 @@ template<>
 struct value_wrapper_traits<adl::call_proxy_tag>
 #endif
 {
-    typedef boost::mpl::true_ is_specialized;
+    typedef std::true_type is_specialized;
 
     template<class W, class A>
     static lua_State* interpreter(adl::call_proxy<W,A> const& proxy)
@@ -859,7 +800,7 @@ struct value_wrapper_traits<adl::call_proxy_tag>
 template<>
 struct value_wrapper_traits<object>
 {
-    typedef boost::mpl::true_ is_specialized;
+    typedef std::true_type is_specialized;
 
     static lua_State* interpreter(object const& value)
     {
@@ -880,7 +821,7 @@ struct value_wrapper_traits<object>
 template<>
 struct value_wrapper_traits<argument>
 {
-    typedef boost::mpl::true_ is_specialized;
+    typedef std::true_type is_specialized;
 
     static lua_State* interpreter(argument const& value)
     {
@@ -964,12 +905,8 @@ namespace detail
 
       detail::stack_pop pop(interpreter, 1);
 
-      typedef typename detail::find_conversion_policy<
-          0
-        , Policies
-      >::type converter_generator;
-
-      typename mpl::apply_wrap2<converter_generator, T, lua_to_cpp>::type cv;
+      typedef typename detail::get_converter_policy< 0, Policies >::type converter_generator;
+	  typename detail::apply_converter_policy< converter_generator, T, lua_to_cpp >::type cv;
 
 #ifndef LUABIND_NO_ERROR_CHECKING
       if (cv.match(interpreter, LUABIND_DECORATE_TYPE(T), -1) < 0)
@@ -1001,7 +938,7 @@ namespace detail
               "luabind::set_error_callback()");
           std::terminate();
 #endif
-          return *(typename boost::remove_reference<T>::type*)0;
+          return *(typename std::remove_reference<T>::type*)0;
       }
   };
 
@@ -1026,7 +963,7 @@ T object_cast(ValueWrapper const& value_wrapper)
     return detail::object_cast_aux(
         value_wrapper
       , (T*)0
-      , (detail::null_type*)0
+      , (no_injectors*)0
       , (detail::throw_error_policy<T>*)0
       , (T*)0
     );
@@ -1050,7 +987,7 @@ boost::optional<T> object_cast_nothrow(ValueWrapper const& value_wrapper)
     return detail::object_cast_aux(
         value_wrapper
       , (T*)0
-      , (detail::null_type*)0
+      , (no_injectors*)0
       , (detail::nothrow_error_policy<T>*)0
       , (boost::optional<T>*)0
     );
@@ -1071,28 +1008,31 @@ boost::optional<T> object_cast_nothrow(ValueWrapper const& value_wrapper, Polici
 namespace detail
 {
 
-  template<int Index>
-  struct push_args_from_tuple
-  {
-      template<class H, class T, class Policies>
-      inline static void apply(lua_State* L, const boost::tuples::cons<H, T>& x, const Policies& p) 
-      {
-          convert_to_lua_p<Index>(L, *x.get_head(), p);
-          push_args_from_tuple<Index+1>::apply(L, x.get_tail(), p);
-      }
+	template< class Tuple, unsigned int Index = 0, unsigned int Barrier = std::tuple_size<Tuple>::value >
+	struct push_args_from_tuple {
+		template<class Policies>
+		inline static void apply(lua_State* L, const Tuple& x, const Policies& p)
+		{
+			// luabind default stuff seems to be 1-based ... need to fixup
+			convert_to_lua_p<Index+1>(L, *std::get<Index>(x), p);	
+			push_args_from_tuple<Tuple, Index + 1>::apply(L, x, p);
+		}
 
-      template<class H, class T>
-      inline static void apply(lua_State* L, const boost::tuples::cons<H, T>& x) 
-      {
-          convert_to_lua(L, *x.get_head());
-          push_args_from_tuple<Index+1>::apply(L, x.get_tail());
-      }
+		inline static void apply(lua_State* L, const Tuple& x)
+		{
+			// luabind default stuff seems to be 1-based ... need to fixup
+			convert_to_lua(L, *std::get<Index>(x));
+			push_args_from_tuple<Tuple, Index+1>::apply(L, x);
+		}
+	};
 
-      template<class Policies>
-      inline static void apply(lua_State*, const boost::tuples::null_type&, const Policies&) {}
-
-      inline static void apply(lua_State*, const boost::tuples::null_type&) {}
-  };
+	template< class Tuple, unsigned int Barrier >
+	struct push_args_from_tuple< Tuple, Barrier, Barrier >
+	{
+		template<class Policies>
+		inline static void apply(lua_State* L, const Tuple& x, const Policies& p) {}
+		inline static void apply(lua_State* L, const Tuple& x) {}
+	};
 
 } // namespace detail
 
@@ -1117,12 +1057,12 @@ namespace adl
       ~call_proxy()
       {
           if (value_wrapper)
-              call((detail::null_type*)0);
+              call((no_injectors*)0);
       }
 
       operator object()
       {
-          return call((detail::null_type*)0);
+		  return call((no_injectors*) 0);
       }
 
       template<class Policies>
@@ -1145,9 +1085,9 @@ namespace adl
 
           value_wrapper = 0;
 
-          detail::push_args_from_tuple<1>::apply(interpreter, arguments, Policies());
+          detail::push_args_from_tuple<Arguments>::apply(interpreter, arguments, Policies());
 
-          if (detail::pcall(interpreter, boost::tuples::length<Arguments>::value, 1))
+          if (detail::pcall(interpreter, std::tuple_size<Arguments>::value, 1))
           {
 #ifndef LUABIND_NO_EXCEPTIONS
               throw luabind::error(interpreter);
@@ -1169,15 +1109,18 @@ namespace adl
       Arguments arguments;
   };
 
+  
+  //template<typename... Args> call_proxy <Derived, std::tuple < const Args*... > > operator()(const Args&... args);
+  /*
   template<class Derived>
-  call_proxy<Derived, boost::tuples::tuple<> >
-  object_interface<Derived>::operator()()
+  template<typename... Args>
+  call_proxy<Derived, std::tuple<const Args*...> >
+  object_interface<Derived>::operator()( const Args&... args )
   {
-      return call_proxy<Derived, boost::tuples::tuple<> >(
-          derived()
-        , boost::tuples::tuple<>()
-      );
+      return call_proxy<Derived, std::tuple<const Args*...> >(derived(), std::tuple<const Args*...>(&args...) );
   }
+  */
+
 
   // Simple value_wrapper adaptor with the sole purpose of helping with
   // overload resolution. Use this as a function parameter type instead

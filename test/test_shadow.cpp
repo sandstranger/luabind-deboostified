@@ -26,7 +26,7 @@ void test_main(lua_State* L)
           .def(constructor<>())
           .def("f", &X::f),
 
-        class_<Y, X>("Y")
+        class_<Y, bases<X>>("Y")
           .def(constructor<>())
           .def("f", &Y::f)
     ];

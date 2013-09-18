@@ -88,7 +88,7 @@ struct iterator_converter
     }
 };
 
-struct iterator_policy : conversion_policy<0>
+struct iterator_policy : conversion_policy<>
 {
     static void precall(lua_State*, index_map const&)
     {}
@@ -107,8 +107,12 @@ struct iterator_policy : conversion_policy<0>
 
 namespace luabind { namespace {
 
-LUABIND_ANONYMOUS_FIX detail::policy_cons<
+	meta::type_list< converter_policy_injector< 0, detail::iterator_policy > > return_stl_iterator;
+
+	/*
+	LUABIND_ANONYMOUS_FIX detail::policy_cons<
     detail::iterator_policy, detail::null_type> return_stl_iterator;
+	*/
 
 }} // namespace luabind::unnamed
 

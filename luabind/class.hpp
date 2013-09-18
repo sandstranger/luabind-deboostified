@@ -75,19 +75,6 @@
 #include <vector>
 #include <cassert>
 
-#include <boost/bind.hpp>
-#include <boost/preprocessor/repetition/enum_params.hpp>
-#include <boost/preprocessor/repetition/enum_params_with_a_default.hpp>
-#include <boost/preprocessor/repetition/repeat.hpp>
-#include <boost/type_traits/is_same.hpp>
-#include <boost/type_traits/is_member_object_pointer.hpp>
-#include <boost/mpl/apply.hpp>
-#include <boost/mpl/lambda.hpp>
-#include <boost/mpl/logical.hpp>
-#include <boost/mpl/find_if.hpp>
-#include <boost/mpl/eval_if.hpp>
-#include <boost/mpl/logical.hpp>
-
 #include <luabind/config.hpp>
 #include <luabind/scope.hpp>
 #include <luabind/back_reference.hpp>
@@ -118,13 +105,6 @@
 #pragma warning(disable: 4355)
 #endif
 
-namespace boost
-{
-
-  template <class T> class shared_ptr;
-
-} // namespace boost
-
 namespace luabind
 {	
 	namespace detail
@@ -136,7 +116,17 @@ namespace luabind
 		struct you_need_to_define_a_get_const_holder_function_for_your_smart_ptr {};
 	}
 
-	template<class T, class X1 = detail::unspecified, class X2 = detail::unspecified, class X3 = detail::unspecified>
+	template < typename... BaseClasses >
+	struct bases { };
+	
+	typedef bases< > no_bases;
+	
+
+
+	// TODO: Could specialize for certain base classes to make the interface "type safe".
+	
+
+	template<typename T, typename BasesList = bases< >, typename WrappedType = detail::null_type, typename HeldType = detail::null_type >
 	struct class_;
 
 	// TODO: this function will only be invoked if the user hasn't defined a correct overload
@@ -148,79 +138,15 @@ namespace luabind
 	}
 
 	template <class T>
-	boost::shared_ptr<T const>* get_const_holder(boost::shared_ptr<T>*)
+	std::shared_ptr<T const>* get_const_holder(std::shared_ptr<T>*)
 	{
 		return 0;
 	}
 
-    template <
-        BOOST_PP_ENUM_PARAMS_WITH_A_DEFAULT(
-            LUABIND_MAX_BASES, class A, detail::null_type)
-    >
-    struct bases
-    {};
-
-    typedef bases<detail::null_type> no_bases;
+	
 
 	namespace detail
 	{
-        template <class T>
-        struct is_bases
-          : mpl::false_
-        {};
-
-        template <BOOST_PP_ENUM_PARAMS(LUABIND_MAX_BASES, class A)>
-        struct is_bases<bases<BOOST_PP_ENUM_PARAMS(LUABIND_MAX_BASES, A)> >
-          : mpl::true_
-        {};
-
-        template <class T, class P>
-        struct is_unspecified
-          : mpl::apply1<P, T>
-        {};
-
-        template <class P>
-        struct is_unspecified<unspecified, P>
-          : mpl::true_
-        {};
-
-        template <class P>
-        struct is_unspecified_mfn
-        {
-            template <class T>
-            struct apply
-              : is_unspecified<T, P>
-            {};
-        };
-
-		template<class Predicate>
-		struct get_predicate
-		{
-            typedef mpl::protect<is_unspecified_mfn<Predicate> > type;
-		};
-
-        template <class Result, class Default>
-        struct result_or_default
-        {
-            typedef Result type;
-        };
-
-        template <class Default>
-        struct result_or_default<unspecified, Default>
-        {
-            typedef Default type;
-        };
-
-		template<class Parameters, class Predicate, class DefaultValue>
-		struct extract_parameter
-		{
-			typedef typename get_predicate<Predicate>::type pred;
-			typedef typename boost::mpl::find_if<Parameters, pred>::type iterator;
-            typedef typename result_or_default<
-                typename iterator::type, DefaultValue
-            >::type type;
-		};
-
 		// prints the types of the values on the stack, in the
 		// range [start_index, lua_gettop()]
 
@@ -307,8 +233,9 @@ namespace luabind
 
 			void register_(lua_State* L) const
 			{
+				// Need to check if the class type of the signature is a base of this class
 				object fn = make_function(
-					L, f, deduce_signature(f, (Class*)0), policies);
+					L, f, typename call_types< F, Class >::signature_type(), policies);
 
 				add_overload(
 					object(from_stack(L, -1))
@@ -335,12 +262,13 @@ namespace luabind
         template <class T>
         struct default_pointer<null_type, T>
         {
-            typedef std::auto_ptr<T> type;
+			typedef std::unique_ptr<T> type;
         };
 
         template <class Class, class Pointer, class Signature, class Policies>
         struct constructor_registration : registration
         {
+			// TODO: Remove argument
             constructor_registration(Policies const& policies)
               : policies(policies)
             {}
@@ -360,6 +288,8 @@ namespace luabind
                   , "__init"
                   , fn
                 );
+
+				//fn();
             }
 
             Policies policies;
@@ -367,47 +297,35 @@ namespace luabind
 
         template <class T>
         struct reference_result
-          : mpl::if_<
-                mpl::or_<boost::is_pointer<T>, is_primitive<T> >
-              , T
-              , typename boost::add_reference<T>::type
-            >
+			: std::conditional< std::is_pointer<T>::value || is_primitive<T>::value, T, typename std::add_reference< T >::type >
         {};
 
         template <class T>
         struct reference_argument
-          : mpl::if_<
-                mpl::or_<boost::is_pointer<T>, is_primitive<T> >
-              , T
-              , typename boost::add_reference<
-                    typename boost::add_const<T>::type
-                >::type
-            >
+           : std::conditional< std::is_pointer<T>::value || is_primitive<T>::value, T, typename std::add_reference< typename std::add_const<T>::type >::type >
         {};
 
         template <class T, class Policies>
         struct inject_dependency_policy
-          : mpl::if_<
-                mpl::or_<
-                    is_primitive<T>
-                  , has_policy<Policies, detail::no_dependency_policy>
-                >
-              , Policies
-              , policy_cons<dependency_policy<0, 1>, Policies>
-            >
-        {};
+        {
+			typedef typename std::conditional <
+				is_primitive<T>::value || meta::contains<Policies, call_policy_injector< detail::no_dependency_policy > >::value,
+				Policies,
+				typename meta::push_back< Policies, call_policy_injector< dependency_policy<0, 1> > >::type 
+			>::type type;		
+		};
 
         template <
             class Class
-          , class Get, class GetPolicies
-          , class Set = null_type, class SetPolicies = null_type
+          , class Get, class GetInjectors
+          , class Set = null_type, class SetPolicies = meta::type_list< >
         >
         struct property_registration : registration
         {
             property_registration(
                 char const* name
               , Get const& get
-              , GetPolicies const& get_policies
+			  , GetInjectors const& get_injectors
               , Set const& set = Set()
               , SetPolicies const& set_policies = SetPolicies()
             )
@@ -424,50 +342,51 @@ namespace luabind
                 register_aux(
                     L
                   , context
-                  , make_get(L, get, boost::is_member_object_pointer<Get>())
+                  , make_get(L, get, std::is_member_object_pointer<Get>())
                   , set
                 );
             }
 
             template <class F>
-            object make_get(lua_State* L, F const& f, mpl::false_) const
+            object make_get(lua_State* L, F const& f, std::false_type) const
             {
-                return make_function(
-                    L, f, deduce_signature(f, (Class*)0), get_policies);
+                return make_function(L, f, get_policies);
             }
 
             template <class T, class D>
-            object make_get(lua_State* L, D T::* mem_ptr, mpl::true_) const
+            object make_get(lua_State* L, D T::* mem_ptr, std::true_type) const
             {
                 typedef typename reference_result<D>::type result_type;
-                typedef typename inject_dependency_policy<
-                    D, GetPolicies>::type policies;
 
                 return make_function(
                     L
                   , access_member_ptr<T, D, result_type>(mem_ptr)
-                  , mpl::vector2<result_type, Class const&>()
-                  , policies()
+                  , meta::type_list<result_type, Class const&>()
+				  , typename inject_dependency_policy< D, GetInjectors >::type()
                 );
             }
 
             template <class F>
-            object make_set(lua_State* L, F const& f, mpl::false_) const
-            {
+            object make_set(lua_State* L, F const& f, std::false_type) const
+            {			
                 return make_function(
-                    L, f, deduce_signature(f, (Class*)0), set_policies);
+                    L, 
+					f,
+					typename call_types< F >::signature_type(),
+					set_policies);
             }
 
             template <class T, class D>
-            object make_set(lua_State* L, D T::* mem_ptr, mpl::true_) const
+            object make_set(lua_State* L, D T::* mem_ptr, std::true_type) const
             {
                 typedef typename reference_argument<D>::type argument_type;
+				typedef meta::type_list<void, Class&, argument_type> signature_type;
 
-                return make_function(
-                    L
-                  , access_member_ptr<T, D>(mem_ptr)
-                  , mpl::vector3<void, Class&, argument_type>()
-                  , set_policies
+				return make_function(
+					L
+					, access_member_ptr<T, D>(mem_ptr)
+					, signature_type()
+					, set_policies
                 );
             }
 
@@ -478,7 +397,7 @@ namespace luabind
             {
                 context[name] = property(
                     get_
-                  , make_set(L, set, boost::is_member_object_pointer<Set>())
+                  , make_set(L, set, std::is_member_object_pointer<Set>())
                 );
             }
 
@@ -491,7 +410,7 @@ namespace luabind
 
             char const* name;
             Get get;
-            GetPolicies get_policies;
+            GetInjectors get_policies;
             Set set;
             SetPolicies set_policies;
         };
@@ -499,41 +418,19 @@ namespace luabind
 	} // namespace detail
 
 	// registers a class in the lua environment
-	template<class T, class X1, class X2, class X3>
-	struct class_: detail::class_base 
+	template<class T, typename... BaseClasses, typename WrappedType, typename HeldType >
+	struct class_< T, bases< BaseClasses... >, WrappedType, HeldType >
+		: detail::class_base
 	{
-		typedef class_<T, X1, X2, X3> self_t;
+		typedef class_<T, bases< BaseClasses... >, WrappedType, HeldType> self_t;
 
 	private:
-
-		template<class A, class B, class C, class D>
-		class_(const class_<A,B,C,D>&);
+		template<class S, typename... OtherBaseClasses, typename OtherWrapper >
+		class_(const class_<S, bases<OtherBaseClasses...>, OtherWrapper>&);
 
 	public:
-
-        typedef boost::mpl::vector4<X1, X2, X3, detail::unspecified> parameters_type;
-
-		// WrappedType MUST inherit from T
-		typedef typename detail::extract_parameter<
-		    parameters_type
-		  , boost::is_base_and_derived<T, boost::mpl::_>
-		  , detail::null_type
-		>::type WrappedType;
-
-		typedef typename detail::extract_parameter<
-		    parameters_type
-		  , boost::mpl::not_<
-		        boost::mpl::or_<
-                    detail::is_bases<boost::mpl::_>
-                  , boost::is_base_and_derived<boost::mpl::_, T>
-                  , boost::is_base_and_derived<T, boost::mpl::_>
-				>
-			>
-		  , detail::null_type
-		>::type HeldType;
-
         template <class Src, class Target>
-        void add_downcast(Src*, Target*, boost::mpl::true_)
+        void add_downcast(Src*, Target*, std::true_type)
         {
             add_cast(
                 detail::registered_class<Src>::id
@@ -543,37 +440,35 @@ namespace luabind
         }
 
         template <class Src, class Target>
-        void add_downcast(Src*, Target*, boost::mpl::false_)
+        void add_downcast(Src*, Target*, std::false_type)
         {}
 
 		// this function generates conversion information
 		// in the given class_rep structure. It will be able
 		// to implicitly cast to the given template type
-		template<class To>
-		void gen_base_info(detail::type_<To>)
+		template<typename Class0, typename... Classes>
+		void gen_base_info(bases<Class0,Classes...>)
 		{
-            add_base(typeid(To), detail::static_cast_<T, To>::execute);
+			add_base(typeid(Class0), detail::static_cast_<T, Class0>::execute);
             add_cast(
-                detail::registered_class<T>::id
-              , detail::registered_class<To>::id
-              , detail::static_cast_<T, To>::execute
+                  detail::registered_class<T>::id
+				, detail::registered_class<Class0>::id
+				, detail::static_cast_<T, Class0>::execute
             );
 
-            add_downcast((To*)0, (T*)0, boost::is_polymorphic<To>());
+			add_downcast((Class0*) 0, (T*) 0, std::is_polymorphic<Class0>());
+		
+			gen_base_info(bases<Classes...>());
 		}
 
-		void gen_base_info(detail::type_<detail::null_type>)
-		{}
-
-#define LUABIND_GEN_BASE_INFO(z, n, text) gen_base_info(detail::type_<BaseClass##n>());
-
-		template<BOOST_PP_ENUM_PARAMS(LUABIND_MAX_BASES, class BaseClass)>
-		void generate_baseclass_list(detail::type_<bases<BOOST_PP_ENUM_PARAMS(LUABIND_MAX_BASES, BaseClass)> >)
+		void gen_base_info(bases<>)
 		{
-			BOOST_PP_REPEAT(LUABIND_MAX_BASES, LUABIND_GEN_BASE_INFO, _)
 		}
 
-#undef LUABIND_GEN_BASE_INFO
+		void generate_baseclass_list()
+		{
+			gen_base_info( bases<BaseClasses...>() );
+		}
 
 		class_(const char* name): class_base(name), scope(*this)
 		{
@@ -586,37 +481,36 @@ namespace luabind
 		template<class F>
 		class_& def(const char* name, F f)
 		{
-			return this->virtual_def(
-				name, f, detail::null_type()
-			  , detail::null_type(), boost::mpl::true_());
+			return this->virtual_def(name, f, no_injectors(), detail::null_type());
 		}
 
 		// virtual functions
-		template<class F, class DefaultOrPolicies>
-		class_& def(char const* name, F fn, DefaultOrPolicies default_or_policies)
+		template<class F, typename... Injectors>
+		class_& def(char const* name, F fn, meta::type_list< Injectors... > const& policies )
 		{
-			return this->virtual_def(
-				name, fn, default_or_policies, detail::null_type()
-			  , LUABIND_MSVC_TYPENAME detail::is_policy_cons<DefaultOrPolicies>::type());
+			return this->virtual_def(name, fn, policies, detail::null_type());
 		}
 
-		template<class F, class Default, class Policies>
-		class_& def(char const* name, F fn
-			, Default default_, Policies const& policies)
+		template<class F, typename Default>
+		class_& def(char const* name, F fn, Default default_)
 		{
-			return this->virtual_def(
-				name, fn, default_
-			  , policies, boost::mpl::false_());
+			return this->virtual_def(name, fn, no_injectors(), default_ );
 		}
 
-		template<BOOST_PP_ENUM_PARAMS(LUABIND_MAX_ARITY, class A)>
-		class_& def(constructor<BOOST_PP_ENUM_PARAMS(LUABIND_MAX_ARITY, A)> sig)
+		template<class F, class Default, typename... Injectors>
+		class_& def(char const* name, F fn, Default default_,  meta::type_list< Injectors... > const& policies )
 		{
-            return this->def_constructor(&sig, detail::null_type());
+			return this->virtual_def(name, fn, policies, default_);
 		}
 
-		template<BOOST_PP_ENUM_PARAMS(LUABIND_MAX_ARITY, class A), class Policies>
-		class_& def(constructor<BOOST_PP_ENUM_PARAMS(LUABIND_MAX_ARITY, A)> sig, const Policies& policies)
+		template<typename... Args>
+		class_& def(constructor<Args...> sig)
+		{
+            return this->def_constructor(&sig, no_injectors());
+		}
+
+		template<typename... Args, typename... Injectors>
+		class_& def(constructor<Args...> sig, meta::type_list< Injectors... > const& policies )
 		{
             return this->def_constructor(&sig, policies);
 		}
@@ -625,20 +519,18 @@ namespace luabind
         class_& property(const char* name, Getter g)
         {
             this->add_member(
-                new detail::property_registration<T, Getter, detail::null_type>(
-                    name, g, detail::null_type()));
+                new detail::property_registration<T, Getter, no_injectors>(name, g, no_injectors() )
+				);
             return *this;
         }
 
-        template <class Getter, class MaybeSetter>
-        class_& property(const char* name, Getter g, MaybeSetter s)
+        template <class Getter, typename... Injectors>
+        class_& property(const char* name, Getter g, meta::type_list< Injectors... > s )
         {
-            return property_impl(
-                name, g, s
-              , boost::mpl::bool_<detail::is_policy_cons<MaybeSetter>::value>()
+            return property_impl( name, g, s, boost::mpl::bool_<detail::is_policy_cons<MaybeSetter>::value>()
             );
         }
-
+		/*
         template<class Getter, class Setter, class GetPolicies>
         class_& property(const char* name, Getter g, Setter s, const GetPolicies& get_policies)
         {
@@ -650,13 +542,15 @@ namespace luabind
                 new registration_type(name, g, get_policies, s));
             return *this;
         }
+		*/
 
-        template<class Getter, class Setter, class GetPolicies, class SetPolicies>
+        template<class Getter, class Setter, class GetPolicies = meta::type_list< >, class SetPolicies = meta::type_list< > >
         class_& property(
             const char* name
           , Getter g, Setter s
-          , GetPolicies const& get_policies
-          , SetPolicies const& set_policies)
+		  , GetPolicies const& get_policies = no_injectors()
+          , SetPolicies const& set_policies = no_injectors()
+		  )
         {
             typedef detail::property_registration<
                 T, Getter, GetPolicies, Setter, SetPolicies
@@ -670,11 +564,11 @@ namespace luabind
         template <class C, class D>
         class_& def_readonly(const char* name, D C::*mem_ptr)
         {
-            typedef detail::property_registration<T, D C::*, detail::null_type>
+            typedef detail::property_registration<T, D C::*, no_injectors >
                 registration_type;
 
             this->add_member(
-                new registration_type(name, mem_ptr, detail::null_type()));
+                new registration_type(name, mem_ptr, no_injectors()));
             return *this;
         }
 
@@ -693,12 +587,10 @@ namespace luabind
         class_& def_readwrite(const char* name, D C::*mem_ptr)
         {
             typedef detail::property_registration<
-                T, D C::*, detail::null_type, D C::*
+                T, D C::*, no_injectors, D C::*
             > registration_type;
 
-            this->add_member(
-                new registration_type(
-                    name, mem_ptr, detail::null_type(), mem_ptr));
+            this->add_member(new registration_type(name, mem_ptr, no_injectors(), mem_ptr));
             return *this;
         }
 
@@ -749,7 +641,7 @@ namespace luabind
 		{
 			return this->def(
 				Derived::name()
-			  , &Derived::template apply<T, detail::null_type>::execute
+			  , &Derived::template apply<T, no_injectors>::execute
 			);
 		}
 
@@ -775,26 +667,11 @@ namespace luabind
               , detail::static_cast_<U,T>::execute
             );
 
-            add_downcast((T*)0, (U*)0, boost::is_polymorphic<T>());
+            add_downcast((T*)0, (U*)0, std::is_polymorphic<T>());
         }
 
 		void init()
-		{
-			typedef typename detail::extract_parameter<
-					parameters_type
-				,	boost::mpl::or_<
-							detail::is_bases<boost::mpl::_>
-						,	boost::is_base_and_derived<boost::mpl::_, T>
-					>
-				,	no_bases
-			>::type bases_t;
-
-			typedef typename 
-				boost::mpl::if_<detail::is_bases<bases_t>
-					,	bases_t
-					,	bases<bases_t>
-				>::type Base;
-	
+		{	
             class_base::init(
                 typeid(T)
               , detail::registered_class<T>::id
@@ -804,26 +681,23 @@ namespace luabind
 
             add_wrapper_cast((WrappedType*)0);
 
-			generate_baseclass_list(detail::type_<Base>());
+			generate_baseclass_list();
 		}
 
-		template<class Getter, class GetPolicies>
-		class_& property_impl(const char* name,
-									 Getter g,
-									 GetPolicies policies,
-									 boost::mpl::bool_<true>)
+		/*
+			Why does only have one overload have a Policies argument and then only the get-only versio?
+		*/
+		template<class Getter, typename... Injectors >
+		class_& property_impl(const char* name, Getter g, meta::type_list< Injectors... > policies )
 		{
             this->add_member(
-                new detail::property_registration<T, Getter, GetPolicies>(
-                    name, g, policies));
+                new detail::property_registration<T, Getter, GetPolicies>(name, g, policies)
+				);
 			return *this;
 		}
 
 		template<class Getter, class Setter>
-		class_& property_impl(const char* name,
-									 Getter g,
-									 Setter s,
-									 boost::mpl::bool_<false>)
+		class_& property_impl(const char* name, Getter g, Setter s)
 		{
             typedef detail::property_registration<
                 T, Getter, detail::null_type, Setter, detail::null_type
@@ -835,35 +709,37 @@ namespace luabind
 		}
 
 		// these handle default implementation of virtual functions
-		template<class F, class Policies>
-		class_& virtual_def(char const* name, F const& fn
-			, Policies const&, detail::null_type, boost::mpl::true_)
+		template<class F, class Default, typename... Injectors>
+		class_& virtual_def(char const* name, F const& fn, meta::type_list< Injectors... > const&, Default default_)
 		{
 			this->add_member(
-				new detail::memfun_registration<T, F, Policies>(
-					name, fn, Policies()));
-			return *this;
-		}
-
-		template<class F, class Default, class Policies>
-		class_& virtual_def(char const* name, F const& fn
-			, Default const& default_, Policies const&, boost::mpl::false_)
-		{
-			this->add_member(
-				new detail::memfun_registration<T, F, Policies>(
-					name, fn, Policies()));
+				new detail::memfun_registration<T, F, meta::type_list< Injectors... >>(name, fn, meta::type_list< Injectors... >())
+				);
 
 			this->add_default_member(
-				new detail::memfun_registration<T, Default, Policies>(
-					name, default_, Policies()));
+				new detail::memfun_registration<T, Default, meta::type_list< Injectors... >>(name, default_, meta::type_list< Injectors... >())
+				);
 
 			return *this;
 		}
 
-        template<class Signature, class Policies>
-		class_& def_constructor(Signature*, Policies const&)
+		template<class F, typename... Injectors>
+		class_& virtual_def(char const* name, F const& fn, meta::type_list< Injectors... > const&, detail::null_type)
+		{
+			typedef meta::type_list< Injectors... > InjectorList;
+
+			this->add_member(
+				new detail::memfun_registration<T, F, InjectorList>(
+				name, fn, InjectorList()));
+
+			return *this;
+		}
+
+		template<class Signature, typename... Injectors>
+		class_& def_constructor(Signature*, meta::type_list< Injectors... > const&)
         {
             typedef typename Signature::signature signature;
+			typedef meta::type_list< Injectors... > InjectorList;
 
             typedef typename boost::mpl::if_<
                 boost::is_same<WrappedType, detail::null_type>
@@ -873,13 +749,13 @@ namespace luabind
 
             this->add_member(
                 new detail::constructor_registration<
-                    construct_type, HeldType, signature, Policies>(
-                        Policies()));
+                    construct_type, HeldType, signature, InjectorList>(
+						InjectorList()));
 
             this->add_default_member(
                 new detail::constructor_registration<
-                    construct_type, HeldType, signature, Policies>(
-                        Policies()));
+					construct_type, HeldType, signature, InjectorList>(
+						InjectorList()));
 
             return *this;
         }

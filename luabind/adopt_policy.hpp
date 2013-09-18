@@ -32,12 +32,11 @@
 
 #include <luabind/detail/policy.hpp>
 #include <luabind/back_reference_fwd.hpp>
-#include <boost/type_traits/is_polymorphic.hpp>
 
 namespace luabind { namespace detail 
 {
     template <class T>
-    void adjust_backref_ownership(T* ptr, mpl::true_)
+    void adjust_backref_ownership(T* ptr, std::true_type)
     {
         if (wrap_base* p = dynamic_cast<wrap_base*>(ptr))
         {
@@ -47,7 +46,7 @@ namespace luabind { namespace detail
         }
     }
 
-    inline void adjust_backref_ownership(void*, mpl::false_)
+    inline void adjust_backref_ownership(void*, std::false_type)
     {}
 
 	template <class Pointer, class Direction = lua_to_cpp>
@@ -55,10 +54,7 @@ namespace luabind { namespace detail
 	{
 		typedef adopt_pointer type;
 
-        int consumed_args(...) const
-        {
-            return 1;
-        }
+		enum { consumed_args = 1 };
 
 		template<class T>
 		T* apply(lua_State* L, by_pointer<T>, int index)
@@ -70,7 +66,7 @@ namespace luabind { namespace detail
                 lua_touserdata(L, index));
             obj->release();
 
-            adjust_backref_ownership(ptr, boost::is_polymorphic<T>());
+            adjust_backref_ownership(ptr, std::is_polymorphic<T>());
 
             return ptr;
 		}
@@ -78,8 +74,7 @@ namespace luabind { namespace detail
 		template<class T>
 		int match(lua_State* L, by_pointer<T>, int index)
 		{
-            return pointer_converter::match(
-                L, LUABIND_DECORATE_TYPE(T*), index);
+            return pointer_converter::match( L, LUABIND_DECORATE_TYPE(T*), index );
 		}
 
 		template<class T>
@@ -95,7 +90,7 @@ namespace luabind { namespace detail
     template <class T>
     struct pointer_or_default<void, T>
     {
-        typedef std::auto_ptr<T> type;
+        typedef std::unique_ptr<T> type;
     };
 
 	template <class Pointer>
@@ -125,8 +120,8 @@ namespace luabind { namespace detail
 		}
 	};
 
-	template <int N, class Pointer = void>
-	struct adopt_policy : conversion_policy<N>
+	template <class Pointer = void>
+	struct adopt_policy : conversion_policy<>
 	{
 //		BOOST_STATIC_CONSTANT(int, index = N);
 
@@ -139,8 +134,8 @@ namespace luabind { namespace detail
 		struct apply
 		{
 			typedef luabind::detail::is_nonconst_pointer<T> is_nonconst_p;
-			typedef typename boost::mpl::if_<
-                is_nonconst_p
+			typedef typename std::conditional<
+                is_nonconst_p::value
               , adopt_pointer<Pointer, Direction>
               , only_accepts_nonconst_pointers
             >::type type;
@@ -152,17 +147,17 @@ namespace luabind { namespace detail
 namespace luabind
 {
 	template<int N>
-	detail::policy_cons<detail::adopt_policy<N>, detail::null_type> 
+	meta::type_list< converter_policy_injector< N, detail::adopt_policy< > > >
 	adopt(LUABIND_PLACEHOLDER_ARG(N))
 	{ 
-		return detail::policy_cons<detail::adopt_policy<N>, detail::null_type>(); 
+		return meta::type_list< converter_policy_injector< N, detail::adopt_policy< > > >();
 	}
 
     template <class Pointer, int N>
-    detail::policy_cons<detail::adopt_policy<N, Pointer>, detail::null_type>
+	meta::type_list< converter_policy_injector< N, detail::adopt_policy< Pointer > > >
     adopt(LUABIND_PLACEHOLDER_ARG(N))
     {
-        return detail::policy_cons<detail::adopt_policy<N, Pointer>, detail::null_type>();
+		return meta::type_list< converter_policy_injector< N, detail::adopt_policy< Pointer > > >();
     }
 }
 

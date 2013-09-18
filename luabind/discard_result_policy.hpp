@@ -27,10 +27,6 @@
 #include <luabind/config.hpp>
 #include <luabind/detail/policy.hpp>    // for index_map, etc
 #include <luabind/detail/primitives.hpp>  // for null_type, etc
-
-#include <boost/mpl/if.hpp>             // for if_
-#include <boost/type_traits/is_same.hpp>  // for is_same
-
 #include <luabind/lua_include.hpp>
 
 namespace luabind { namespace detail 
@@ -41,7 +37,7 @@ namespace luabind { namespace detail
 		void apply(lua_State*, T) {}
 	};
 
-	struct discard_result_policy : conversion_policy<0>
+	struct discard_result_policy : conversion_policy<>
 	{
 		static void precall(lua_State*, const index_map&) {}
 		static void postcall(lua_State*, const index_map&) {}
@@ -51,10 +47,8 @@ namespace luabind { namespace detail
 		template<class T, class Direction>
 		struct apply
 		{
-			typedef typename boost::mpl::if_<boost::is_same<Direction, cpp_to_lua>
-				, discard_converter
-				, can_only_convert_from_cpp_to_lua
-			>::type type;
+			static_assert( std::is_same< Direction, cpp_to_lua >::value, "Can only convert from cpp to lua" );
+			typedef discard_converter type;
 		};
 	};
 
@@ -62,9 +56,13 @@ namespace luabind { namespace detail
 
 namespace luabind
 {
-  detail::policy_cons<
+	/*
+	detail::policy_cons<
       detail::discard_result_policy, detail::null_type> const discard_result = {};
+	  */
+  typedef meta::type_list< converter_policy_injector< 0, detail::discard_result_policy > > discard_result;
 
+  /*
   namespace detail
   {
     inline void ignore_unused_discard_result()
@@ -72,6 +70,7 @@ namespace luabind
         (void)discard_result;
     }
   }
+  */
 }
 
 #endif // LUABIND_DISCARD_RESULT_POLICY_HPP_INCLUDED

@@ -5,7 +5,6 @@
 #ifndef LUABIND_DETAIL_MAKE_INSTANCE_090310_HPP
 # define LUABIND_DETAIL_MAKE_INSTANCE_090310_HPP
 
-# include <boost/type_traits/is_polymorphic.hpp>
 # include <luabind/detail/inheritance.hpp>
 # include <luabind/detail/object_rep.hpp>
 
@@ -13,7 +12,7 @@ namespace luabind { namespace detail {
 
 template <class T>
 std::pair<class_id, void*> get_dynamic_class_aux(
-    lua_State* L, T const* p, mpl::true_)
+    lua_State* L, T const* p, std::true_type)
 {
     lua_pushliteral(L, "__luabind_class_id_map");
     lua_rawget(L, LUA_REGISTRYINDEX);
@@ -31,7 +30,7 @@ std::pair<class_id, void*> get_dynamic_class_aux(
 
 template <class T>
 std::pair<class_id, void*> get_dynamic_class_aux(
-    lua_State*, T const* p, mpl::false_)
+    lua_State*, T const* p, std::false_type)
 {
     return std::make_pair(registered_class<T>::id, (void*)p);
 }
@@ -39,7 +38,7 @@ std::pair<class_id, void*> get_dynamic_class_aux(
 template <class T>
 std::pair<class_id, void*> get_dynamic_class(lua_State* L, T* p)
 {
-    return get_dynamic_class_aux(L, p, boost::is_polymorphic<T>());
+    return get_dynamic_class_aux(L, p, std::is_polymorphic<T>());
 }
 
 template <class T>
@@ -82,13 +81,14 @@ void make_instance(lua_State* L, P p)
 
     object_rep* instance = push_new_instance(L, cls);
 
-    typedef pointer_holder<P> holder_type;
+	typedef typename std::remove_reference<P>::type value_type;
+	typedef pointer_holder<value_type> holder_type;
 
     void* storage = instance->allocate(sizeof(holder_type));
 
     try
     {
-        new (storage) holder_type(p, dynamic.first, dynamic.second);
+        new (storage) holder_type(std::move(p), dynamic.first, dynamic.second);
     }
     catch (...)
     {

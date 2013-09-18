@@ -28,15 +28,12 @@ template <>
 struct default_converter<X>
   : native_converter_base<X>
 {
-    int consumed_args(...) const
-    {
-        return 2;
-    }
+	enum { consumed_args = 2 };
 
-    int compute_score(lua_State* L, int index)
+    static int compute_score(lua_State* L, int index)
     {
         return combine_score(
-            c1.compute_score(L, index), c2.compute_score(L, index + 1));
+			default_converter<int>::compute_score(L, index), default_converter<int>::compute_score(L, index + 1));
     }
 
     X from(lua_State* L, int index)
@@ -44,8 +41,9 @@ struct default_converter<X>
         return X(lua_tonumber(L, index), lua_tonumber(L, index + 1));
     }
 
-    default_converter<int> c1;
-    default_converter<int> c2;
+	// static compute_score ...
+    //default_converter<int> c1;
+    //default_converter<int> c2;
 };
 
 } // namespace luabind

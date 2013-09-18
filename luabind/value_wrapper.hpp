@@ -23,26 +23,12 @@
 #ifndef LUABIND_VALUE_WRAPPER_050419_HPP
 #define LUABIND_VALUE_WRAPPER_050419_HPP
 
-#include <boost/mpl/integral_c.hpp>
-#include <boost/mpl/bool.hpp>
-#include <boost/mpl/aux_/msvc_eti_base.hpp>
-
 #ifdef BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 # define LUABIND_USE_VALUE_WRAPPER_TAG 
 #else
 #endif
 
-#ifdef LUABIND_USE_VALUE_WRAPPER_TAG
-# include <boost/mpl/identity.hpp>
-# include <boost/mpl/eval_if.hpp>
-# include <boost/mpl/has_xxx.hpp>
-# include <boost/mpl/not.hpp>
-# include <boost/mpl/and.hpp>
-# include <boost/mpl/or.hpp>
-# include <boost/type_traits/is_reference.hpp>
-# include <boost/type_traits/is_pointer.hpp>
-# include <boost/type_traits/is_array.hpp>
-#endif
+#include <type_traits>
 
 namespace luabind {
 
@@ -50,6 +36,7 @@ namespace luabind {
 // Concept ``ValueWrapper``
 //
 
+// TODO: Remove boost from conditional code
 #ifdef LUABIND_USE_VALUE_WRAPPER_TAG
 template<class T>
 struct value_wrapper_traits;
@@ -61,7 +48,7 @@ namespace detail
 
   struct unspecialized_value_wrapper_traits
   {
-      typedef boost::mpl::false_ is_specialized;
+      typedef std::false_type is_specialized;
   };
 
   template<class T>
@@ -93,76 +80,34 @@ struct value_wrapper_traits
 {};
 #else
 {
-    typedef boost::mpl::false_ is_specialized;
+    typedef std::false_type is_specialized;
 };
 #endif
 
 template<class T>
 struct is_value_wrapper
-  : boost::mpl::aux::msvc_eti_base<
-        typename value_wrapper_traits<T>::is_specialized
-    >::type
+  : value_wrapper_traits<T>::is_specialized
 {};
 
 } // namespace luabind
-
-#ifndef BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
-
-# include <boost/type_traits/remove_const.hpp>
-# include <boost/type_traits/remove_reference.hpp>
 
 namespace luabind {
 
 template<class T>
 struct is_value_wrapper_arg
   : is_value_wrapper<
-      typename boost::remove_const<
-          typename boost::remove_reference<T>::type
+      typename std::remove_const<
+          typename std::remove_reference<T>::type
       >::type
     >
 {};
 
-} // namespace luabind
-
-#else
-
-# include <luabind/detail/yes_no.hpp>
-# include <boost/type_traits/add_reference.hpp>
-
-namespace luabind {
-
-namespace detail
-{
-  template<class T>
-  typename is_value_wrapper<T>::type is_value_wrapper_arg_check(T const*);
-  
-  yes_t to_yesno(boost::mpl::true_);
-  no_t to_yesno(boost::mpl::false_);
-
-  template<class T>
-  struct is_value_wrapper_arg_aux
-  {
-      static typename boost::add_reference<T>::type x;
-
-      BOOST_STATIC_CONSTANT(bool, value = 
-          sizeof(to_yesno(is_value_wrapper_arg_check(&x)))
-            == sizeof(yes_t)
-      );
-
-      typedef boost::mpl::bool_<value> type;
-  };
-
-} // namespace detail
-
-template<class T>
-struct is_value_wrapper_arg
-  : detail::is_value_wrapper_arg_aux<T>::type
-{
-};
+template< class T >
+struct is_value_wrapper_arg2
+	: std::conditional < is_value_wrapper_arg<T>::value, std::true_type, std::false_type >::type
+{};
 
 } // namespace luabind
-
-#endif
 
 #endif // LUABIND_VALUE_WRAPPER_050419_HPP
 

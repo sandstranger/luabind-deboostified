@@ -11,7 +11,7 @@
 # include <memory>
 # include <vector>
 # include <luabind/typeid.hpp>
-# include <boost/scoped_ptr.hpp>
+# include <boost/scoped_ptr.hpp>	// TODO: unique_ptr?
 
 namespace luabind { namespace detail {
 

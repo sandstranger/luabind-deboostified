@@ -32,13 +32,13 @@ namespace luabind { namespace detail
 	struct yield_policy
 	{
 		static void precall(lua_State*, const index_map&) {}
-		static void postcall(lua_State*, const index_map&) {}
+		static void postcall(lua_State*, int results, meta::index_list_tag) {}
 	};
 }}
 
 namespace luabind
 {
-  detail::policy_cons<detail::yield_policy, detail::null_type> const yield = {};
+	meta::type_list< call_policy_injector< detail::yield_policy > > const yield = {};
 
   namespace detail
   {
