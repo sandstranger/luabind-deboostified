@@ -217,7 +217,7 @@ namespace luabind
 
 // MSVC complains about member being sensitive to alignment (C4121)
 // when F is a pointer to member of a class with virtual bases.
-# ifdef BOOST_MSVC
+# ifdef _MSC_VER
 #  pragma pack(push)
 #  pragma pack(16)
 # endif
@@ -249,7 +249,7 @@ namespace luabind
 			Policies policies;
 		};
 
-# ifdef BOOST_MSVC
+# ifdef _MSC_VER
 #  pragma pack(pop)
 # endif
 
@@ -530,19 +530,6 @@ namespace luabind
             return property_impl( name, g, s, boost::mpl::bool_<detail::is_policy_cons<MaybeSetter>::value>()
             );
         }
-		/*
-        template<class Getter, class Setter, class GetPolicies>
-        class_& property(const char* name, Getter g, Setter s, const GetPolicies& get_policies)
-        {
-            typedef detail::property_registration<
-                T, Getter, GetPolicies, Setter, detail::null_type
-            > registration_type;
-
-            this->add_member(
-                new registration_type(name, g, get_policies, s));
-            return *this;
-        }
-		*/
 
         template<class Getter, class Setter, class GetPolicies = meta::type_list< >, class SetPolicies = meta::type_list< > >
         class_& property(

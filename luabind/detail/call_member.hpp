@@ -145,9 +145,7 @@ namespace luabind
 			template<class Policies>
 			Ret operator[](const Policies& p)
 			{
-				typedef typename get_converter_policy<0, Policies>::type converter_policy;
-				//typename mpl::apply_wrap2<converter_policy,Ret,lua_to_cpp>::type converter;
-				typename converter_policy::apply<Ret, lua_to_cpp>::type converter;
+				applied_converter_policy<0, Policies, Ret, lua_to_cpp> converter;
 
 				m_called = true;
 

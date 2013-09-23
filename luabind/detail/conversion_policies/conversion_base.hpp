@@ -1,4 +1,28 @@
-#pragma once
+// Copyright (c) 2003 Daniel Wallin and Arvid Norberg
+
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this software and associated documentation files (the "Software"),
+// to deal in the Software without restriction, including without limitation
+// the rights to use, copy, modify, merge, publish, distribute, sublicense,
+// and/or sell copies of the Software, and to permit persons to whom the
+// Software is furnished to do so, subject to the following conditions:
+
+// The above copyright notice and this permission notice shall be included
+// in all copies or substantial portions of the Software.
+
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF
+// ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
+// TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+// PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT
+// SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR
+// ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
+// OR OTHER DEALINGS IN THE SOFTWARE.
+
+#ifndef LUABIND_CONVERSION_BASE_HPP_INCLUDED
+#define LUABIND_CONVERSION_BASE_HPP_INCLUDED
+
 #include <type_traits>
 #include <luabind\lua_include.hpp>
 #include <luabind\detail\decorate_type.hpp>
@@ -17,21 +41,6 @@ namespace luabind {
 	struct conversion_policy : detail::conversion_policy_base
 	{
 		static const bool has_arg = HasArg;
-	};
-
-
-	class index_map
-	{
-	public:
-		index_map(const int* m) : m_map(m) {}
-
-		int operator [](int index) const
-		{
-			return m_map[index];
-		}
-
-	private:
-		const int* m_map;
 	};
 
 	// TODO: What's this good for?
@@ -83,3 +92,5 @@ namespace luabind {
 	struct default_converter;
 
 }
+
+#endif

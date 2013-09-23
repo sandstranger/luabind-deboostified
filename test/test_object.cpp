@@ -27,9 +27,6 @@
 #include <luabind/detail/debug.hpp>
 #include <luabind/error.hpp>
 #include <luabind/operator.hpp>
-
-#include <boost/lexical_cast.hpp>
-
 #include <utility>
 
 using namespace luabind;
@@ -359,9 +356,9 @@ void test_main(lua_State* L)
 	TEST_CHECK(ret_val == temp_val);
 
 	g["temp"] = "test string";
-	TEST_CHECK(boost::lexical_cast<std::string>(g["temp"]) == "test string");
+	TEST_CHECK(to_string(g["temp"]) == "test string");
 	g["temp"] = 6;
-	TEST_CHECK(boost::lexical_cast<std::string>(g["temp"]) == "6");
+	TEST_CHECK(to_string(g["temp"]) == "6");
 
 	TEST_CHECK(object_cast<std::string>(g["glob"]) == "teststring");
 	TEST_CHECK(object_cast<std::string>(gettable(g, "glob")) == "teststring");
@@ -420,7 +417,9 @@ void test_main(lua_State* L)
 #endif
 
     object not_initialized;
+#ifdef LUABIND_SUPPORT_NOTHROW_POLICY
     TEST_CHECK(!object_cast_nothrow<int>(not_initialized));
+#endif
 	 TEST_CHECK(!not_initialized.is_valid());
 	 TEST_CHECK(!not_initialized);
 

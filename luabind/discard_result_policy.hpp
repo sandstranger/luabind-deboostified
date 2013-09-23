@@ -39,9 +39,6 @@ namespace luabind { namespace detail
 
 	struct discard_result_policy : conversion_policy<>
 	{
-		static void precall(lua_State*, const index_map&) {}
-		static void postcall(lua_State*, const index_map&) {}
-
 		struct can_only_convert_from_cpp_to_lua {};
 
 		template<class T, class Direction>
@@ -56,21 +53,12 @@ namespace luabind { namespace detail
 
 namespace luabind
 {
-	/*
-	detail::policy_cons<
-      detail::discard_result_policy, detail::null_type> const discard_result = {};
-	  */
-  typedef meta::type_list< converter_policy_injector< 0, detail::discard_result_policy > > discard_result;
+  typedef meta::type_list< converter_policy_injector< 0, detail::discard_result_policy > > discard_result_list;
 
-  /*
-  namespace detail
+  inline discard_result_list discard_result()
   {
-    inline void ignore_unused_discard_result()
-    {
-        (void)discard_result;
-    }
+	  return discard_result_list();
   }
-  */
 }
 
 #endif // LUABIND_DISCARD_RESULT_POLICY_HPP_INCLUDED

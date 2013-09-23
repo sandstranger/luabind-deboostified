@@ -23,7 +23,7 @@ struct X
 void test_main(lua_State* L)
 {
     using namespace luabind;
-
+	
     module(L) [
         def("f", tag_function<int(int)>(std::bind(&f, 5, std::placeholders::_1))),
 
@@ -44,4 +44,5 @@ void test_main(lua_State* L)
         "assert(x:f(1) == 11)\n"
         "assert(x:f(5) == 15)\n"
     );
+
 }

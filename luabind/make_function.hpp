@@ -21,7 +21,7 @@ namespace detail
 
 // MSVC complains about member being sensitive to alignment (C4121)
 // when F is a pointer to member of a class with virtual bases.
-# ifdef BOOST_MSVC
+# ifdef _MSC_VER
 #  pragma pack(push)
 #  pragma pack(16)
 # endif
@@ -77,19 +77,6 @@ namespace detail
 
 # ifndef LUABIND_NO_EXCEPTIONS
           bool exception_caught = invoke_defer( L, impl, ctx, impl->f, results );
-		  /*
-		  // TODO: Move this try-block into another call context for exceptions to work with luajit.
-          try
-          {
-			  // why doesn't this hit tag function overload?
-              results = invoke( L, *impl, ctx, impl->f, Signature(), InjectorList());
-          }
-          catch (...)
-          {
-              exception_caught = true;
-              handle_exception_aux(L);
-          }
-		  */
 
           if (exception_caught)
               lua_error(L);
@@ -109,7 +96,7 @@ namespace detail
       F f;
   };
 
-# ifdef BOOST_MSVC
+# ifdef _MSC_VER
 #  pragma pack(pop)
 # endif
 

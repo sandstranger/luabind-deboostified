@@ -23,10 +23,19 @@
 #ifndef LUABIND_OBJECT_050419_HPP
 #define LUABIND_OBJECT_050419_HPP
 
-#include <boost/implicit_cast.hpp> // detail::push()
-#include <boost/ref.hpp> // detail::push()
+//#include <boost/implicit_cast.hpp> // detail::push()
+//#include <boost/ref.hpp> // detail::push()
+//
+
+// I don't feel like implementing optional myself, that's why
+// this reference to boost stays if the user decides
+// to use the nothrow policies.
+
+#ifdef LUABIND_SUPPORT_NOTHROW_POLICY
 #include <boost/config.hpp>
 #include <boost/optional.hpp>	// :-(
+#endif
+
 #include <tuple>
 
 #include <luabind/nil.hpp>
@@ -38,8 +47,8 @@
 #include <luabind/detail/convert_to_lua.hpp> // REFACTOR
 #include <luabind/typeid.hpp>
 
+// Is it worth it to rewrite that iterator facade?
 #include <boost/iterator/iterator_facade.hpp> // iterator
-#include <boost/utility/enable_if.hpp>
 
 #if LUA_VERSION_NUM < 502
 # define lua_compare(L, index1, index2, fn) fn(L, index1, index2)
@@ -53,18 +62,12 @@ namespace luabind {
 
 namespace detail 
 { 
-  template<class T, class ConverterGenerator>
-  void push_aux(lua_State* interpreter, T& value, ConverterGenerator*)
+  template<class T, class Converter>
+  void push_aux(lua_State* interpreter, T& value, Converter*)
   {
-
-      typedef typename std::conditional<
-          boost::is_reference_wrapper<T>::value
-        , typename boost::unwrap_reference<T>::type&
-        , T
-      >::type unwrapped_type;
- 
-	  typename ConverterGenerator::apply< unwrapped_type, cpp_to_lua >::type cv;
-      cv.apply( interpreter, boost::implicit_cast<typename boost::unwrap_reference<T>::type&>(value) );
+	  using unwrapped_type = typename apply_reference_wrapper<T>::type; 
+	  using converter_type = apply_converter_policy< Converter, unwrapped_type, cpp_to_lua >::type;
+	  converter_type().apply(interpreter, implicit_cast<unwrapped_type&>(value));
   }
 
   template<class T, class Policies>
@@ -206,7 +209,6 @@ LUABIND_BINARY_OP_DEF(<, LUA_OPLT)
 		std::copy(p, p + len, std::ostream_iterator<char>(os));
 		return os;
 	}
-
 #undef LUABIND_BINARY_OP_DEF
 
   template<class LHS, class RHS>
@@ -248,7 +250,6 @@ LUABIND_BINARY_OP_DEF(<, LUA_OPLT)
   template<class Derived>
   class object_interface
   {
-      struct safe_bool_type {};
   public:
       ~object_interface() {}
 
@@ -259,7 +260,7 @@ LUABIND_BINARY_OP_DEF(<, LUA_OPLT)
 		  return call_proxy<Derived, arguments>( derived(), arguments(&args...) );
 	  }
 
-      operator safe_bool_type*() const
+      explicit operator bool() const
       {
           lua_State* L = value_wrapper_traits<Derived>::interpreter(derived());
 
@@ -269,7 +270,7 @@ LUABIND_BINARY_OP_DEF(<, LUA_OPLT)
           value_wrapper_traits<Derived>::unwrap(L, derived());
           detail::stack_pop pop(L, 1);
 
-          return lua_toboolean(L, -1) == 1 ? (safe_bool_type*)1 : 0;
+          return lua_toboolean(L, -1) == 1;
       }
 
   private:
@@ -369,6 +370,24 @@ LUABIND_BINARY_OP_DEF(<, LUA_OPLT)
   };
 
 } // namespace adl
+
+template<class ValueWrapper>
+std::string to_string(adl::object_interface<ValueWrapper> const& v)
+{
+	using namespace luabind;
+	lua_State* interpreter = value_wrapper_traits<ValueWrapper>::interpreter(
+		static_cast<ValueWrapper const&>(v));
+	detail::stack_pop pop(interpreter, 1);
+	value_wrapper_traits<ValueWrapper>::unwrap(interpreter
+		, static_cast<ValueWrapper const&>(v));
+	char const* p = lua_tostring(interpreter, -1);
+	std::size_t len = lua_rawlen(interpreter, -1);
+	return std::string(p, len);
+}
+
+
+
+
 
 namespace detail
 {
@@ -553,17 +572,17 @@ namespace adl
       // This is non-const to prevent conversion on lvalues.
       operator object();
 
-		// this will set the value to nil
-		this_type& operator=(luabind::detail::nil_type)
-		{
-	       value_wrapper_traits<Next>::unwrap(m_interpreter, m_next);
-          detail::stack_pop pop(m_interpreter, 1);
+	// this will set the value to nil
+	this_type& operator=(luabind::detail::nil_type)
+	{
+		value_wrapper_traits<Next>::unwrap(m_interpreter, m_next);
+		detail::stack_pop pop(m_interpreter, 1);
 
-          lua_pushvalue(m_interpreter, m_key_index);
-			 lua_pushnil(m_interpreter);
-          lua_settable(m_interpreter, -3);
-          return *this;
-		}
+		lua_pushvalue(m_interpreter, m_key_index);
+			lua_pushnil(m_interpreter);
+		lua_settable(m_interpreter, -3);
+		return *this;
+	}
 		
       template<class T>
       this_type& operator=(T const& value)
@@ -902,11 +921,8 @@ namespace detail
 #endif
 
       value_wrapper_traits<ValueWrapper>::unwrap(interpreter, value_wrapper);
-
-      detail::stack_pop pop(interpreter, 1);
-
-      typedef typename detail::get_converter_policy< 0, Policies >::type converter_generator;
-	  typename detail::apply_converter_policy< converter_generator, T, lua_to_cpp >::type cv;
+	  detail::stack_pop pop(interpreter, 1);
+	  applied_converter_policy<0, Policies, T, lua_to_cpp> cv;
 
 #ifndef LUABIND_NO_ERROR_CHECKING
       if (cv.match(interpreter, LUABIND_DECORATE_TYPE(T), -1) < 0)
@@ -946,6 +962,7 @@ namespace detail
 #  pragma warning(pop)
 # endif
 
+#ifdef LUABIND_SUPPORT_NOTHROW_POLICY
   template<class T>
   struct nothrow_error_policy
   {
@@ -954,6 +971,7 @@ namespace detail
           return boost::optional<T>();
       }
   };
+#endif
 
 } // namespace detail
 
@@ -981,6 +999,7 @@ T object_cast(ValueWrapper const& value_wrapper, Policies const&)
     );
 }
 
+#ifdef LUABIND_SUPPORT_NOTHROW_POLICY
 template<class T, class ValueWrapper>
 boost::optional<T> object_cast_nothrow(ValueWrapper const& value_wrapper)
 {
@@ -1004,6 +1023,7 @@ boost::optional<T> object_cast_nothrow(ValueWrapper const& value_wrapper, Polici
       , (boost::optional<T>*)0
     );
 }
+#endif
 
 namespace detail
 {
@@ -1108,19 +1128,6 @@ namespace adl
       mutable ValueWrapper* value_wrapper;
       Arguments arguments;
   };
-
-  
-  //template<typename... Args> call_proxy <Derived, std::tuple < const Args*... > > operator()(const Args&... args);
-  /*
-  template<class Derived>
-  template<typename... Args>
-  call_proxy<Derived, std::tuple<const Args*...> >
-  object_interface<Derived>::operator()( const Args&... args )
-  {
-      return call_proxy<Derived, std::tuple<const Args*...> >(derived(), std::tuple<const Args*...>(&args...) );
-  }
-  */
-
 
   // Simple value_wrapper adaptor with the sole purpose of helping with
   // overload resolution. Use this as a function parameter type instead

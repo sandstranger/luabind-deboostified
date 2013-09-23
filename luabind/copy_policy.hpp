@@ -32,12 +32,6 @@ namespace detail
 
   struct copy_policy : conversion_policy<>
   {
-      static void precall(lua_State*, index_map const&)
-      {}
-
-      static void postcall(lua_State*, index_map const&)
-      {}
-
       template <class T, class Direction>
       struct apply
       {

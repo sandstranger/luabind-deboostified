@@ -2,7 +2,9 @@
 // subject to the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-#pragma once
+#ifndef LUABIND_META_HPP_INCLUDED
+#define LUABIND_META_HPP_INCLUDED
+
 #include <tuple>
 
 namespace meta {
@@ -22,11 +24,15 @@ namespace meta {
 	struct index
 	{};
 
+	template< typename Type >
+	struct type
+	{};
+
 	// Use this to unpack a parameter pack into a list if T's
 	template< typename T, typename DontCare >
 	struct unpack_helper
 	{
-		typedef T type;
+		using type =  T;
 	};
 
 	// common operators
@@ -42,7 +48,7 @@ namespace meta {
 	template< typename List1, typename List2, typename... Lists >
 	struct join< List1, List2, Lists... > {
 		// Could try to join on both sides
-		typedef typename join< typename join< List1, List2 >::type, Lists... >::type type;
+		using type = typename join< typename join< List1, List2 >::type, Lists... >::type;
 	};
 
 	// convenience
@@ -89,6 +95,11 @@ namespace meta {
 	{
 	};
 
+	template< typename... Types1, typename... Types2 >
+	type_list<Types1..., Types2...> operator|(const type_list<Types1...>&, const type_list<Types2...>&) {
+		return type_list<Types1..., Types2...>();
+	}
+	
 	template< typename T >
 	struct is_typelist : public std::false_type
 	{
@@ -138,13 +149,13 @@ namespace meta {
 	template< typename... Types, typename Type >
 	struct push_front< type_list<Types...>, Type >
 	{
-		typedef type_list< Type, Types... > type;
+		using type = type_list< Type, Types... >;
 	};
 
 	template< typename... Types, typename Type >
 	struct push_back< type_list<Types...>, Type >
 	{
-		typedef type_list< Types..., Type > type;
+		using type = type_list< Types..., Type >;
 	};
 
 	/*
@@ -154,13 +165,13 @@ namespace meta {
 	template< typename Type0, typename... Types >
 	struct pop_front< type_list< Type0, Types... > >
 	{
-		typedef typename type_list< Types... > type;
+		using type = type_list< Types... >;
 	};
 
 	template< >
 	struct pop_front< type_list< > >
 	{
-		typedef type_list< > type;
+		using type = type_list< >;
 	};
 
 	/*
@@ -169,13 +180,13 @@ namespace meta {
 	template< typename TypeN, typename... Types >
 	struct pop_back< type_list< Types..., TypeN > >
 	{
-		typedef typename type_list< Types... > type;
+		using type = type_list< Types... >;
 	};
 
 	template< >
 	struct pop_back< type_list< > >
 	{
-		typedef type_list< > type;
+		using type = type_list< >;
 	};
 
 	/*
@@ -184,13 +195,13 @@ namespace meta {
 
 	template< typename Element0, typename... Elements, unsigned int Index >
 	struct get< type_list<Element0, Elements...>, Index > {
-		typedef typename get< typename type_list<Elements...>, Index - 1 >::type type;
+		using type = typename get< typename type_list<Elements...>, Index - 1 >::type;
 	};
 
 	template< typename Element0, typename... Elements >
 	struct get< type_list<Element0, Elements...>, 0 >
 	{
-		typedef Element0 type;
+		using type = Element0;
 	};
 
 	template< unsigned int Index >
@@ -202,7 +213,7 @@ namespace meta {
 	template< typename... Types1, typename... Types2 >
 	struct join< type_list< Types1... >, type_list< Types2... > >
 	{
-		typedef type_list< Types1..., Types2... > type;
+		using type = type_list< Types1..., Types2... >;
 	};
 
 	/*
@@ -216,23 +227,24 @@ namespace meta {
 
 		template< typename... HeadTypes, typename CurrentType, typename... TailTypes, typename Type, unsigned int Index >
 		struct replace_helper< type_list< HeadTypes... >, type_list< CurrentType, TailTypes... >, Type, Index> {
-			typedef typename replace_helper< type_list< HeadTypes..., CurrentType >, type_list<TailTypes...>, Type, Index - 1 >::type type;
+			using type = typename replace_helper< type_list< HeadTypes..., CurrentType >, type_list<TailTypes...>, Type, Index - 1 >::type;
 		};
 
 		template< typename... HeadTypes, typename CurrentType, typename... TailTypes, typename Type >
 		struct replace_helper< type_list< HeadTypes... >, type_list< CurrentType, TailTypes... >, Type, 0 > {
-			typedef type_list< HeadTypes..., Type, TailTypes... > type;
+			using type = type_list< HeadTypes..., Type, TailTypes... >;
 		};
 	}
 
 	template< typename... Types, unsigned int Index, typename Type >
 	struct replace< type_list< Types... >, Index, Type >
 	{
-		typedef type_list< Types... > TypeList;
+		using TypeList = type_list< Types... >;
 
-		typedef typename meta::join< typename meta::sub_range< TypeList, 0, Index >::type, meta::type_list<Type>, typename meta::sub_range < TypeList, Index + 1, sizeof...(Types) >::type >::type type;
-		
-		//typedef typename detail::replace_helper< type_list<>, type_list<Types...>, Type, Index >::type type;
+		using type = typename meta::join< 
+						typename meta::sub_range< TypeList, 0, Index >::type, meta::type_list<Type>,
+						typename meta::sub_range < TypeList, Index + 1, sizeof...(Types) >::type 
+					>::type;
 	};
 
 	namespace detail {
@@ -241,24 +253,24 @@ namespace meta {
 
 		template< typename... HeadTypes, typename CurrentType, typename... TailTypes, template< typename > class Type, unsigned int Index >
 		struct enwrap_helper< type_list< HeadTypes... >, type_list< CurrentType, TailTypes... >, Type, Index> {
-			typedef typename enwrap_helper< type_list< HeadTypes..., CurrentType >, type_list<TailTypes...>, Type, Index - 1 >::type type;
+			using type = typename enwrap_helper< type_list< HeadTypes..., CurrentType >, type_list<TailTypes...>, Type, Index - 1 >::type;
 		};
 
 		template< typename... HeadTypes, typename CurrentType, typename... TailTypes, template< typename > class Type >
 		struct enwrap_helper< type_list< HeadTypes... >, type_list< CurrentType, TailTypes... >, Type, 0> {
-			typedef type_list< HeadTypes..., Type<CurrentType>, TailTypes... > type;
+			using type = type_list< HeadTypes..., Type<CurrentType>, TailTypes... >;
 		};
 	}
 
 	template< typename... Types, unsigned int Index, template< typename >  class Type >
 	struct enwrap< type_list< Types... >, Index, Type > {
-		typedef typename detail::enwrap_helper< type_list< >, type_list< Types... >, Type, Index >::type type;
+		using type = typename detail::enwrap_helper< type_list< >, type_list< Types... >, Type, Index >::type;
 	};
 
 	template< typename... Types, template< typename > class Enwrapper >
 	struct enwrap_all< type_list< Types... >, Enwrapper >
 	{
-		typedef type_list< Enwrapper< Types >... > type;
+		using type = type_list< Enwrapper< Types >... >;
 	};
 
 	namespace detail {
@@ -267,29 +279,29 @@ namespace meta {
 
 		template< typename... HeadTypes, typename CurrentType, typename... TailTypes, template< typename > class Type, unsigned int Index >
 		struct transform_helper< type_list< HeadTypes... >, type_list< CurrentType, TailTypes... >, Type, Index> {
-			typedef typename transform_helper< type_list< HeadTypes..., CurrentType >, type_list<TailTypes...>, Type, Index - 1 >::type type;
+			using type = typename transform_helper< type_list< HeadTypes..., CurrentType >, type_list<TailTypes...>, Type, Index - 1 >::type;
 		};
 
 		template< typename... HeadTypes, typename CurrentType, typename... TailTypes, template< typename > class Type >
 		struct transform_helper< type_list< HeadTypes... >, type_list< CurrentType, TailTypes... >, Type, 0> {
-			typedef type_list< HeadTypes..., typename Type<CurrentType>::type, TailTypes... > type;
+			using type = type_list< HeadTypes..., typename Type<CurrentType>::type, TailTypes... >;
 		};
 	}
 
 	template< typename... Types, unsigned int Index, template< typename >  class Type >
 	struct transform< type_list< Types... >, Index, Type > {
-		typedef typename detail::transform_helper< type_list< >, type_list< Types... >, Type, Index >::type type;
+		using type = typename detail::transform_helper< type_list< >, type_list< Types... >, Type, Index >::type;
 	};
 
 
 	template< typename Type0, typename... Types, template< typename >  class Type >
 	struct transform_all< type_list< Type0, Types... >, Type > {
-		typedef typename push_front< typename transform_all< type_list<Types...>, Type >::type, typename Type<Type0>::type >::type type;
+		using type = typename push_front< typename transform_all< type_list<Types...>, Type >::type, typename Type<Type0>::type >::type;
 	};
 
 	template< template< typename >  class Type >
 	struct transform_all< type_list< >, Type > {
-		typedef type_list< > type;
+		using type = type_list< >;
 	};
 
 
@@ -302,7 +314,7 @@ namespace meta {
 	template< typename... Types >
 	struct make_tuple< type_list< Types... > >
 	{
-		typedef std::tuple< Types... > type;
+		using type = std::tuple< Types... >;
 	};
 
 
@@ -312,30 +324,38 @@ namespace meta {
 
 	template< typename ConvertibleToTrueFalse, typename Result >
 	struct case_ : public ConvertibleToTrueFalse {
-		typedef Result type;
+		using type = Result;
 	};
 
 	template< typename Result >
 	struct default_ {
-		typedef Result type;
+		using type = Result;
 	};
 
 
 	template< typename Case, typename... CaseList >
 	struct select_
 	{
-		typedef typename std::conditional< std::is_convertible<Case, std::true_type>::value, typename Case::type, typename select_<CaseList...>::type >::type type;
+		using type = typename std::conditional< 
+								std::is_convertible<Case, std::true_type>::value,
+								typename Case::type, 
+								typename select_<CaseList...>::type 
+							  >::type;
 	};
 
 	template< typename Case >
 	struct select_< Case >
 	{
-		typedef typename std::conditional< std::is_convertible<Case, std::true_type>::value, typename Case::type, null_type >::type type;
+		using type = typename std::conditional<
+								std::is_convertible<Case, std::true_type>::value,
+								typename Case::type,
+								null_type 
+							  >::type;
 	};
 
 	template< typename T >
 	struct select_< default_<T> > {
-		typedef typename default_<T>::type type;
+		using type = typename default_<T>::type;
 	};
 
 	/*
@@ -390,13 +410,13 @@ namespace meta {
 	template< unsigned int... Indices, unsigned int Index >
 	struct push_front< index_list< Indices... >, index<Index> >
 	{
-		typedef index_list< Index, Indices... > type;
+		using type = index_list< Index, Indices... >;
 	};
 
 	template< unsigned int... Indices, unsigned int Index >
 	struct push_back< index_list< Indices... >, index<Index> >
 	{
-		typedef index_list< Indices..., Index > type;
+		using type = index_list< Indices..., Index >;
 	};
 
 	/*
@@ -405,12 +425,12 @@ namespace meta {
 
 	template< unsigned int Index0, unsigned int... Indices >
 	struct pop_front< index_list< Index0, Indices... > > {
-		typedef index_list< Indices... > type;
+		using type = index_list< Indices... >;
 	};
 
 	template< >
 	struct pop_front< index_list< > > {
-		typedef index_list<  > type;
+		using type = index_list<  >;
 	};
 
 
@@ -425,14 +445,14 @@ namespace meta {
 		template< unsigned int end, unsigned int... Indices >
 		struct make_index_range< end, end, Indices... >
 		{
-			typedef index_list< Indices... > type;
+			using type = index_list< Indices... >;
 		};
 
 	}
 
 	template< unsigned int start, unsigned int end >
 	struct make_index_range {
-		typedef typename detail::make_index_range< start, end >::type type;
+		using type = typename detail::make_index_range< start, end >::type;
 	};
 
 	/*
@@ -446,7 +466,7 @@ namespace meta {
 
 		template< typename SourceList, unsigned int... Indices >
 		struct sub_range_index< SourceList, index_list< Indices... > > {
-			typedef index_list< get< SourceList, Indices >::value... > type;
+			using type = index_list< get< SourceList, Indices >::value... >;
 		};
 
 		template< typename SourceList, typename IndexList >
@@ -454,7 +474,7 @@ namespace meta {
 
 		template< typename SourceList, unsigned int... Indices >
 		struct sub_range_type< SourceList, index_list< Indices... > > {
-			typedef type_list< typename get< SourceList, Indices >::type... > type;
+			using type = type_list< typename get< SourceList, Indices >::type... >;
 		};
 
 	}
@@ -462,13 +482,13 @@ namespace meta {
 	template< unsigned int start, unsigned int end, unsigned int... Indices >
 	struct sub_range< index_list<Indices...>, start, end >
 	{
-		typedef typename detail::sub_range_index< index_list<Indices...>, typename make_index_range<start, end>::type >::type type;
+		using type = typename detail::sub_range_index< index_list<Indices...>, typename make_index_range<start, end>::type >::type;
 	};
 
 	template< unsigned int start, unsigned int end, typename... Types >
 	struct sub_range< type_list<Types...>, start, end >
 	{
-		typedef typename detail::sub_range_type< type_list<Types...>, typename make_index_range<start, end>::type >::type type;
+		using type = typename detail::sub_range_type< type_list<Types...>, typename make_index_range<start, end>::type >::type;
 	};
 
 	template< typename IndexList, unsigned int Index >
@@ -477,7 +497,7 @@ namespace meta {
 	template< unsigned int... Indices, unsigned int Index >
 	struct push_back_index< index_list< Indices... >, Index >
 	{
-		typedef index_list< Indices..., Index > type;
+		using type = index_list< Indices..., Index >;
 	};
 
 
@@ -537,5 +557,6 @@ namespace meta {
 	{
 	};
 
-
 }
+
+#endif

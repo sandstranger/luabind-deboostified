@@ -131,8 +131,7 @@ namespace luabind
 				template<class Policies>
 				Ret operator[](const Policies& p)
 				{
-					typedef typename detail::get_converter_policy<0, Policies>::type converter_policy;
-					typename detail::apply_converter_policy< converter_policy, Ret, lua_to_cpp >::type converter;
+					applied_converter_policy<0, Policies, Ret, lua_to_cpp > converter;
 
 					m_called = true;
 					lua_State* L = m_state;

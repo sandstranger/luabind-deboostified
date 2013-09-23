@@ -124,7 +124,7 @@ void test_main(lua_State* L)
         class_<attribute_holder>("attribute_holder")
             .def(constructor<borrowed_attribute*>())
             .def_readwrite(
-                "borrowed", &attribute_holder::borrowed, no_dependency)
+                "borrowed", &attribute_holder::borrowed, no_dependency())
     ];
 
 	DOSTRING(L, "test = property()\n");

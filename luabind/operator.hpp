@@ -38,9 +38,8 @@
 #endif
 
 #include <luabind/detail/meta.hpp>
-#include <luabind\lua_include.hpp>
-#include <luabind\detail\other.hpp>
-//#include <luabind/detail/policy.hpp>
+#include <luabind/lua_include.hpp>
+#include <luabind/detail/other.hpp>
 
 namespace luabind { namespace detail {
 
@@ -119,23 +118,6 @@ namespace detail {
 			meta::case_< std::is_same<T, const_self_type >, W const& >,
 			meta::default_< typename unwrap_other<T>::type >
 		> ::type type;
-		
-		/*
-		typedef typename std::conditional<
-			std::is_same<T, self_type >::value,
-			W&
-		
-		
-		typedef typename boost::mpl::eval_if<
-            boost::is_same<T, self_type>
-          , boost::mpl::identity<W&>
-          , boost::mpl::eval_if<
-                boost::is_same<T, const_self_type>
-              , boost::mpl::identity<W const&>
-              , unwrap_other<T>
-            >
-        >::type type;
-		*/
     };
 
     template<class Derived, class A, class B>
@@ -191,17 +173,10 @@ namespace detail {
     {
     }
 
- //   namespace mpl = boost::mpl;
-
     template<class T, class Policies>
     inline void operator_result(lua_State* L, T const& x, Policies*)
     {
-        typedef typename detail::get_converter_policy<0, Policies>::type cv_policy;
-        //typename mpl::apply_wrap2<cv_policy,T,cpp_to_lua>::type cv;
-		typename cv_policy::apply< T, cpp_to_lua >::type cv;
-
-
-        cv.apply(L, x);
+		applied_converter_policy<0, Policies, T, cpp_to_lua >().apply(L, x);
     }
 
 }} // namespace detail::luabind

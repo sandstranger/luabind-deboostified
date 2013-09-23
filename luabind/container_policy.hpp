@@ -102,9 +102,6 @@ namespace luabind { namespace detail {
 	template<class Policies = no_injectors>
 	struct container_policy : conversion_policy<>
 	{
-		static void precall(lua_State*, const index_map&) {}
-		static void postcall(lua_State*, const index_map&) {}
-
 		struct only_accepts_nonconst_pointers {};
 
 		template<class T, class Direction>
@@ -123,11 +120,9 @@ namespace luabind
 {
 	template<int N>
 	meta::type_list< converter_policy_injector<N, detail::container_policy<> > >
-	//detail::policy_cons<detail::container_policy<N, detail::null_type>, detail::null_type> 
 	container(LUABIND_PLACEHOLDER_ARG(N)) 
 	{ 
 		return meta::type_list< converter_policy_injector<N, detail::container_policy<> > >();
-		//return detail::policy_cons<detail::container_policy<N, detail::null_type>, detail::null_type>(); 
 	}
 
 	template<int N, class Policies>

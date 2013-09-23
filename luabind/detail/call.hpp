@@ -73,7 +73,7 @@ namespace luabind {
 			};
 
 			template< typename Foo >
-			struct FooFoo {
+			struct FooFoo {	// Foo!
 				enum { consumed_args = Foo::consumed_args };
 			};
 
@@ -82,12 +82,6 @@ namespace luabind {
 				typedef meta::index_list< FooFoo<ArgumentConverters>::consumed_args... > consumed_list;
 				typedef typename compute_stack_indices< consumed_list, 1 >::type stack_index_list;
 				enum { arity = meta::sum<consumed_list>::value };
-			};
-
-			template< typename ArgType, typename PolicyList, unsigned int Index >
-			struct make_arg_converter {
-				typedef typename get_converter_policy< Index, PolicyList >::type arg_policy;
-				typedef typename apply_converter_policy<arg_policy, ArgType, lua_to_cpp>::type type;
 			};
 
 			template< typename PolicyList, typename StackIndexList >
@@ -277,10 +271,11 @@ namespace luabind {
 					 meta::type_list<ReturnType, Arguments...> signature, meta::index_list<Index0,Indices...>, PolicyList)
 		{
 			typedef meta::type_list<ReturnType, Arguments...> signature_type;
-			typedef typename get_converter_policy<0, PolicyList>::type return_converter_policy;
-			typedef typename apply_converter_policy<return_converter_policy, ReturnType, cpp_to_lua>::type return_converter;
-
-			return invoke3(L, self, ctx, f, PolicyList(), meta::index_list<Index0,Indices...>(), signature, return_converter(), typename call_detail_new::make_arg_converter<Arguments, PolicyList, Indices>::type()...);
+			using return_converter = applied_converter_policy<0, PolicyList, ReturnType, cpp_to_lua>;
+			return invoke3(L, self, ctx, f, 
+				PolicyList(), meta::index_list<Index0,Indices...>(), signature,
+				return_converter(), applied_converter_policy<Indices,PolicyList,Arguments,lua_to_cpp>()...
+				);
 		}
 
 		template <class F, class Signature, typename... PolicyInjectors>

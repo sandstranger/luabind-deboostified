@@ -24,7 +24,6 @@
 #define LUABIND_RETURN_REFERENCE_TO_POLICY_HPP_INCLUDED
 
 #include <luabind/detail/policy.hpp>    // for index_map, policy_cons, etc
-
 #include <luabind/lua_include.hpp>      // for lua_State, lua_pushnil, etc
 
 namespace luabind { namespace detail
@@ -47,17 +46,12 @@ namespace luabind { namespace detail
 
 	template< unsigned int N >
 	struct return_reference_to_policy : conversion_policy<>, detail::converter_policy_has_postcall_tag
-	{
-		static void precall(lua_State*, const index_map&) {}
-		
+	{		
 		template<typename StackIndexList>
 		static void postcall(lua_State* L, int results, StackIndexList) 
 		{
-			//int result_index = indices[0];
-			//int ref_to_index = indices[N];
-
-			lua_pushvalue(L, meta::get<StackIndexList,N>::value/*ref_to_index*/);
-			lua_replace(L, meta::get<StackIndexList,0>::value+results/*result_index*/);
+			lua_pushvalue(L, meta::get<StackIndexList,N>::value);
+			lua_replace(L, meta::get<StackIndexList,0>::value+results);
 		}
 
 		template<class T, class Direction>
@@ -71,12 +65,10 @@ namespace luabind { namespace detail
 namespace luabind
 {
 	template<int N>
-	//detail::policy_cons<detail::return_reference_to_policy<N>, detail::null_type> 
 	meta::type_list< converter_policy_injector< 0, detail::return_reference_to_policy<N> > >
 	return_reference_to(LUABIND_PLACEHOLDER_ARG(N)) 
 	{ 
 		return meta::type_list< converter_policy_injector< 0, detail::return_reference_to_policy<N> > >();
-		//return detail::policy_cons<detail::return_reference_to_policy<N>, detail::null_type>(); 
 	}
 }
 

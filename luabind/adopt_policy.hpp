@@ -123,11 +123,6 @@ namespace luabind { namespace detail
 	template <class Pointer = void>
 	struct adopt_policy : conversion_policy<>
 	{
-//		BOOST_STATIC_CONSTANT(int, index = N);
-
-		static void precall(lua_State*, const index_map&) {}
-		static void postcall(lua_State*, const index_map&) {}
-
 		struct only_accepts_nonconst_pointers {};
 
 		template<class T, class Direction>

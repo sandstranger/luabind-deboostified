@@ -32,11 +32,14 @@
 
 namespace luabind { namespace detail
 {
-	template<class T>
-	struct identity
-	{
-		typedef T type;
-	};
+	template< typename T > struct is_reference_wrapper : public std::false_type { enum { value = false; }; };
+	template< typename T > struct is_reference_wrapper< std::reference_wrapper<T> > : public std::true_type{ enum { value = true }; };
+
+	template< typename T > struct apply_reference_wrapper { using type = T; };
+	template< typename T > struct apply_reference_wrapper< std::reference_wrapper<T> > { using type = T&; };
+
+	template< typename T   > struct identity { using type = T; };
+	template< typename Dst > Dst implicit_cast(typename identity<Dst>::type t) { return t; }
 
 	template<class T>
     struct type_ {};

@@ -23,11 +23,6 @@
 #ifndef LUABIND_VALUE_WRAPPER_050419_HPP
 #define LUABIND_VALUE_WRAPPER_050419_HPP
 
-#ifdef BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
-# define LUABIND_USE_VALUE_WRAPPER_TAG 
-#else
-#endif
-
 #include <type_traits>
 
 namespace luabind {
@@ -36,53 +31,11 @@ namespace luabind {
 // Concept ``ValueWrapper``
 //
 
-// TODO: Remove boost from conditional code
-#ifdef LUABIND_USE_VALUE_WRAPPER_TAG
-template<class T>
-struct value_wrapper_traits;
-    
-namespace detail 
-{ 
-
-  BOOST_MPL_HAS_XXX_TRAIT_DEF(value_wrapper_tag);
-
-  struct unspecialized_value_wrapper_traits
-  {
-      typedef std::false_type is_specialized;
-  };
-
-  template<class T>
-  struct value_wrapper_traits_aux
-  {
-      typedef value_wrapper_traits<typename T::value_wrapper_tag> type;
-  };
-
-} // namespace detail
-#endif
-
 template<class T>
 struct value_wrapper_traits
-#ifdef LUABIND_USE_VALUE_WRAPPER_TAG
-  : boost::mpl::eval_if<
-        boost::mpl::and_<
-            boost::mpl::not_<
-                boost::mpl::or_<
-                    boost::is_reference<T>
-                  , boost::is_pointer<T>
-                  , boost::is_array<T>
-                >
-            >
-          , detail::has_value_wrapper_tag<T>
-        >
-      , detail::value_wrapper_traits_aux<T>
-      , boost::mpl::identity<detail::unspecialized_value_wrapper_traits>
-    >::type
-{};
-#else
 {
     typedef std::false_type is_specialized;
 };
-#endif
 
 template<class T>
 struct is_value_wrapper

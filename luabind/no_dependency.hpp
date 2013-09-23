@@ -14,9 +14,6 @@ namespace detail
 
   struct no_dependency_policy
   {
-      static void precall(lua_State*, index_map const&)
-      {}
-
       static void postcall(lua_State*, int results, meta::index_list_tag)
       {}
   };
@@ -27,18 +24,7 @@ namespace detail
 
 } // namespace detail
 
-// wozu sind die gut?
-meta::type_list< call_policy_injector< detail::no_dependency_policy > > const no_dependency = {};
-
-namespace detail
-{
-
-  inline void ignore_unused_no_dependency()
-  {
-      (void)no_dependency;
-  }
-
-} // namespace detail
+	using no_dependency = meta::type_list< call_policy_injector< detail::no_dependency_policy > >;
 
 } // namespace luabind
 

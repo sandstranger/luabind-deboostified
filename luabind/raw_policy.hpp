@@ -48,9 +48,6 @@ namespace luabind { namespace detail  {
 
 	struct raw_policy : conversion_policy<false>
 	{
-		static void precall(lua_State*, const index_map&) {}
-		static void postcall(lua_State*, const index_map&) {}
-
 		template<class T, class Direction>
 		struct apply
 		{

@@ -50,37 +50,24 @@ namespace luabind { namespace detail
 		{
 			return refwrap.get();
 		}
-
-
 	};
 
-	
 	template<class T>
 	void convert_to_lua(lua_State* L, const T& v)
 	{
-		typedef typename unwrapped< T >::type value_type;
-		//typedef typename unwrap_ref< is_reference_wrapper<T>::value >::template apply<T>::type value_type;
-		typename default_policy::template apply<value_type, cpp_to_lua>::type converter;
-
-		converter.apply(L, unwrapped<T>::get(v));
+		using value_type = typename unwrapped< T >::type;
+		using converter_type = typename apply_converter_policy<default_policy, value_type, cpp_to_lua>::type;
+		converter_type().apply(L, unwrapped<T>::get(v));
 	}
 
 	template<int Index, class T, class ArgumentPolicies>
 	void convert_to_lua_p(lua_State* L, const T& v, const ArgumentPolicies&)
 	{
-		/*typedef typename mpl::apply_wrap1<
-			unwrap_ref<boost::is_reference_wrapper<T>::value>
-		  , T
-		>::type*/
-		typedef typename unwrapped<T>::type value_type;
-
-		typedef typename get_converter_policy<Index, ArgumentPolicies>::type converter_policy;
-		//typename mpl::apply_wrap2<converter_policy,value_type,cpp_to_lua>::type converter;
-		typename converter_policy::apply<value_type, cpp_to_lua>::type converter;
-
-
-		converter.apply(L, unwrapped<T>::get(v));
+		using value_type = typename unwrapped<T>::type;
+		applied_converter_policy<Index, ArgumentPolicies, value_type, cpp_to_lua>()
+			.apply(L, unwrapped<T>::get(v));
 	}
+
 }}
 
 #endif
