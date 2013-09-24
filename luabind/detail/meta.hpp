@@ -89,7 +89,7 @@ namespace meta {
 
 	// Used as terminator on type and index lists
 	struct null_type {};
-
+	
 	template< typename... Types >
 	struct type_list : public type_list_tag
 	{

@@ -46,6 +46,9 @@ namespace luabind { namespace detail
 
 	struct null_type {};
 
+	template< typename T > struct is_null_type              : public std::false_type {};
+	template< >            struct is_null_type< null_type > : public std::true_type  {};
+
 	struct lua_to_cpp {};
 	struct cpp_to_lua {};
 
