@@ -95,8 +95,7 @@ namespace luabind
 
 			operator Ret()
 			{
-				//typename mpl::apply_wrap2<default_policy,Ret,lua_to_cpp>::type converter;
-				typename default_policy::apply<Ret, lua_to_cpp>::type converter;
+				typename apply_converter_policy<default_policy, Ret, lua_to_cpp>::type converter;
 				m_called = true;
 
 				// don't count the function and self-reference

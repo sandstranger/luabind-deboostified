@@ -31,9 +31,6 @@
 
 namespace luabind { namespace detail {
 
-	// TODO: Remove BOOST, this code is unfunctional!
-	namespace mpl = boost::mpl;
-
 	template<class Policies>
 	struct container_converter_lua_to_cpp
 	{

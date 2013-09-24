@@ -58,7 +58,7 @@ namespace luabind
 	namespace detail
 	{
 
-		struct default_policy : converter_policy_tag
+		struct default_policy
 		{
 			static const bool has_arg = true;
 
@@ -153,9 +153,6 @@ namespace luabind
 		template< typename SignatureElement0, typename... SignatureElements >
 		struct make_default_converter_list< meta::type_list< SignatureElement0, SignatureElements... > >
 		{
-			//typedef typename default_policy::apply< SignatureElement0, cpp_to_lua >::type this_converter;
-			//typedef typename make_default_converter_list_trailing< meta::type_list< SignatureElements... >, this_converter >::type type;
-			
 			typedef meta::type_list< 
 				typename default_policy::template apply< SignatureElement0, cpp_to_lua >::type,
 			    typename default_policy::template apply< SignatureElements, lua_to_cpp >::type...	// There seems to be a serious bug here with the parameter pack expansion of msvc++?!
