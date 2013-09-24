@@ -11,8 +11,6 @@
 # include <memory>
 # include <vector>
 # include <luabind/typeid.hpp>
-# include <boost/scoped_ptr.hpp>	// TODO: unique_ptr?
-
 namespace luabind { namespace detail {
 
 typedef void*(*cast_function)(void*);
@@ -39,7 +37,7 @@ public:
 
 private:
     class impl;
-    boost::scoped_ptr<impl> m_impl;
+    std::unique_ptr<impl> m_impl;
 };
 
 // Maps a type_id to a class_id. Note that this actually partitions the

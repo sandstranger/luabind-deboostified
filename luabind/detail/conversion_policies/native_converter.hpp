@@ -25,7 +25,7 @@
 
 #include "conversion_base.hpp"
 #include <type_traits>
-#include <boost/call_traits.hpp>
+#include <luabind/detail/call_traits.hpp>
 #include <luabind\lua_include.hpp>
 #include <string>
 
@@ -39,8 +39,8 @@ namespace luabind {
 	struct native_converter_base
 	{
 		typedef std::true_type is_native;
-		typedef typename boost::call_traits<T>::value_type value_type;
-		typedef typename boost::call_traits<T>::param_type param_type;
+		typedef typename detail::call_traits<T>::value_type value_type;
+		typedef typename detail::call_traits<T>::param_type param_type;
 
 		enum { consumed_args = 1 };
 		
@@ -202,7 +202,7 @@ namespace luabind {
 	template <>
 	struct default_converter<char const*>
 	{
-		typedef boost::mpl::true_ is_native;
+		typedef std::true_type is_native;
 
 		enum { consumed_args = 1 };
 
@@ -249,15 +249,12 @@ namespace luabind {
 		: default_converter<char const*>
 	{};
 
-	// TODO: is_integral doesn't match float?
 	template <typename T>
 	struct default_converter < T, typename std::enable_if< std::is_integral<T>::value >::type >
 		: integer_converter<T> 
 	{
 	};
 
-	// template partial specialization for those types that boost knows to be
-	// floating-point
 	template <typename T>
 	struct default_converter < T, typename std::enable_if< std::is_floating_point<T>::value >::type >
 		: number_converter<T>

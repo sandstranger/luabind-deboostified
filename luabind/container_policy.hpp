@@ -83,17 +83,15 @@ namespace luabind { namespace detail {
 		void apply(lua_State* L, const T& container)
 		{
 			typedef typename T::value_type value_type;
-
-			typedef typename find_conversion_policy<1, Policies>::type converter_policy;
-			typename mpl::apply_wrap2<converter_policy,value_type,lua_to_cpp>::type converter;
+			applied_converter_policy<1, Policies, value_type, lua_to_cpp> converter;
 
 			lua_newtable(L);
 
 			int index = 1;
 
-			for (typename T::const_iterator i = container.begin(); i != container.end(); ++i)
+			for (const auto& element : container )
 			{
-				converter.apply(L, *i);
+				converter.apply(L, element);
 				lua_rawseti(L, -2, index);
 				++index;
 			}
@@ -106,13 +104,20 @@ namespace luabind { namespace detail {
 		struct only_accepts_nonconst_pointers {};
 
 		template<class T, class Direction>
-		struct apply
-		{
-			typedef typename meta::select_ <
-				meta::case_ < std::is_same<Direction, lua_to_cpp>, container_converter_lua_to_cpp<Policies> >,
-				meta::case_ < std::is_same<Direction, cpp_to_lua>, container_converter_cpp_to_lua<Policies> >
-			>::type type;
+		struct apply;
+
+		template<class T>
+		struct apply<T, lua_to_cpp> {
+			using type = container_converter_lua_to_cpp<Policies>;
 		};
+
+		template<class T>
+		struct apply<T, cpp_to_lua> {
+			using type = container_converter_cpp_to_lua<Policies>;
+		};
+
+		template< typename T, typename DirectionTag >
+		using applied = typename apply<T, DirectionTag>::type;
 	};
 
 }}

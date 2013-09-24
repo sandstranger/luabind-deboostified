@@ -24,11 +24,11 @@
 #ifndef LUABIND_OBJECT_REP_HPP_INCLUDED
 #define LUABIND_OBJECT_REP_HPP_INCLUDED
 
-#include <boost/aligned_storage.hpp>	// TODO: std::aligned_storage
 #include <luabind/config.hpp>
 #include <luabind/detail/class_rep.hpp>
 #include <luabind/detail/instance_holder.hpp>
 #include <luabind/detail/ref.hpp>
+#include <type_traits>	// std::aligned_storage
 
 namespace luabind { namespace detail
 {
@@ -71,16 +71,21 @@ namespace luabind { namespace detail
 
 		void* allocate(std::size_t size)
 		{
-			if (size <= 32)
+			if (size <= 32) {
 				return &m_instance_buffer;
-			return std::malloc(size);
+			} else {
+				return std::malloc(size);
+			}
+			
 		}
 
 		void deallocate(void* storage)
 		{
-			if (storage == &m_instance_buffer)
+			if (storage == &m_instance_buffer) {
 				return;
-			std::free(storage);
+			} else {
+				std::free(storage);
+			}
 		}
 
 	private:
@@ -92,7 +97,7 @@ namespace luabind { namespace detail
 	{}
 
         instance_holder* m_instance;
-        boost::aligned_storage<32> m_instance_buffer;
+		std::aligned_storage<32>::type m_instance_buffer;
 		class_rep* m_classrep; // the class information about this object's type
         std::size_t m_dependency_cnt; // counts dependencies
 	};

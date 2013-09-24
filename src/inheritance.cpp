@@ -8,7 +8,7 @@
 #include <map>
 #include <vector>
 #include <queue>
-#include <boost/dynamic_bitset.hpp>
+#include <vector>
 #include <luabind/typeid.hpp>
 #include <luabind/detail/inheritance.hpp>
 
@@ -158,7 +158,11 @@ std::pair<void*, int> cast_graph::impl::cast(
     std::queue<queue_entry> q;
     q.push(queue_entry(p, src, 0));
 
-    boost::dynamic_bitset<> visited(m_vertices.size());
+	// Original source used boost::dynamic_bitset but didn't make use
+	// of its advanced capability of set operations, that's why I think
+	// it's safe to use a std::vector<bool> here.
+
+	std::vector<bool> visited(m_vertices.size(),false);
 
     while (!q.empty())
     {

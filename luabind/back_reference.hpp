@@ -36,9 +36,7 @@ namespace luabind {
   struct wrap_base;
 
 namespace detail
-{
-  namespace mpl = boost::mpl;
- 
+{ 
   template<class T>
   wrap_base const* get_back_reference_aux0(T const* p, std::true_type)
   {

@@ -728,11 +728,11 @@ namespace luabind
             typedef typename Signature::signature signature;
 			typedef meta::type_list< Injectors... > InjectorList;
 
-            typedef typename boost::mpl::if_<
-                boost::is_same<WrappedType, detail::null_type>
-              , T
-              , WrappedType
-            >::type construct_type;
+			using construct_type = typename std::conditional<
+				std::is_same<WrappedType, detail::null_type>::value,
+				T,
+				WrappedType
+			>::type;
 
             this->add_member(
                 new detail::constructor_registration<

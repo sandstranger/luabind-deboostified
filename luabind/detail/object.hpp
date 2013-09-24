@@ -22,18 +22,13 @@
 
 #ifndef LUABIND_OBJECT_050419_HPP
 #define LUABIND_OBJECT_050419_HPP
-
-//#include <boost/implicit_cast.hpp> // detail::push()
-//#include <boost/ref.hpp> // detail::push()
-//
-
 // I don't feel like implementing optional myself, that's why
 // this reference to boost stays if the user decides
 // to use the nothrow policies.
 
 #ifdef LUABIND_SUPPORT_NOTHROW_POLICY
 #include <boost/config.hpp>
-#include <boost/optional.hpp>	// :-(
+#include <boost/optional.hpp>
 #endif
 
 #include <tuple>
@@ -46,9 +41,7 @@
 #include <luabind/detail/stack_utils.hpp>
 #include <luabind/detail/convert_to_lua.hpp> // REFACTOR
 #include <luabind/typeid.hpp>
-
-// Is it worth it to rewrite that iterator facade?
-#include <boost/iterator/iterator_facade.hpp> // iterator
+#include <luabind/detail/crtp_iterator.hpp>
 
 #if LUA_VERSION_NUM < 502
 # define lua_compare(L, index1, index2, fn) fn(L, index1, index2)
@@ -87,9 +80,7 @@ namespace detail
 } // namespace detail
 
 namespace adl
-{
-  namespace mpl = boost::mpl;
-  
+{  
   template <class T>
   class object_interface;
   
@@ -418,13 +409,8 @@ namespace detail
   };
 
   template<class AccessPolicy>
-  class basic_iterator 
-    : public boost::iterator_facade<
-        basic_iterator<AccessPolicy>
-      , adl::iterator_proxy<AccessPolicy>
-      , boost::single_pass_traversal_tag
-      , adl::iterator_proxy<AccessPolicy>
-    >
+  class basic_iterator :
+	  public detail::crtp_iterator < basic_iterator<AccessPolicy>, adl::iterator_proxy<AccessPolicy>, std::forward_iterator_tag, adl::iterator_proxy<AccessPolicy> >
   {
   public:
       basic_iterator()
@@ -458,7 +444,8 @@ namespace detail
       adl::object key() const;
 
   private:
-      friend class boost::iterator_core_access;
+	  template< typename, typename, typename, typename, typename >
+      friend class detail::crtp_iterator;
 
       void increment()
       {
@@ -503,29 +490,6 @@ namespace detail
       handle m_table;
       handle m_key;
   };
-
-// Needed because of some strange ADL issues.
-
-#define LUABIND_OPERATOR_ADL_WKND(op) \
-  inline bool operator op( \
-      basic_iterator<basic_access> const& x \
-    , basic_iterator<basic_access> const& y) \
-  { \
-      return boost::operator op(x, y); \
-  } \
- \
-  inline bool operator op( \
-      basic_iterator<raw_access> const& x \
-    , basic_iterator<raw_access> const& y) \
-  { \
-      return boost::operator op(x, y); \
-  }
-
-  LUABIND_OPERATOR_ADL_WKND(==)
-  LUABIND_OPERATOR_ADL_WKND(!=)
-
-#undef LUABIND_OPERATOR_ADL_WKND
- 
 } // namespace detail
 
 namespace adl

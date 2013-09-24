@@ -72,7 +72,9 @@ set(LUABIND_API
 source_group(API FILES ${LUABIND_API})
 
 set(LUABIND_DETAIL_API
-    ../luabind/detail/meta.hpp
+	../luabind/detail/meta.hpp
+	../luabind/detail/call_traits.hpp
+	../luabind/detail/crtp_iterator.hpp
 	../luabind/detail/call_function.hpp
 	../luabind/detail/call.hpp
 	../luabind/detail/call_member.hpp
