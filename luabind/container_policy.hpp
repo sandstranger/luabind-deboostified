@@ -69,7 +69,7 @@ namespace luabind { namespace detail {
 		template<class T>
 		static int match(lua_State* L, by_value<T>, int index)
 		{
-			return match(L, by_const_reference<T>(), index)
+			return match(L, by_const_reference<T>(), index);
 		}
 
 		template<class T>

@@ -425,6 +425,18 @@ namespace luabind
 			return this->virtual_def(name, fn, policies, detail::null_type());
 		}
 
+		template<typename Ret, typename C, typename... Args, typename... Injectors>
+		class_& def_nonconst(name, Ret(C::*fn)(Args...), meta::type_list<Injectors...> policies = no_injectors())
+		{
+			return def(name, fn, policies);
+		}
+
+		template<typename Ret, typename C, typename... Args, typename... Injectors>
+		class_& def_const(name, Ret(C::*fn)(Args...) const, meta::type_list<Injectors...> policies = no_injectors())
+		{
+			return def(name, fn, policies);
+		}
+
 		template<class F, class Default, typename... Injectors>
 		class_& def(char const* name, F fn, Default default_,  meta::type_list< Injectors... > policies = no_injectors() )
 		{

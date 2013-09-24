@@ -78,7 +78,6 @@ set(LUABIND_DETAIL_API
 	../luabind/detail/call_function.hpp
 	../luabind/detail/call.hpp
 	../luabind/detail/call_member.hpp
-	../luabind/detail/call_operator_iterate.hpp
 	../luabind/detail/class_registry.hpp
 	../luabind/detail/class_rep.hpp
 	../luabind/detail/constructor.hpp
@@ -96,7 +95,6 @@ set(LUABIND_DETAIL_API
 	../luabind/detail/link_compatibility.hpp
 	../luabind/detail/make_instance.hpp
 	../luabind/detail/most_derived.hpp
-	../luabind/detail/object_call.hpp
 	../luabind/detail/object.hpp
 	../luabind/detail/object_rep.hpp
 	../luabind/detail/open.hpp
