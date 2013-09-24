@@ -8,8 +8,11 @@
 #include <luabind/config.hpp>           // for LUABIND_API
 #include <type_traits>
 #include <luabind/lua_include.hpp>
+#include <luabind/detail/meta.hpp>
 
-#include <boost/optional.hpp>	// :-(
+#ifdef LUABIND_SUPPORT_NOTHROW_POLICY
+#include <boost/optional.hpp>
+#endif
 
 namespace luabind {
 
@@ -64,7 +67,7 @@ namespace detail
 # endif
 
 template<class E, class Handler>
-void register_exception_handler(Handler handler, boost::type<E>* = 0)
+void register_exception_handler(Handler handler, meta::type<E>* = 0)
 {
 # ifndef LUABIND_NO_EXCEPTIONS
     detail::register_exception_handler(
@@ -73,6 +76,7 @@ void register_exception_handler(Handler handler, boost::type<E>* = 0)
 # endif
 }
 
+#ifdef LUABIND_SUPPORT_NOTHROW_POLICY
 template<class R, class F>
 boost::optional<R> handle_exceptions(lua_State* L, F fn, boost::type<R>* = 0)
 {
@@ -91,6 +95,7 @@ boost::optional<R> handle_exceptions(lua_State* L, F fn, boost::type<R>* = 0)
     return fn();
 # endif
 }
+#endif
 
 } // namespace luabind
 

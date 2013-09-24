@@ -124,7 +124,7 @@ namespace luabind
 				// pops the return values from the function
 				stack_pop pop(L, lua_gettop(L) - top);
 
-				if (converter.match(L, LUABIND_DECORATE_TYPE(Ret), -1) < 0)
+				if (converter.match(L, decorated_type<Ret>(), -1) < 0)
 				{
 					assert(lua_gettop(L) == top + 1);
 #ifndef LUABIND_NO_EXCEPTIONS
@@ -139,7 +139,7 @@ namespace luabind
 #endif
 				}
 
-				return converter.apply(L, LUABIND_DECORATE_TYPE(Ret), -1);
+				return converter.apply(L, decorated_type<Ret>(), -1);
 			}
 
 			template<class Policies>
@@ -175,7 +175,7 @@ namespace luabind
 				// pops the return values from the function
 				stack_pop pop(L, lua_gettop(L) - top);
 
-				if (converter.match(L, LUABIND_DECORATE_TYPE(Ret), -1) < 0)
+				if (converter.match(L, decorated_type<Ret>(), -1) < 0)
 				{
 					assert(lua_gettop(L) == top + 1);
 #ifndef LUABIND_NO_EXCEPTIONS
@@ -190,7 +190,7 @@ namespace luabind
 #endif
 				}
 
-				return converter.apply(L, LUABIND_DECORATE_TYPE(Ret), -1);
+				return converter.apply(L, decorated_type<Ret>(), -1);
 			}
 
 		private:

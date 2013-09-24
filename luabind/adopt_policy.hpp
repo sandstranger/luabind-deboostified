@@ -60,7 +60,7 @@ namespace luabind { namespace detail
 		T* apply(lua_State* L, by_pointer<T>, int index)
 		{
             T* ptr = pointer_converter::apply(
-                L, LUABIND_DECORATE_TYPE(T*), index);
+                L, decorated_type<T*>(), index);
 
             object_rep* obj = static_cast<object_rep*>(
                 lua_touserdata(L, index));
@@ -74,7 +74,7 @@ namespace luabind { namespace detail
 		template<class T>
 		int match(lua_State* L, by_pointer<T>, int index)
 		{
-            return pointer_converter::match( L, LUABIND_DECORATE_TYPE(T*), index );
+            return pointer_converter::match( L, decorated_type<T*>(), index );
 		}
 
 		template<class T>
@@ -143,14 +143,14 @@ namespace luabind
 {
 	template<int N>
 	meta::type_list< converter_policy_injector< N, detail::adopt_policy< > > >
-	adopt(LUABIND_PLACEHOLDER_ARG(N))
+	adopt(meta::index<N>)
 	{ 
 		return meta::type_list< converter_policy_injector< N, detail::adopt_policy< > > >();
 	}
 
     template <class Pointer, int N>
 	meta::type_list< converter_policy_injector< N, detail::adopt_policy< Pointer > > >
-    adopt(LUABIND_PLACEHOLDER_ARG(N))
+	adopt(meta::index<N>)
     {
 		return meta::type_list< converter_policy_injector< N, detail::adopt_policy< Pointer > > >();
     }

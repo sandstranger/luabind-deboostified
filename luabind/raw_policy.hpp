@@ -61,7 +61,7 @@ namespace luabind {
 
 	template<int N>
 	meta::type_list< converter_policy_injector< N, detail::raw_policy > >
-	inline raw(LUABIND_PLACEHOLDER_ARG(N))
+	inline raw(meta::index<N>)
 	{ 
 		return meta::type_list< converter_policy_injector< N, detail::raw_policy > >();
 	}

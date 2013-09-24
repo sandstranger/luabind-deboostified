@@ -38,7 +38,6 @@ namespace luabind
 			template<class Ret, class Tuple>
 			class proxy_function_caller
 			{
-//			friend class luabind::object;
 			public:
 
 				typedef int(*function_t)(lua_State*, int, int);
@@ -112,7 +111,7 @@ namespace luabind
 					// pops the return values from the function call
 					stack_pop pop(L, lua_gettop(L) - top + m_params);
 
-					if (converter.match(L, LUABIND_DECORATE_TYPE(Ret), -1) < 0)
+					if (converter.match(L, decorated_type<Ret>(), -1) < 0)
 					{
 #ifndef LUABIND_NO_EXCEPTIONS
 						throw cast_failed(L, typeid(Ret));
@@ -125,7 +124,7 @@ namespace luabind
 						std::terminate();
 #endif
 					}
-					return converter.apply(L, LUABIND_DECORATE_TYPE(Ret), -1);
+					return converter.apply(L, decorated_type<Ret>(), -1);
 				}
 
 				template<class Policies>
@@ -157,7 +156,7 @@ namespace luabind
 					// pops the return values from the function call
 					stack_pop pop(L, lua_gettop(L) - top + m_params);
 
-					if (converter.match(L, LUABIND_DECORATE_TYPE(Ret), -1) < 0)
+					if (converter.match(L, decorated_type<Ret>(), -1) < 0)
 					{
 #ifndef LUABIND_NO_EXCEPTIONS
 						throw cast_failed(L, typeid(Ret));
@@ -172,7 +171,7 @@ namespace luabind
 #endif
 					}
 
-					return converter.apply(L, LUABIND_DECORATE_TYPE(Ret), -1);
+					return converter.apply(L, decorated_type<Ret>(), -1);
 				}
 
 			private:

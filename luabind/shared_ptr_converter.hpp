@@ -8,7 +8,7 @@
 # include <luabind/detail/policy.hpp>    // for default_converter, etc
 # include <luabind/get_main_thread.hpp>  // for get_main_thread
 # include <luabind/handle.hpp>           // for handle
-# include <luabind/detail/decorate_type.hpp>  // for LUABIND_DECORATE_TYPE
+# include <luabind/detail/decorate_type.hpp>  // for decorated_type
 #include <memory>
 
 namespace luabind {
@@ -42,14 +42,14 @@ struct default_converter<std::shared_ptr<T> >
     int match(lua_State* L, U, int index)
     {
         return default_converter<T*>::match(
-            L, LUABIND_DECORATE_TYPE(T*), index);
+            L, decorated_type<T*>(), index);
     }
 
     template <class U>
     std::shared_ptr<T> apply(lua_State* L, U, int index)
     {
         T* raw_ptr = default_converter<T*>::apply(
-            L, LUABIND_DECORATE_TYPE(T*), index);
+            L, decorated_type<T*>(), index);
         if (!raw_ptr)
             return std::shared_ptr<T>();
         return std::shared_ptr<T>(

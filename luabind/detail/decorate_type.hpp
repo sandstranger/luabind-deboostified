@@ -30,67 +30,44 @@
 namespace luabind { namespace detail
 {
 	template<class T>
-	struct decorated_type
+	struct decorated_type_helper
 	{
-		static by_value<T> t;
-		static inline by_value<T>& get() { return /*by_value<T>()*/t; }
+		using type = by_value<T>;
 	};
 
 	template<class T>
-	by_value<T> decorated_type<T>::t;
-
-	template<class T>
-	struct decorated_type<T*>
+	struct decorated_type_helper<T*>
 	{
-		static by_pointer<T> t;
-		static inline by_pointer<T>& get() { return /*by_pointer<T>()*/t; }
+		using type = by_pointer<T>;
 	};
 
 	template<class T>
-	by_pointer<T> decorated_type<T*>::t;
-
-	template<class T>
-	struct decorated_type<const T*>
+	struct decorated_type_helper<const T*>
 	{
-		static by_const_pointer<T> t;
-		static inline by_const_pointer<T> get() { return /*by_const_pointer<T>()*/t; }
+		using type = by_const_pointer<T>;
 	};
 
 	template<class T>
-	by_const_pointer<T> decorated_type<const T*>::t;
-
-	template<class T>
-	struct decorated_type<const T* const>
+	struct decorated_type_helper<const T* const>
 	{
-		static by_const_pointer<T> t;
-		static inline by_const_pointer<T>& get() { return /*by_const_pointer<T>()*/t; }
+		using type = by_const_pointer<T>;
 	};
 
 	template<class T>
-	by_const_pointer<T> decorated_type<const T* const>::t;
-
-	template<class T>
-	struct decorated_type<T&>
+	struct decorated_type_helper<T&>
 	{
-		static by_reference<T> t;
-		static inline by_reference<T>& get() { return /*by_reference<T>()*/t; }
+		using type = by_reference<T>;
 	};
 
 	template<class T>
-	by_reference<T> decorated_type<T&>::t;
-
-	template<class T>
-	struct decorated_type<const T&>
+	struct decorated_type_helper<const T&>
 	{
-		static by_const_reference<T> t;
-		static inline by_const_reference<T>& get() { return /*by_const_reference<T>()*/t; }
+		using type = by_const_reference<T>;
 	};
+}
 
-	template<class T>
-	by_const_reference<T> decorated_type<const T&>::t;
-
-	#define LUABIND_DECORATE_TYPE(t) luabind::detail::decorated_type<t>::get()
-
-}}
+	template< typename T >
+	using decorated_type = typename luabind::detail::decorated_type_helper<T>::type;
+}
 
 #endif // LUABIND_DECORATE_TYPE_HPP_INCLUDED

@@ -87,14 +87,14 @@ namespace luabind
 {
 	template<unsigned int A, unsigned int B>
 	meta::type_list< call_policy_injector< detail::dependency_policy<A,B> > >
-	dependency(LUABIND_PLACEHOLDER_ARG(A), LUABIND_PLACEHOLDER_ARG(B))
+	dependency(meta::index<A>, meta::index<B>)
 	{
 		return meta::type_list< call_policy_injector < detail::dependency_policy < A, B > > > ();
 	}
 
 	template<unsigned int A>
 	meta::type_list < call_policy_injector < detail::dependency_policy < 0, A > > >
-	return_internal_reference(LUABIND_PLACEHOLDER_ARG(A))
+	return_internal_reference(meta::index<A>)
 	{
 		return meta::type_list < call_policy_injector < detail::dependency_policy < 0, A > >> ();
 	}

@@ -26,7 +26,7 @@
 
 #include <luabind/config.hpp>
 #include <luabind/detail/policy.hpp>
-#include <luabind/detail/decorate_type.hpp>  // for LUABIND_DECORATE_TYPE
+#include <luabind/detail/decorate_type.hpp>  // for decorated_type
 #include <luabind/detail/primitives.hpp>  // for null_type (ptr only), etc
 
 namespace luabind { namespace detail {
@@ -43,16 +43,14 @@ namespace luabind { namespace detail {
 		T apply(lua_State* L, by_const_reference<T>, int index)
 		{
 			typedef typename T::value_type value_type;
-
-			typedef typename find_conversion_policy<1, Policies>::type converter_policy;
-			typename mpl::apply_wrap2<converter_policy,value_type,lua_to_cpp>::type converter;
+			applied_converter_policy<1, Policies, value_type, lua_to_cpp> converter;
 
 			T container;
 
 			lua_pushnil(L);
-			while (lua_next(L, index))
+			while (lua_next(L, index-1))
 			{
-				container.push_back(converter.apply(L, LUABIND_DECORATE_TYPE(value_type), -1));
+				container.push_back(converter.apply(L, decorated_type<value_type>(), -1));
 				lua_pop(L, 1); // pop value
 			}
 
@@ -69,6 +67,12 @@ namespace luabind { namespace detail {
 		static int match(lua_State* L, by_const_reference<T>, int index)
 		{
 			if (lua_istable(L, index)) return 0; else return -1;
+		}
+
+		template<class T>
+		static int match(lua_State* L, by_value<T>, int index)
+		{
+			return match(L, by_const_reference<T>(), index)
 		}
 
 		template<class T>
@@ -120,14 +124,14 @@ namespace luabind
 {
 	template<int N>
 	meta::type_list< converter_policy_injector<N, detail::container_policy<> > >
-	container(LUABIND_PLACEHOLDER_ARG(N)) 
+	container(meta::index<N>) 
 	{ 
 		return meta::type_list< converter_policy_injector<N, detail::container_policy<> > >();
 	}
 
 	template<int N, class Policies>
 	meta::type_list< converter_policy_injector<N, detail::container_policy<Policies> > >
-	container(LUABIND_PLACEHOLDER_ARG(N), const Policies&) 
+	container(meta::index<N>, const Policies&) 
 	{ 
 		return meta::type_list< converter_policy_injector<N, detail::container_policy<Policies> > >();
 	}

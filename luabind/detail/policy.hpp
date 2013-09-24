@@ -153,14 +153,14 @@ namespace luabind
 		template< typename SignatureElement0, typename... SignatureElements >
 		struct make_default_converter_list< meta::type_list< SignatureElement0, SignatureElements... > >
 		{
-			typedef typename default_policy::apply< SignatureElement0, cpp_to_lua >::type this_converter;
-			typedef typename make_default_converter_list_trailing< meta::type_list< SignatureElements... >, this_converter >::type type;
-			/*
+			//typedef typename default_policy::apply< SignatureElement0, cpp_to_lua >::type this_converter;
+			//typedef typename make_default_converter_list_trailing< meta::type_list< SignatureElements... >, this_converter >::type type;
+			
 			typedef meta::type_list< 
-				typename default_policy::apply< SignatureElement0, cpp_to_lua >::type,
-			    typename default_policy::apply< SignatureElements, lua_to_cpp >::type...	// There seems to be a serious bug here with the parameter pack expansion of msvc++?!
+				typename default_policy::template apply< SignatureElement0, cpp_to_lua >::type,
+			    typename default_policy::template apply< SignatureElements, lua_to_cpp >::type...	// There seems to be a serious bug here with the parameter pack expansion of msvc++?!
 			> type;			
-			*/
+			
 		};
 
 	}
@@ -174,8 +174,6 @@ namespace luabind { namespace
   static meta::index<1> _1;
   static meta::index<2> _2;
   static meta::index<3> _3;
-
-# define LUABIND_PLACEHOLDER_ARG(N) meta::index<N>
 }}
 
 #endif // LUABIND_POLICY_HPP_INCLUDED

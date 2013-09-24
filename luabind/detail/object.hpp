@@ -925,13 +925,13 @@ namespace detail
 	  applied_converter_policy<0, Policies, T, lua_to_cpp> cv;
 
 #ifndef LUABIND_NO_ERROR_CHECKING
-      if (cv.match(interpreter, LUABIND_DECORATE_TYPE(T), -1) < 0)
+      if (cv.match(interpreter, decorated_type<T>(), -1) < 0)
       {
           return ErrorPolicy::handle_error(interpreter, typeid(T));
       }
 #endif
 
-      return cv.apply(interpreter, LUABIND_DECORATE_TYPE(T), -1);
+      return cv.apply(interpreter, decorated_type<T>(), -1);
   }
 
 # ifdef BOOST_MSVC

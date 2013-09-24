@@ -26,7 +26,7 @@
 
 #include <luabind/config.hpp>
 #include <luabind/detail/policy.hpp>    // for find_conversion_policy, etc
-#include <luabind/detail/decorate_type.hpp>  // for LUABIND_DECORATE_TYPE
+#include <luabind/detail/decorate_type.hpp>  // for decorated_type
 #include <luabind/detail/primitives.hpp>  // for by_pointer, by_reference, etc
 #include <luabind/detail/typetraits.hpp>  // for is_nonconst_pointer, is_nonconst_reference, etc
 #include <new>                          // for operator new
@@ -57,7 +57,7 @@ namespace luabind { namespace detail
 	template<class T>
 	struct indirect_sizeof
 	{
-		static const int value = sizeof(indirect_sizeof_test(LUABIND_DECORATE_TYPE(T)));
+		static const int value = sizeof(indirect_sizeof_test(decorated_type<T>()));
 	};
 	
 	template<int Size, class Policies = no_injectors>
@@ -72,10 +72,10 @@ namespace luabind { namespace detail
 
 #if defined(__GNUC__) && __GNUC__ >= 4
 			T* storage = reinterpret_cast<T*>(m_storage);
-			new (storage) T(converter.apply(L, LUABIND_DECORATE_TYPE(T), index));
+			new (storage) T(converter.apply(L, decorated_type<T>(), index));
 			return *storage;
 #else
-			new (m_storage) T(converter.apply(L, LUABIND_DECORATE_TYPE(T), index));
+			new (m_storage) T(converter.apply(L, decorated_type<T>(), index));
 			return *reinterpret_cast<T*>(m_storage);
 #endif
 		}
@@ -83,7 +83,7 @@ namespace luabind { namespace detail
 		template<class T>
 		static int match(lua_State* L, by_reference<T>, int index)
 		{
-			return applied_converter_policy<1, Policies, T, lua_to_cpp >::match(L, LUABIND_DECORATE_TYPE(T), index);
+			return applied_converter_policy<1, Policies, T, lua_to_cpp >::match(L, decorated_type<T>(), index);
 		}
 
 		template<class T>
@@ -109,7 +109,7 @@ namespace luabind { namespace detail
 			new (storage) T(converter.apply(L, LUABIND_DECORATE_TYPE(T), index));
 			return storage;
 #else
-			new (m_storage) T(converter.apply(L, LUABIND_DECORATE_TYPE(T), index));
+			new (m_storage) T(converter.apply(L, decorated_type<T>(), index));
 			return reinterpret_cast<T*>(m_storage);
 #endif
 		}
@@ -117,7 +117,7 @@ namespace luabind { namespace detail
 		template<class T>
 		static int match(lua_State* L, by_pointer<T>, int index)
 		{
-			return applied_converter_policy<1,Policies,T,lua_to_cpp>::match(L, LUABIND_DECORATE_TYPE(T), index);
+			return applied_converter_policy<1, Policies, T, lua_to_cpp>::match(L, decorated_type<T>(), index);
 		}
 
 		template<class T>
@@ -251,28 +251,28 @@ namespace luabind
 {
 	template<int N>
 	meta::type_list< converter_policy_injector< N, detail::out_value_policy< > > > 
-	out_value(LUABIND_PLACEHOLDER_ARG(N)) 
+	out_value(meta::index<N>) 
 	{ 
 		return meta::type_list < converter_policy_injector< N, detail::out_value_policy< > >();
 	}
 
 	template<int N, class Policies>
 	meta::type_list < converter_policy_injector< N, detail::out_value_policy< Policies > > >
-	out_value(LUABIND_PLACEHOLDER_ARG(N), const Policies&) 
+	out_value(meta::index<N>, const Policies&) 
 	{ 
 		return meta::type_list < converter_policy_injector< N, detail::out_value_policy< Policies > >();
 	}
 
 	template<int N>
 	meta::type_list< converter_policy_injector< N, detail::pure_out_value_policy< > > >
-	pure_out_value(LUABIND_PLACEHOLDER_ARG(N)) 
+	pure_out_value(meta::index<N>) 
 	{ 
 		return meta::type_list< converter_policy_injector< N, detail::pure_out_value_policy< > > >();
 	}
 
 	template<int N, class Policies>
 	meta::type_list< converter_policy_injector< N, detail::pure_out_value_policy<Policies> > >
-	pure_out_value(LUABIND_PLACEHOLDER_ARG(N), const Policies&) 
+	pure_out_value(meta::index<N>, const Policies&) 
 	{ 
 		return meta::type_list< converter_policy_injector< N, detail::pure_out_value_policy<Policies> > >();
 	}

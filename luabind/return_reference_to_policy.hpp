@@ -66,7 +66,7 @@ namespace luabind
 {
 	template<int N>
 	meta::type_list< converter_policy_injector< 0, detail::return_reference_to_policy<N> > >
-	return_reference_to(LUABIND_PLACEHOLDER_ARG(N)) 
+	return_reference_to(meta::index<N>) 
 	{ 
 		return meta::type_list< converter_policy_injector< 0, detail::return_reference_to_policy<N> > >();
 	}

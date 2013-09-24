@@ -137,7 +137,7 @@ namespace luabind {
 			ArgumentConverter0& converter0, ArgumentConverters&... converters
 			)
 		{
-			const int this_match  = converter0.match(L, decorated_type<ArgumentType0>().get(), StackIndex0);
+			const int this_match  = converter0.match(L, decorated_type<ArgumentType0>(), StackIndex0);
 			const int other_match = match_deferred(L, meta::index_list<StackIndices...>(), meta::type_list<ArgumentTypes...>(), converters...);
 			return (this_match >= 0 && other_match >= 0) ? this_match + other_match : -1;
 		}
@@ -154,8 +154,8 @@ namespace luabind {
 						 )
 			{
 				
-				((arg0_converter.apply(L, decorated_type<ArgumentType0>::get(), StackIndex0)).*f)(
-					arg_converters.apply(L, decorated_type<ArgumentTypes>::get(), StackIndices)...
+				((arg0_converter.apply(L, decorated_type<ArgumentType0>(), StackIndex0)).*f)(
+					arg_converters.apply(L, decorated_type<ArgumentTypes>(), StackIndices)...
 				);
 					
 			}
@@ -170,8 +170,8 @@ namespace luabind {
 				)
 			{
 				result_converter.apply(L,
-					((arg0_converter.apply(L, decorated_type<ArgumentType0>::get(), StackIndex0)).*f)(
-					arg_converters.apply(L, decorated_type<ArgumentTypes>::get(), StackIndices)...
+					((arg0_converter.apply(L, decorated_type<ArgumentType0>(), StackIndex0)).*f)(
+					arg_converters.apply(L, decorated_type<ArgumentTypes>(), StackIndices)...
 					)
 					);
 			}
@@ -189,7 +189,7 @@ namespace luabind {
 			meta::index_list<StackIndices...>, meta::type_list<ArgumentTypes...>,
 			ReturnConverter& result_converter, ArgumentConverters&... arg_converters)
 			{
-				f(arg_converters.apply(L, decorated_type<ArgumentTypes>::get(), StackIndices)...);
+				f(arg_converters.apply(L, decorated_type<ArgumentTypes>(), StackIndices)...);
 			}
 		};
 
@@ -205,7 +205,7 @@ namespace luabind {
 			ReturnConverter& result_converter, ArgumentConverters&... arg_converters)
 			{
 				result_converter.apply(L,
-					f(arg_converters.apply(L, decorated_type<ArgumentTypes>::get(), StackIndices)...)
+					f(arg_converters.apply(L, decorated_type<ArgumentTypes>(), StackIndices)...)
 					);
 			}
 		};
@@ -252,7 +252,7 @@ namespace luabind {
 			if (score == ctx.best_score && ctx.candidate_index == 1)
 			{
 				do_call_struct<F, std::is_void<ReturnType>::value>::do_call(L, f, invoke_values::stack_index_list(), argument_list_type(), return_converter, argument_converters...);
-				expand_calls_hack( (argument_converters.converter_postcall(L, decorated_type<Arguments>::get(), meta::get< typename invoke_values::stack_index_list, Indices-1 >::value), 0)... );
+				expand_calls_hack( (argument_converters.converter_postcall(L, decorated_type<Arguments>(), meta::get< typename invoke_values::stack_index_list, Indices-1 >::value), 0)... );
 				
 				results = lua_gettop(L) - invoke_values::arity;
 				if (has_call_policy<PolicyList, yield_policy>::value) {
