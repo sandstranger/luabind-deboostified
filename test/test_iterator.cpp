@@ -6,7 +6,7 @@
 
 #include <luabind/luabind.hpp>
 #include <luabind/iterator_policy.hpp>
-#include <boost/iterator/iterator_adaptor.hpp>
+#include <luabind/detail/crtp_iterator.hpp>
 
 struct container
 {
@@ -17,26 +17,36 @@ struct container
     }
 
     struct iterator
-      : boost::iterator_adaptor<iterator, int*>
+		: public luabind::detail::crtp_iterator< iterator, std::forward_iterator_tag, int >
     {
         static std::size_t alive;
 
         iterator(int* p)
-          : iterator::iterator_adaptor_(p)
+			: p_(p)
         {
             ++alive;
         }
 
-        iterator(iterator const& other)
-          : iterator::iterator_adaptor_(other)
-        {
-            ++alive;
-        }
+		void increment() {
+			++p_;
+		}
+
+		int& dereference() {
+			return *p_;
+		}
+
+		bool equal(const iterator& other) const
+		{
+			return p_ == other.p_;
+		}
 
         ~iterator()
         {
             --alive;
         }
+
+	private:
+		int* p_;
     };
 
     iterator begin()
@@ -67,7 +77,7 @@ void test_main(lua_State* L)
     [
         class_<cls>("cls")
           .def(constructor<>())
-          .def_readonly("iterable", &cls::iterable, return_stl_iterator)
+          .def_readonly("iterable", &cls::iterable, return_stl_iterator())
     ];
 
     DOSTRING(L,

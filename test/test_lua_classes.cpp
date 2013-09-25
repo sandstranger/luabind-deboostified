@@ -25,7 +25,7 @@
 #include <luabind/luabind.hpp>
 #include <luabind/wrapper_base.hpp>
 #include <luabind/adopt_policy.hpp>
-#include <luabind\detail\debug.hpp>
+#include <luabind/detail/debug.hpp>
 #include <memory>
 
 namespace luabind {

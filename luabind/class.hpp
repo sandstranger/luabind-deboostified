@@ -451,14 +451,14 @@ namespace luabind
 
 		// IntelliSense bug squiggles the code, but it does compile!
 		template<typename Ret, typename C, typename... Args, typename... Injectors>
-		class_& def_nonconst(name, Ret(C::*fn)(Args...), meta::type_list<Injectors...> policies = no_injectors())
+		class_& def_nonconst(char const* name, Ret(C::*fn)(Args...), meta::type_list<Injectors...> policies = no_injectors())
 		{
 			return def(name, fn, policies);
 		}
 
 		// IntelliSense bug squiggles the code, but it does compile!
 		template<typename Ret, typename C, typename... Args, typename... Injectors>
-		class_& def_const(name, Ret(C::*fn)(Args...) const, meta::type_list<Injectors...> policies = no_injectors())
+		class_& def_const(char const* name, Ret(C::*fn)(Args...) const, meta::type_list<Injectors...> policies = no_injectors())
 		{
 			return def(name, fn, policies);
 		}

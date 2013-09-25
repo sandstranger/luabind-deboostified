@@ -99,11 +99,11 @@ struct iterator_policy : conversion_policy<>
 
 }} // namespace luabind::detail
 
-namespace luabind { namespace {
+namespace luabind { 
 
-	meta::type_list< converter_policy_injector< 0, detail::iterator_policy > > return_stl_iterator;
+	using return_stl_iterator = meta::type_list< converter_policy_injector< 0, detail::iterator_policy > >;
 
-}} // namespace luabind::unnamed
+} // namespace luabind::unnamed
 
 #endif // LUABIND_ITERATOR_POLICY__071111_HPP
 
