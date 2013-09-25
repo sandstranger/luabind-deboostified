@@ -86,18 +86,10 @@ namespace luabind { namespace detail
 namespace luabind
 {
 	template<unsigned int A, unsigned int B>
-	meta::type_list< call_policy_injector< detail::dependency_policy<A,B> > >
-	dependency(meta::index<A>, meta::index<B>)
-	{
-		return meta::type_list< call_policy_injector < detail::dependency_policy < A, B > > > ();
-	}
+	using dependency_policy = meta::type_list<call_policy_injector<detail::dependency_policy<A,B>>>;
 
 	template<unsigned int A>
-	meta::type_list < call_policy_injector < detail::dependency_policy < 0, A > > >
-	return_internal_reference(meta::index<A>)
-	{
-		return meta::type_list < call_policy_injector < detail::dependency_policy < 0, A > >> ();
-	}
+	using return_internal_reference = meta::type_list<call_policy_injector<detail::dependency_policy<0,A>>>;
 }
 
 #endif // LUABIND_DEPENDENCY_POLICY_HPP_INCLUDED

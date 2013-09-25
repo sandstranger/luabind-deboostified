@@ -53,12 +53,7 @@ namespace luabind { namespace detail
 
 namespace luabind
 {
-  typedef meta::type_list< converter_policy_injector< 0, detail::discard_result_policy > > discard_result_list;
-
-  inline discard_result_list discard_result()
-  {
-	  return discard_result_list();
-  }
+   using discard_result = meta::type_list<converter_policy_injector<0,detail::discard_result_policy>>;
 }
 
 #endif // LUABIND_DISCARD_RESULT_POLICY_HPP_INCLUDED

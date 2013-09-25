@@ -27,6 +27,12 @@ struct container
             ++alive;
         }
 
+		iterator(const iterator& other)
+			: p_(other.p_)
+		{
+			++alive;
+		}
+
 		void increment() {
 			++p_;
 		}

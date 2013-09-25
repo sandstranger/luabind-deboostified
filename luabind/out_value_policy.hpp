@@ -249,33 +249,11 @@ namespace luabind { namespace detail
 
 namespace luabind
 {
-	template<int N>
-	meta::type_list< converter_policy_injector< N, detail::out_value_policy< > > > 
-	out_value(meta::index<N>) 
-	{ 
-		return meta::type_list < converter_policy_injector< N, detail::out_value_policy< > >();
-	}
+	template<unsigned int N, class Policies = no_injectors >
+	using out_value = meta::type_list<converter_policy_injector<N,detail::out_value_policy<Policies>>>;
 
-	template<int N, class Policies>
-	meta::type_list < converter_policy_injector< N, detail::out_value_policy< Policies > > >
-	out_value(meta::index<N>, const Policies&) 
-	{ 
-		return meta::type_list < converter_policy_injector< N, detail::out_value_policy< Policies > >();
-	}
-
-	template<int N>
-	meta::type_list< converter_policy_injector< N, detail::pure_out_value_policy< > > >
-	pure_out_value(meta::index<N>) 
-	{ 
-		return meta::type_list< converter_policy_injector< N, detail::pure_out_value_policy< > > >();
-	}
-
-	template<int N, class Policies>
-	meta::type_list< converter_policy_injector< N, detail::pure_out_value_policy<Policies> > >
-	pure_out_value(meta::index<N>, const Policies&) 
-	{ 
-		return meta::type_list< converter_policy_injector< N, detail::pure_out_value_policy<Policies> > >();
-	}
+	template<unsigned int N, class Policies = no_injectors >
+	using pure_out_value = meta::type_list<converter_policy_injector<N,detail::pure_out_value_policy<Policies>>>;
 }
 
 #endif // LUABIND_OUT_VALUE_POLICY_HPP_INCLUDED

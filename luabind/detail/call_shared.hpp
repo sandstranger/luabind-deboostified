@@ -20,48 +20,46 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
 // OR OTHER DEALINGS IN THE SOFTWARE.
 
+#ifndef LUABIND_CALL_SHARED_HPP_INCLUDED
+#define LUABIND_CALL_SHARED_HPP_INCLUDED
 
-#ifndef LUABIND_CONVERT_TO_LUA_HPP_INCLUDED
-#define LUABIND_CONVERT_TO_LUA_HPP_INCLUDED
+namespace luabind {
+	namespace detail {
 
-#include <luabind/config.hpp>
-#include <luabind/detail/policy.hpp>
-
-namespace luabind { namespace detail
-{
-
-	template< typename T >
-	struct unwrapped {
-		static const bool is_wrapped_ref = false;
-		typedef T type;
-
-		static const T& get( const T& t ) {
-			return t;
-		}
-	};
-
-	template< typename T >
-	struct unwrapped< std::reference_wrapper< T > >
-	{
-		static const bool is_wrapped_ref = true;
-		typedef typename T& type;
-
-		static T& get(const std::reference_wrapper<T>& refwrap)
+		inline void call_error(lua_State* L)
 		{
-			return refwrap.get();
+#ifndef LUABIND_NO_EXCEPTIONS
+			throw luabind::error(L);
+#else
+			error_callback_fun e = get_error_callback();
+			if (e) e(L);
+
+			assert(0 && "the lua function threw an error and exceptions are disabled."
+				" If you want to handle the error you can use luabind::set_error_callback()");
+			std::terminate();
+#endif
 		}
-	};
 
-	template<unsigned int PolicyIndex=1, typename Policies = no_injectors, typename T>
-	void push_to_lua(lua_State* L, const T& v)
-	{
-		using value_type = typename unwrapped< T >::type;
-		
-		applied_converter_policy<PolicyIndex, Policies, value_type, cpp_to_lua>()
-			.apply(L, unwrapped<T>::get(v));
+		template<typename T>
+		void cast_error(lua_State* L)
+		{
+#ifndef LUABIND_NO_EXCEPTIONS
+			throw cast_failed(L, typeid(T));
+#else
+			cast_failed_callback_fun e = get_cast_failed_callback();
+			if (e) e(L, typeid(Ret));
+
+			assert(0 && "the lua function's return value could not be converted."
+				" If you want to handle the error you can use luabind::set_error_callback()");
+			std::terminate();
+#endif	
+		}
+
+		template< typename... Args >
+		void expand_hack(Args... args)
+		{}
+
 	}
-
-}}
+}
 
 #endif
-

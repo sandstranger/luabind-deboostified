@@ -64,12 +64,8 @@ namespace luabind { namespace detail
 
 namespace luabind
 {
-	template<int N>
-	meta::type_list< converter_policy_injector< 0, detail::return_reference_to_policy<N> > >
-	return_reference_to(meta::index<N>) 
-	{ 
-		return meta::type_list< converter_policy_injector< 0, detail::return_reference_to_policy<N> > >();
-	}
+	template<unsigned int N>
+	using return_reference_to = meta::type_list<converter_policy_injector<0,detail::return_reference_to_policy<N>>>;
 }
 
 #endif // LUABIND_RETURN_REFERENCE_TO_POLICY_HPP_INCLUDED

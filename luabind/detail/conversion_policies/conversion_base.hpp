@@ -54,11 +54,11 @@ namespace luabind {
 
 		// Something's strange with the references here... need to know when to copy :(
 		template <class T, class Clone>
-		void make_pointee_instance(lua_State* L, T& x, std::true_type, Clone)
+		void make_pointee_instance(lua_State* L, T&& x, std::true_type, Clone)
 		{
 			if (get_pointer(x))
 			{
-				make_instance(L, std::move(x));
+				make_instance(L, std::forward<T>(x));
 			}
 			else
 			{
@@ -82,9 +82,9 @@ namespace luabind {
 		}
 
 		template <class T, class Clone>
-		void make_pointee_instance(lua_State* L, T& x, Clone)
+		void make_pointee_instance(lua_State* L, T&& x, Clone)
 		{
-			make_pointee_instance(L, std::move(x), has_get_pointer<T>(), Clone());
+			make_pointee_instance(L, std::forward<T>(x), has_get_pointer<T>(), Clone());
 		}
 	}
 

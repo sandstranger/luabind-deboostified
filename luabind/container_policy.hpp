@@ -124,19 +124,8 @@ namespace luabind { namespace detail {
 
 namespace luabind
 {
-	template<int N>
-	meta::type_list< converter_policy_injector<N, detail::container_policy<> > >
-	container(meta::index<N>) 
-	{ 
-		return meta::type_list< converter_policy_injector<N, detail::container_policy<> > >();
-	}
-
-	template<int N, class Policies>
-	meta::type_list< converter_policy_injector<N, detail::container_policy<Policies> > >
-	container(meta::index<N>, const Policies&) 
-	{ 
-		return meta::type_list< converter_policy_injector<N, detail::container_policy<Policies> > >();
-	}
+	template<unsigned int N, typename ElementPolicies = no_injectors >
+	using container_policy = meta::type_list<converter_policy_injector<N,detail::container_policy<ElementPolicies>>>;
 }
 
 #endif // LUABIND_CONTAINER_POLICY_HPP_INCLUDED

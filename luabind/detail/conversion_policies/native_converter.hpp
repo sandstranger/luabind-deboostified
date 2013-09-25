@@ -249,6 +249,11 @@ namespace luabind {
 		: default_converter<char const*>
 	{};
 
+	template <std::size_t N>
+	struct default_converter <const char(&)[N]>
+		: default_converter<char const*>
+	{};
+
 	template <typename T>
 	struct default_converter < T, typename std::enable_if< std::is_integral<T>::value >::type >
 		: integer_converter<T> 

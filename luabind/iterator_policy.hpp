@@ -25,7 +25,7 @@ struct iterator
 
         if (self->first != self->last)
         {
-            convert_to_lua(L, *self->first);
+            push_to_lua(L, *self->first);
             ++self->first;
         }
         else
@@ -101,7 +101,7 @@ struct iterator_policy : conversion_policy<>
 
 namespace luabind { 
 
-	using return_stl_iterator = meta::type_list< converter_policy_injector< 0, detail::iterator_policy > >;
+	using return_stl_iterator = meta::type_list<converter_policy_injector<0,detail::iterator_policy>>;
 
 } // namespace luabind::unnamed
 

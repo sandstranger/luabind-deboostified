@@ -210,10 +210,6 @@ namespace luabind {
 			}
 		};
 
-
-		template< typename... Arguments >
-		void expand_calls_hack( Arguments... args ) {}
-
 		template< typename F, typename ReturnType, typename... Arguments,
 				  typename ReturnConverter, typename... ArgumentConverters,
 				  unsigned int Index0, unsigned int... Indices, typename PolicyList
@@ -252,7 +248,7 @@ namespace luabind {
 			if (score == ctx.best_score && ctx.candidate_index == 1)
 			{
 				do_call_struct<F, std::is_void<ReturnType>::value>::do_call(L, f, invoke_values::stack_index_list(), argument_list_type(), return_converter, argument_converters...);
-				expand_calls_hack( (argument_converters.converter_postcall(L, decorated_type<Arguments>(), meta::get< typename invoke_values::stack_index_list, Indices-1 >::value), 0)... );
+				meta::expand_calls_hack( (argument_converters.converter_postcall(L, decorated_type<Arguments>(), meta::get< typename invoke_values::stack_index_list, Indices-1 >::value), 0)... );
 				
 				results = lua_gettop(L) - invoke_values::arity;
 				if (has_call_policy<PolicyList, yield_policy>::value) {

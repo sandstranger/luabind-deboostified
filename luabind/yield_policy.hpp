@@ -38,8 +38,7 @@ namespace luabind { namespace detail
 
 namespace luabind
 {
-	using yield_list = meta::type_list< call_policy_injector< detail::yield_policy > >;
-	using yield = yield_list;
+	using yield = meta::type_list<call_policy_injector<detail::yield_policy>>;
 }
 
 #endif // LUABIND_YIELD_POLICY_HPP_INCLUDED

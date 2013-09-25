@@ -154,6 +154,9 @@ namespace luabind
     {
 		return meta::type_list< converter_policy_injector< N, detail::adopt_policy< Pointer > > >();
     }
+
+	template<unsigned int N, typename Pointer = void>
+	using adopt_policy = meta::type_list<converter_policy_injector< N, detail::adopt_policy< Pointer >>>;
 }
 
 #endif // LUABIND_ADOPT_POLICY_HPP_INCLUDE

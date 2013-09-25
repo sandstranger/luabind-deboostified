@@ -28,12 +28,16 @@ namespace meta {
 	struct type
 	{};
 
-	// Use this to unpack a parameter pack into a list if T's
+	// Use this to unpack a parameter pack into a list of T's
 	template< typename T, typename DontCare >
 	struct unpack_helper
 	{
 		using type =  T;
 	};
+
+	template< typename... Args >
+	void expand_calls_hack(Args&&... args)
+	{}
 
 	// common operators
 	template< typename T >
@@ -454,6 +458,9 @@ namespace meta {
 	struct make_index_range {
 		using type = typename detail::make_index_range< start, end >::type;
 	};
+
+	template< unsigned int start, unsigned int end >
+	using index_range = typename make_index_range<start, end>::type;
 
 	/*
 	Exracts the first N elements of an index list and creates a new index list from them

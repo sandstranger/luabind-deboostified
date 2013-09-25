@@ -58,6 +58,7 @@ namespace luabind {
 
 	namespace detail {
 
+		// This is the one that gets hit, if default_policy doesn't hit one of the specializations defined all over the place
 		template< class T >
 		struct default_converter_generator
 			: public meta::select_ <

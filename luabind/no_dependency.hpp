@@ -24,7 +24,7 @@ namespace detail
 
 } // namespace detail
 
-	using no_dependency = meta::type_list< call_policy_injector< detail::no_dependency_policy > >;
+	using no_dependency = meta::type_list<call_policy_injector<detail::no_dependency_policy>>;
 
 } // namespace luabind
 

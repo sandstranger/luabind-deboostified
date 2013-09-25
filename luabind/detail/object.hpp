@@ -998,14 +998,14 @@ namespace detail
 		inline static void apply(lua_State* L, const Tuple& x, const Policies& p)
 		{
 			// luabind default stuff seems to be 1-based ... need to fixup
-			convert_to_lua_p<Index+1>(L, *std::get<Index>(x), p);	
+			push_to_lua<Index+1,Policies>(L, *std::get<Index>(x));	
 			push_args_from_tuple<Tuple, Index + 1>::apply(L, x, p);
 		}
 
 		inline static void apply(lua_State* L, const Tuple& x)
 		{
 			// luabind default stuff seems to be 1-based ... need to fixup
-			convert_to_lua(L, *std::get<Index>(x));
+			push_to_lua(L, *std::get<Index>(x));
 			push_args_from_tuple<Tuple, Index+1>::apply(L, x);
 		}
 	};

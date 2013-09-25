@@ -49,31 +49,15 @@ namespace luabind
 	{
 		detail::lua_reference m_strong_ref;
 	};
-	
-	namespace detail {
-
-		template< typename R, typename... Args >
-		struct ProxyType {
-			typedef typename std::conditional <
-				std::is_void<R>::value,
-				proxy_member_void_caller<std::tuple<Args*...> >,
-				proxy_member_caller<R, std::tuple<Args*...> >
-			> ::type type;
-		};
-
-	}
-	
+		
 	struct wrap_base
 	{
 		friend struct detail::wrap_access;
 		wrap_base() {}
 
 		template<class R, typename... Args>
-		typename detail::ProxyType<R, Args...>::type
-			call(char const* name, detail::type_<R>* = 0, Args&&... args ) const
+		R call(char const* name, Args&&... args ) const
 		{
-			auto args_tuple = std::tuple<const Args*...>(&std::forward<Args>(args)...);
-
 			// this will be cleaned up by the proxy object
 			// once the call has been made
 
@@ -99,7 +83,7 @@ namespace luabind
 			// now the function and self objects
 			// are on the stack. These will both
 			// be popped by pcall
-			return detail::ProxyType<R,Args...>::type(L, args_tuple);
+			return detail::call_member_impl<R>(L,std::is_void<R>(), meta::index_range<1,sizeof...(Args)+1>(), std::forward<Args>(args)... );
 		}
 
 	private:
@@ -107,10 +91,9 @@ namespace luabind
 	};
 
 	template <class R, typename... Args>
-	typename detail::ProxyType<R,Args...>::type
-	call_member( wrap_base const* self, char const* fn, Args&&... args /*, detail::type_<R>* = 0*/ )
+	R call_member( wrap_base const* self, char const* fn, Args&&... args )
 	{
-		return self->call(fn, (detail::type_<R>*)0, std::forward<Args>(args)... );
+		return self->call<R>(fn, std::forward<Args>(args)... );
 	}
 
 	namespace detail

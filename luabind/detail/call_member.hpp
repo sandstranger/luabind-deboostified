@@ -28,7 +28,7 @@
 #include <luabind/detail/pcall.hpp>
 #include <luabind/error.hpp>
 #include <luabind/detail/stack_utils.hpp>
-#include <tuple>
+#include <luabind/detail/call_shared.hpp>
 
 namespace luabind
 {
@@ -38,275 +38,67 @@ namespace luabind
 	
 	using adl::object;
 
-	namespace detail
-	{
-		// if the proxy_member_caller returns non-void
-		template<class Ret, class Tuple>
-		class proxy_member_caller
+	namespace detail {
+
+		template<class R, typename PolicyList = no_injectors, unsigned int... Indices, typename... Args>
+		R call_member_impl(lua_State* L, std::true_type /*void*/, meta::index_list<Indices...>, Args&&... args)
 		{
-		public:
+			// don't count the function and self-reference
+			// since those will be popped by pcall
+			int top = lua_gettop(L) - 2;
 
-			proxy_member_caller(lua_State* L_, const Tuple args)
-				: L(L_)
-				, m_args(args)
-				, m_called(false)
+			// pcall will pop the function and self reference
+			// and all the parameters
+
+			meta::expand_calls_hack((
+				applied_converter_policy<Indices, PolicyList, typename unwrapped<Args>::type, cpp_to_lua>().apply(L, unwrapped<Args>::get(std::forward<Args>(args))), 0)...
+				);
+
+			if (pcall(L, sizeof...(Args) + 1, 0))
 			{
+				assert(lua_gettop(L) == top + 1);
+				call_error(L);
 			}
+			// pops the return values from the function
+			stack_pop pop(L, lua_gettop(L) - top);
+		}
 
-			proxy_member_caller(const proxy_member_caller& rhs)
-				: L(rhs.L)
-				, m_args(rhs.m_args)
-				, m_called(rhs.m_called)
-			{
-				rhs.m_called = true;
-			}
-
-			~proxy_member_caller()
-			{
-				if (m_called) return;
-
-				m_called = true;
-
-				// don't count the function and self-reference
-				// since those will be popped by pcall
-				int top = lua_gettop(L) - 2;
-
-				// pcall will pop the function and self reference
-				// and all the parameters
-
-				push_args_from_tuple<Tuple>::apply(L, m_args);
-				if (pcall(L, std::tuple_size<Tuple>::value + 1, 0))
-				{
-					assert(lua_gettop(L) == top + 1);
-#ifndef LUABIND_NO_EXCEPTIONS
-					throw luabind::error(L);
-#else
-					error_callback_fun e = get_error_callback();
-					if (e) e(L);
-	
-					assert(0 && "the lua function threw an error and exceptions are disabled."
-							"If you want to handle this error use luabind::set_error_callback()");
-					std::terminate();
-#endif
-				}
-				// pops the return values from the function
-				stack_pop pop(L, lua_gettop(L) - top);
-			}
-
-			operator Ret()
-			{
-				typename apply_converter_policy<default_policy, Ret, lua_to_cpp>::type converter;
-				m_called = true;
-
-				// don't count the function and self-reference
-				// since those will be popped by pcall
-				int top = lua_gettop(L) - 2;
-
-				// pcall will pop the function and self reference
-				// and all the parameters
-				push_args_from_tuple<Tuple>::apply(L, m_args);
-				if (pcall(L, std::tuple_size<Tuple>::value + 1, 1))
-				{
-					assert(lua_gettop(L) == top + 1);
-#ifndef LUABIND_NO_EXCEPTIONS
-					throw luabind::error(L); 
-#else
-					error_callback_fun e = get_error_callback();
-					if (e) e(L);
-	
-					assert(0 && "the lua function threw an error and exceptions are disabled."
-						"If you want to handle this error use luabind::set_error_callback()");
-					std::terminate();
-#endif
-				}
-
-				// pops the return values from the function
-				stack_pop pop(L, lua_gettop(L) - top);
-
-				if (converter.match(L, decorated_type<Ret>(), -1) < 0)
-				{
-					assert(lua_gettop(L) == top + 1);
-#ifndef LUABIND_NO_EXCEPTIONS
-					throw cast_failed(L, typeid(Ret));
-#else
-					cast_failed_callback_fun e = get_cast_failed_callback();
-					if (e) e(L, typeid(Ret));
-
-					assert(0 && "the lua function's return value could not be converted."
-						"If you want to handle this error use luabind::set_error_callback()");
-					std::terminate();
-#endif
-				}
-
-				return converter.apply(L, decorated_type<Ret>(), -1);
-			}
-
-			template<class Policies>
-			Ret operator[](const Policies& p)
-			{
-				applied_converter_policy<0, Policies, Ret, lua_to_cpp> converter;
-
-				m_called = true;
-
-				// don't count the function and self-reference
-				// since those will be popped by pcall
-				int top = lua_gettop(L) - 2;
-
-				// pcall will pop the function and self reference
-				// and all the parameters
-
-				detail::push_args_from_tuple<Tuple>::apply(L, m_args, p);
-				if (pcall(L, std::tuple_size<Tuple>::value + 1, 1))
-				{
-					assert(lua_gettop(L) == top + 1);
-#ifndef LUABIND_NO_EXCEPTIONS
-					throw error(L);
-#else
-					error_callback_fun e = get_error_callback();
-					if (e) e(L);
-	
-					assert(0 && "the lua function threw an error and exceptions are disabled."
-						"If you want to handle this error use luabind::set_error_callback()");
-					std::terminate();
-#endif
-				}
-
-				// pops the return values from the function
-				stack_pop pop(L, lua_gettop(L) - top);
-
-				if (converter.match(L, decorated_type<Ret>(), -1) < 0)
-				{
-					assert(lua_gettop(L) == top + 1);
-#ifndef LUABIND_NO_EXCEPTIONS
-					throw cast_failed(L, typeid(Ret));
-#else
-					cast_failed_callback_fun e = get_cast_failed_callback();
-					if (e) e(L, typeid(Ret));
-
-					assert(0 && "the lua function's return value could not be converted."
-						"If you want to handle this error use luabind::set_error_callback()");
-					std::terminate();
-#endif
-				}
-
-				return converter.apply(L, decorated_type<Ret>(), -1);
-			}
-
-		private:
-
-			lua_State* L;
-			Tuple m_args;
-			mutable bool m_called;
-
-		};
-
-		// if the proxy_member_caller returns void
-		template<class Tuple>
-		class proxy_member_void_caller
+		template<class R, typename PolicyList = no_injectors, unsigned int... Indices, typename... Args>
+		R call_member_impl(lua_State* L, std::false_type /*void*/, meta::index_list<Indices...>, Args&&... args)
 		{
-//				friend class luabind::object;
-		public:
+			// don't count the function and self-reference
+			// since those will be popped by pcall
+			int top = lua_gettop(L) - 2;
 
-			proxy_member_void_caller(lua_State* L_, const Tuple args)
-				: L(L_)
-				, m_args(args)
-				, m_called(false)
+			// pcall will pop the function and self reference
+			// and all the parameters
+
+			meta::expand_calls_hack((
+				applied_converter_policy<Indices, PolicyList, typename unwrapped<Args>::type, cpp_to_lua>().apply(L, unwrapped<Args>::get(std::forward<Args>(args))), 0)...
+				);
+
+			if (pcall(L, sizeof...(Args) +1, 1))
 			{
+				assert(lua_gettop(L) == top + 1);
+				call_error(L);
+			}
+			// pops the return values from the function
+			stack_pop pop(L, lua_gettop(L) - top);
+
+			applied_converter_policy<0, PolicyList, R, lua_to_cpp> converter;
+			if (converter.match(L, decorated_type<R>(), -1) < 0) {
+				cast_error<R>(L);
 			}
 
-			proxy_member_void_caller(const proxy_member_void_caller& rhs)
-				: L(rhs.L)
-				, m_args(rhs.m_args)
-				, m_called(rhs.m_called)
-			{
-				rhs.m_called = true;
-			}
+			return converter.apply(L, decorated_type<R>(), -1);
+		}
 
-			~proxy_member_void_caller()
-			{
-				if (m_called) return;
-
-				m_called = true;
-
-				// don't count the function and self-reference
-				// since those will be popped by pcall
-				int top = lua_gettop(L) - 2;
-
-				// pcall will pop the function and self reference
-				// and all the parameters
-
-				push_args_from_tuple<Tuple>::apply(L, m_args);
-				if (pcall(L, std::tuple_size<Tuple>::value + 1, 0))
-				{
-					assert(lua_gettop(L) == top + 1);
-#ifndef LUABIND_NO_EXCEPTIONS
-					throw luabind::error(L);
-#else
-					error_callback_fun e = get_error_callback();
-					if (e) e(L);
-	
-					assert(0 && "the lua function threw an error and exceptions are disabled."
-						"If you want to handle this error use luabind::set_error_callback()");
-					std::terminate();
-#endif
-				}
-				// pops the return values from the function
-				stack_pop pop(L, lua_gettop(L) - top);
-			}
-
-			template<class Policies>
-			void operator[](const Policies& p)
-			{
-				m_called = true;
-
-				// don't count the function and self-reference
-				// since those will be popped by pcall
-				int top = lua_gettop(L) - 2;
-
-				// pcall will pop the function and self reference
-				// and all the parameters
-
-				detail::push_args_from_tuple<Tuple>::apply(L, m_args, p);
-				if (pcall(L, std::tuple_size<Tuple>::value + 1, 0))
-				{
-					assert(lua_gettop(L) == top + 1);
-#ifndef LUABIND_NO_EXCEPTIONS
-					throw error(L);
-#else
-					error_callback_fun e = get_error_callback();
-					if (e) e(L);
-	
-					assert(0 && "the lua function threw an error and exceptions are disabled."
-						"If you want to handle this error use luabind::set_error_callback()");
-					std::terminate();
-#endif
-				}
-				// pops the return values from the function
-				stack_pop pop(L, lua_gettop(L) - top);
-			}
-
-		private:
-			lua_State* L;
-			Tuple m_args;
-			mutable bool m_called;
-
-		};
 
 	} // detail
 	
-	template< typename R, typename... Args >
-	struct ProxyType {
-		typedef typename std::conditional <
-			std::is_void<R>::value,
-			luabind::detail::proxy_member_void_caller < std::tuple<Args*...> >,
-			luabind::detail::proxy_member_caller<R, std::tuple<Args*...> > > ::type type;
-	};
-
-	template<class R, typename... Args>
-	typename ProxyType<R,Args...>::type call_member(object const& obj, const char* name, Args&&... args)
+	template<class R, typename PolicyList = no_injectors, typename... Args>
+	R call_member(object const& obj, const char* name, Args&&... args)
 	{
-		std::tuple<const Args*...> arg_tuple(&std::forward<Args>(args)...);
-	
 		// this will be cleaned up by the proxy object
 		// once the call has been made
 
@@ -322,7 +114,8 @@ namespace luabind
 		// now the function and self objects
 		// are on the stack. These will both
 		// be popped by pcall
-		return typename ProxyType<R,Args...>::type(obj.interpreter(), arg_tuple);
+
+		return detail::call_member_impl<R,PolicyList>(obj.interpreter(), std::is_void<R>(), meta::index_range<1, sizeof...(Args)+1>(), std::forward<Args>(args)...);
 	}
 
 }

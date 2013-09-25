@@ -121,7 +121,7 @@ void test_main(lua_State* L)
 //    DOSTRING(L, "set_functor(nil)");
 
     DOSTRING(L, "function lua_create() return create() end");
-    base* ptr = call_function<base*>(L, "lua_create") [ adopt(result) ];
+    base* ptr = call_function<base*,adopt_policy<0>>(L, "lua_create");
     delete ptr;
 
 #if !(BOOST_MSVC < 1300)

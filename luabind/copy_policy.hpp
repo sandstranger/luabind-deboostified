@@ -41,12 +41,8 @@ namespace detail
 
 } // namespace detail
 
-template <int N>
-meta::type_list< converter_policy_injector< N, detail::copy_policy > >
-copy(meta::index<N>)
-{
-	return meta::type_list< converter_policy_injector< N, detail::copy_policy > >();
-}
+	template< unsigned int N >
+	using copy_policy = meta::type_list< converter_policy_injector< N, detail::copy_policy > >;
 
 } // namespace luabind
 
