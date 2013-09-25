@@ -122,11 +122,35 @@ namespace luabind
 	
 	typedef bases< > no_bases;
 	
+	// helper for overloaded methods, only need to provide argument types (IntelliSense bug squiggles the code, but it does compile!)
+	template< typename... Args >
+	struct meth {
+		template< typename Class, typename Ret >
+		static auto use_nonconst(Ret(Class::*fn)(Args...)) -> decltype(fn)
+		{
+			return fn;
+		}
 
+		template< typename Class, typename Ret >
+		static auto use_const(Ret(Class::*fn)(Args...) const) -> decltype(fn)
+		{
+			return fn;
+		}
+
+		template< typename Class, typename Ret >
+		static auto use_auto(Ret(Class::*fn)(Args...) const) -> decltype(fn)
+		{
+			return fn;
+		}
+
+		template< typename Class, typename Ret >
+		static auto use_auto(Ret(Class::*fn)(Args...)) -> decltype(fn)
+		{
+			return fn;
+		}
+	};
 
 	// TODO: Could specialize for certain base classes to make the interface "type safe".
-	
-
 	template<typename T, typename BasesList = bases< >, typename WrappedType = detail::null_type, typename HeldType = detail::null_type >
 	struct class_;
 
@@ -425,12 +449,14 @@ namespace luabind
 			return this->virtual_def(name, fn, policies, detail::null_type());
 		}
 
+		// IntelliSense bug squiggles the code, but it does compile!
 		template<typename Ret, typename C, typename... Args, typename... Injectors>
 		class_& def_nonconst(name, Ret(C::*fn)(Args...), meta::type_list<Injectors...> policies = no_injectors())
 		{
 			return def(name, fn, policies);
 		}
 
+		// IntelliSense bug squiggles the code, but it does compile!
 		template<typename Ret, typename C, typename... Args, typename... Injectors>
 		class_& def_const(name, Ret(C::*fn)(Args...) const, meta::type_list<Injectors...> policies = no_injectors())
 		{
