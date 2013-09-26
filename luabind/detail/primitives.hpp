@@ -32,7 +32,7 @@
 
 namespace luabind { namespace detail
 {
-	template< typename T > struct is_reference_wrapper : public std::false_type { enum { value = false; }; };
+	template< typename T > struct is_reference_wrapper : public std::false_type { enum { value = false }; };
 	template< typename T > struct is_reference_wrapper< std::reference_wrapper<T> > : public std::true_type{ enum { value = true }; };
 
 	template< typename T > struct apply_reference_wrapper { using type = T; };

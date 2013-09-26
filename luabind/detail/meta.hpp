@@ -199,7 +199,7 @@ namespace meta {
 
 	template< typename Element0, typename... Elements, unsigned int Index >
 	struct get< type_list<Element0, Elements...>, Index > {
-		using type = typename get< typename type_list<Elements...>, Index - 1 >::type;
+		using type = typename get< type_list<Elements...>, Index - 1 >::type;
 	};
 
 	template< typename Element0, typename... Elements >
@@ -377,7 +377,7 @@ namespace meta {
 
 	template< unsigned int Index0, unsigned int... Indices, unsigned int Index >
 	struct get< index_list<Index0, Indices...>, Index > {
-		enum { value = typename get< index_list<Indices...>, Index - 1 >::value };
+		enum { value = get< index_list<Indices...>, Index - 1 >::value };
 	};
 
 	template< unsigned int Index0, unsigned int... Indices >
