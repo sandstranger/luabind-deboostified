@@ -23,11 +23,11 @@
 #ifndef LUABIND_NATIVE_CONVERTER_HPP_INCLUDED
 #define LUABIND_NATIVE_CONVERTER_HPP_INCLUDED
 
-#include "conversion_base.hpp"
 #include <type_traits>
-#include <luabind/detail/call_traits.hpp>
-#include <luabind\lua_include.hpp>
 #include <string>
+#include <luabind/detail/conversion_policies/conversion_base.hpp>
+#include <luabind/detail/call_traits.hpp>
+#include <luabind/lua_include.hpp>
 
 #if LUA_VERSION_NUM < 502
 # define lua_rawlen lua_objlen
@@ -273,3 +273,4 @@ namespace luabind {
 #endif
 
 #endif
+

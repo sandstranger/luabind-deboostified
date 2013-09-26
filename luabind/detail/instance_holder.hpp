@@ -126,3 +126,4 @@ private:
 }} // namespace luabind::detail
 
 #endif // LUABIND_INSTANCE_HOLDER_081024_HPP
+

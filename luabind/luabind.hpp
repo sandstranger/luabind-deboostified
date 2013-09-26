@@ -30,3 +30,4 @@
 #include <luabind/open.hpp>
 
 #endif // LUABIND_BIND_HPP_INCLUDED
+

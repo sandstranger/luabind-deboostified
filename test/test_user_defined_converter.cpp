@@ -74,3 +74,4 @@ void test_main(lua_State* L)
         "assert(get(2) == 2)\n"
     );
 }
+

@@ -29,3 +29,4 @@ namespace detail
 } // namespace luabind
 
 #endif // LUABIND_NO_DEPENDENCY_100324_HPP
+

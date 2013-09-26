@@ -25,3 +25,4 @@ void test_main(lua_State* L)
         "raw_function2(1,2)\n"
     );
 }
+

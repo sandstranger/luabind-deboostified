@@ -58,3 +58,4 @@ void test_main(lua_State* L)
 		"e = a:f()\n"
 		"assert(e == nil)");
 }
+

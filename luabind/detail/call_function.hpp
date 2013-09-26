@@ -114,3 +114,4 @@ namespace luabind
 }
 
 #endif // LUABIND_CALL_FUNCTION_HPP_INCLUDED
+

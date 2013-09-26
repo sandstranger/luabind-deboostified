@@ -84,3 +84,4 @@ namespace luabind { namespace detail
 }}
 
 #endif // LUABIND_PRIMITIVES_HPP_INCLUDED
+

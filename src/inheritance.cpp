@@ -256,3 +256,4 @@ LUABIND_API class_id allocate_class_id(type_id const& cls)
 }
 
 }} // namespace luabind::detail
+

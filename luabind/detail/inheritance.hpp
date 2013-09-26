@@ -164,3 +164,4 @@ struct registered_class<T const>
 }} // namespace luabind::detail
 
 #endif // LUABIND_INHERITANCE_090217_HPP
+

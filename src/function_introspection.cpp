@@ -112,3 +112,4 @@ LUABIND_API int bind_function_introspection(lua_State * L) {
 }
 
 } // end of namespace luabind
+

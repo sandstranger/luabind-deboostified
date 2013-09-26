@@ -58,3 +58,4 @@ void test_main(lua_State* L)
 
     assert(Foo::count == 0);
 }
+

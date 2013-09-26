@@ -66,3 +66,4 @@ void test_main(lua_State* L)
         "assert(take(2,3) == 5)\n"
     );
 }
+

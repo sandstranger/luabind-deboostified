@@ -5,10 +5,9 @@
 #ifndef LUABIND_CALL2_080911_HPP
 #define LUABIND_CALL2_080911_HPP
 
-#include "meta.hpp"
-#include <typeinfo>
-
 #include <luabind/config.hpp>
+#include <typeinfo>
+#include <luabind/detail/meta.hpp>
 #include <luabind/detail/policy.hpp>
 #include <luabind/yield_policy.hpp>
 
@@ -286,3 +285,4 @@ namespace luabind {
 } // namespace luabind::detail
 
 # endif // LUABIND_CALL2_080911_HPP
+

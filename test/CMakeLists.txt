@@ -76,3 +76,4 @@ if(BUILD_TESTING)
 		target_link_libraries(test_headercompile_${SHORTNAME} luabind)
 	endforeach()
 endif()
+

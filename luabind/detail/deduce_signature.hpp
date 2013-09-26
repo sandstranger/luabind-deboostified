@@ -7,7 +7,6 @@
 
 #include <luabind/detail/meta.hpp>
 #include <luabind/detail/most_derived.hpp>
-//#include <luabind/tag_function.hpp>
 
 namespace luabind { namespace detail {
 
@@ -70,47 +69,6 @@ struct apply_injectors< PolicyList, meta::type_list< > >
 	typedef PolicyList type;
 };
 
-
-
-
-/*
-
-template< typename R, typename... Args >
-meta::type_list<R,Args...> deduce_signature(R(*)(Args...), ...)
-{
-	return meta::type_list<R,Args...>();
-}
-
-template< typename R, typename Class, typename... Args >
-meta::type_list< R, Class&, Args... > deduce_signature(R(Class::*)(Args...))
-{
-	return meta::type_list< R, Class&, Args... >();
-}
-
-template< typename R, typename Class, typename... Args >
-meta::type_list< R, const Class&, Args... > deduce_signature(R(Class::*)(Args...) const)
-{
-	return meta::type_list< R, Class const&, Args... >();
-}
-
-template< typename R, class Class, class Wrapped, typename... Args >
-meta::type_list<R, typename most_derived<Class, Wrapped>::type&, Args... > deduce_signature(R(Class::*)(Args...), Wrapped*)
-{
-	return meta::type_list<R, typename most_derived<Class, Wrapped>::type&, Args... >();
-}
-
-template< typename R, class Class, class Wrapped, typename... Args >
-meta::type_list<R, typename most_derived<Class, Wrapped>::type const&, Args... > deduce_signature(R(Class::*)(Args...) const, Wrapped*)
-{
-	return meta::type_list<R, typename most_derived<Class, Wrapped>::type const&, Args... >();
-}
-
-*/
-
-
-
-
-
 /*
 	Need to create an overload that deduces the signature of a no-argument operator() ?
 	Some client code inside luabind creates a custom typelist, because deduce_signature cannot deduce the signature of functors
@@ -119,3 +77,4 @@ meta::type_list<R, typename most_derived<Class, Wrapped>::type const&, Args... >
 }} // namespace luabind::detail
 
 # endif // LUABIND_DEDUCE_SIGNATURE_080911_HPP
+

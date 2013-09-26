@@ -41,3 +41,4 @@ void test_main(lua_State* L)
         "void g(table const&)"
     );
 }
+

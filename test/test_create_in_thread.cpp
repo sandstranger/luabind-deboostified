@@ -64,3 +64,4 @@ void test_main(lua_State* L)
         luaL_unref(L, LUA_REGISTRYINDEX, ref);
     }
 }
+

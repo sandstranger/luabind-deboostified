@@ -46,3 +46,4 @@ void test_main(lua_State* L)
     dostring( L,    "print(type(x.fooz), class_info(x.fooz).name);");
     dostring( L,    "print(type(x.foo), class_info(x.foo).name);"); // crashes here);
 }
+

@@ -82,3 +82,4 @@ struct default_converter<std::shared_ptr<T> const&>
 } // namespace luabind
 
 #endif // LUABIND_SHARED_PTR_CONVERTER_090211_HPP
+

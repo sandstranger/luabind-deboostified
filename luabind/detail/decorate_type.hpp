@@ -71,3 +71,4 @@ namespace luabind { namespace detail
 }
 
 #endif // LUABIND_DECORATE_TYPE_HPP_INCLUDED
+

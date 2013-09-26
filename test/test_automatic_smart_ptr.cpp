@@ -106,3 +106,4 @@ void test_main(lua_State* L)
 
     assert(X::alive == 0);
 }
+

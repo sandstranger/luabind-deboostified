@@ -74,3 +74,4 @@ void test_main(lua_State* L)
         "assert(x:g() == 3)\n"
     );
 }
+

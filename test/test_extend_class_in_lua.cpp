@@ -35,3 +35,4 @@ void test_main(lua_State* L)
         "assert(x:f_in_lua(1) == 2)\n"
     );
 }
+

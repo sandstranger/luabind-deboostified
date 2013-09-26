@@ -48,3 +48,4 @@ void test_main(lua_State* L)
     LUABIND_TEST_BUILTIN(bool, true);
     LUABIND_TEST_BUILTIN(bool, false);
 }
+

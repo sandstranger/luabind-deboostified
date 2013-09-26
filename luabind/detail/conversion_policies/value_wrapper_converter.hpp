@@ -17,8 +17,8 @@
 #ifndef LUABIND_VALUE_WRAPPER_CONVERTER_HPP_INCLUDED
 #define LUABIND_VALUE_WRAPPER_CONVERTER_HPP_INCLUDED
 
-#include "conversion_base.hpp"
-#include <luabind\value_wrapper.hpp>
+#include <luabind/detail/conversion_policies/conversion_base.hpp>
+#include <luabind/value_wrapper.hpp>
 #include <type_traits>
 
 namespace luabind {
@@ -73,3 +73,4 @@ namespace luabind {
 }
 
 #endif
+

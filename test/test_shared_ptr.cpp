@@ -45,3 +45,4 @@ void test_main(lua_State* L)
         "assert(x == filter(x))\n"
     );
 }
+

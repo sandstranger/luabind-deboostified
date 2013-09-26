@@ -103,3 +103,4 @@ void make_instance(lua_State* L, P p)
 }} // namespace luabind::detail
 
 #endif // LUABIND_DETAIL_MAKE_INSTANCE_090310_HPP
+

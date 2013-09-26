@@ -219,3 +219,4 @@ void test_main(lua_State* L)
         "assert2(y:f() == 3)\n"
     );
 }
+

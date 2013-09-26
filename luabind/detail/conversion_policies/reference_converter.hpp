@@ -18,8 +18,8 @@
 #define LUABIND_REFERENCE_CONVERTER_HPP_INCLUDED
 
 #include <type_traits>
-#include "conversion_base.hpp"
-#include "pointer_converter.hpp"
+#include <luabind/detail/conversion_policies/conversion_base.hpp>
+#include <luabind/detail/conversion_policies/pointer_converter.hpp>
 
 namespace luabind {
 
@@ -121,3 +121,4 @@ namespace luabind {
 }
 
 #endif
+

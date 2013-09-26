@@ -114,3 +114,4 @@ namespace luabind
 }
 
 #endif // LUABIND_WRAPPER_BASE_HPP_INCLUDED
+

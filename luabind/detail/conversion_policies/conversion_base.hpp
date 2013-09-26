@@ -24,9 +24,9 @@
 #define LUABIND_CONVERSION_BASE_HPP_INCLUDED
 
 #include <type_traits>
-#include <luabind\lua_include.hpp>
-#include <luabind\detail\decorate_type.hpp>
-#include <luabind\detail\has_get_pointer.hpp>
+#include <luabind/lua_include.hpp>
+#include <luabind/detail/decorate_type.hpp>
+#include <luabind/detail/has_get_pointer.hpp>
 
 namespace luabind {
 
@@ -94,3 +94,4 @@ namespace luabind {
 }
 
 #endif
+

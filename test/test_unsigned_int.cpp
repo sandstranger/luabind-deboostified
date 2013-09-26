@@ -16,3 +16,4 @@ void test_main(lua_State* L)
 
     TEST_CHECK(x == y);
 }
+

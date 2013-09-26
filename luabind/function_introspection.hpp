@@ -53,3 +53,4 @@ namespace luabind {
 } // end of namespace luabind
 
 #endif // INCLUDED_function_introspection_hpp_GUID_b55783e7_e6da_4816_925e_9256245c1065
+

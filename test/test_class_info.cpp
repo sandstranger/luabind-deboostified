@@ -60,3 +60,4 @@ void test_main(lua_State* L)
         "assert(info.attributes[2] == 'x')\n"
     );
 }
+

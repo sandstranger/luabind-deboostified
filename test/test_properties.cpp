@@ -72,3 +72,4 @@ void test_main(lua_State* L)
         "assert(r.y == 2)\n"
     );
 }
+

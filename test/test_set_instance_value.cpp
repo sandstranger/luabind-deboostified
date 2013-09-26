@@ -28,3 +28,4 @@ void test_main(lua_State* L)
         "assert(x.second == 3)\n"
     );
 }
+
