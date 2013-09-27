@@ -24,13 +24,14 @@
 #ifndef LUABIND_PRIMITIVES_HPP_INCLUDED
 #define LUABIND_PRIMITIVES_HPP_INCLUDED
 
-#include <algorithm>
+#include <functional>	// std::reference_wrapper...
+#include <type_traits>  // std::true_type...
 #include <cstring>
 
 namespace luabind { namespace detail
 {
 	template< typename T > struct is_reference_wrapper : public std::false_type { enum { value = false }; };
-	template< typename T > struct is_reference_wrapper< std::reference_wrapper<T> > : public std::true_type{ enum { value = true }; };
+	template< typename T > struct is_reference_wrapper< std::reference_wrapper<T> > : public std::true_type { enum { value = true }; };
 
 	template< typename T > struct apply_reference_wrapper { using type = T; };
 	template< typename T > struct apply_reference_wrapper< std::reference_wrapper<T> > { using type = T&; };

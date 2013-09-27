@@ -54,6 +54,17 @@ namespace luabind { namespace detail {
     {
         return x;
     }
+
+	template<class Policies>
+	inline void operator_result(lua_State*, operator_void_return, Policies*)
+	{
+	}
+
+	template<class T, class Policies>
+	inline void operator_result(lua_State* L, T const& x, Policies*)
+	{
+		applied_converter_policy<0, Policies, T, cpp_to_lua >().apply(L, x);
+	}
     
 }} // namespace luabind
 
@@ -168,17 +179,6 @@ namespace detail {
             return Derived::name();
         }
     };
-
-    template<class Policies>
-    inline void operator_result(lua_State*, operator_void_return, Policies*)
-    {
-    }
-
-    template<class T, class Policies>
-    inline void operator_result(lua_State* L, T const& x, Policies*)
-    {
-		applied_converter_policy<0, Policies, T, cpp_to_lua >().apply(L, x);
-    }
 
 }} // namespace detail::luabind
 

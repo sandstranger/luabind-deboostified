@@ -106,7 +106,7 @@ namespace luabind { namespace detail
 			applied_converter_policy<1, Policies, T, lua_to_cpp > converter;
 #if defined(__GNUC__) && __GNUC__ >= 4
 			T* storage = reinterpret_cast<T*>(m_storage);
-			new (storage) T(converter.apply(L, LUABIND_DECORATE_TYPE(T), index));
+			new (storage) T(converter.apply(L, decorated_type<T>(), index));
 			return storage;
 #else
 			new (m_storage) T(converter.apply(L, decorated_type<T>(), index));

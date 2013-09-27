@@ -23,29 +23,23 @@
 #ifndef TEST_050415_HPP
 #define TEST_050415_HPP
 
-
 #include <luabind/error.hpp>
 #include <luabind/lua_include.hpp>
-
-#include <boost/preprocessor/cat.hpp>
-
 #include <string>
-
 
 void report_failure(char const* str, char const* file, int line);
 
-#if defined(_MSC_VER)
-#define COUNTER_GUARD(x)
-#else
+#define CAT2(a,b) a##b
+#define CAT(a,b) CAT2(a,b)
+
 #define COUNTER_GUARD(type) \
-    struct BOOST_PP_CAT(type, _counter_guard) \
+    struct CAT(type, _counter_guard) \
     { \
-        ~BOOST_PP_CAT(type, _counter_guard()) \
+        ~CAT(type, _counter_guard()) \
         { \
             TEST_CHECK(counted_type<type>::count == 0); \
         } \
-    } BOOST_PP_CAT(type, _guard)
-#endif
+    } CAT(type, _guard)
 
 #define TEST_REPORT_AUX(x, line, file) \
 	report_failure(x, line, file)

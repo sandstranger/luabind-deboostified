@@ -141,22 +141,22 @@ namespace luabind { namespace detail
 
 namespace luabind
 {
-	template<int N>
-	meta::type_list< converter_policy_injector< N, detail::adopt_policy< > > >
-	adopt(meta::index<N>)
-	{ 
-		return meta::type_list< converter_policy_injector< N, detail::adopt_policy< > > >();
-	}
-
-    template <class Pointer, int N>
-	meta::type_list< converter_policy_injector< N, detail::adopt_policy< Pointer > > >
-	adopt(meta::index<N>)
-    {
-		return meta::type_list< converter_policy_injector< N, detail::adopt_policy< Pointer > > >();
-    }
-
 	template<unsigned int N, typename Pointer = void>
 	using adopt_policy = meta::type_list<converter_policy_injector< N, detail::adopt_policy< Pointer >>>;
+
+
+	template<unsigned int N>
+	adopt_policy<N> adopt(const meta::index<N>&)
+	{
+		return adopt_policy<N>();
+	}
+
+	template <class Pointer, unsigned int N>	
+	adopt_policy<N, Pointer> adopt(meta::index<N>)
+	{
+		return adopt_policy<N, Pointer>();
+	}
+
 }
 
 #endif // LUABIND_ADOPT_POLICY_HPP_INCLUDE
