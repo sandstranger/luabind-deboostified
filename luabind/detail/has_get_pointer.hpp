@@ -63,7 +63,7 @@ namespace luabind { namespace detail {
 		template<class T>
 		struct impl
 		{
-			static typename std::add_reference<T>::type x;
+			static typename std::add_lvalue_reference<T>::type x;
 			static const bool value = (sizeof(has_get_pointer_::check((get_pointer(x), 0))) == 1);
 			typedef std::integral_constant<bool, value> type;
 		};

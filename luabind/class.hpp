@@ -307,12 +307,12 @@ namespace luabind
 
         template <class T>
         struct reference_result
-			: std::conditional< std::is_pointer<T>::value || is_primitive<T>::value, T, typename std::add_reference< T >::type >
+			: std::conditional< std::is_pointer<T>::value || is_primitive<T>::value, T, typename std::add_lvalue_reference< T >::type >
         {};
 
         template <class T>
         struct reference_argument
-           : std::conditional< std::is_pointer<T>::value || is_primitive<T>::value, T, typename std::add_reference< typename std::add_const<T>::type >::type >
+			: std::conditional< std::is_pointer<T>::value || is_primitive<T>::value, T, typename std::add_lvalue_reference< typename std::add_const<T>::type >::type >
         {};
 
         template <class T, class Policies>

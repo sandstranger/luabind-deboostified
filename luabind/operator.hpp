@@ -40,6 +40,7 @@
 #include <luabind/detail/meta.hpp>
 #include <luabind/lua_include.hpp>
 #include <luabind/detail/other.hpp>
+#include <luabind/detail/policy.hpp>
 
 namespace luabind { namespace detail {
 

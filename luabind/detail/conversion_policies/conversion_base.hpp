@@ -27,6 +27,9 @@
 #include <luabind/lua_include.hpp>
 #include <luabind/detail/decorate_type.hpp>
 #include <luabind/detail/has_get_pointer.hpp>
+#include <luabind/detail/make_instance.hpp>
+#include <luabind/from_stack.hpp>
+
 
 namespace luabind {
 
@@ -67,7 +70,7 @@ namespace luabind {
 		}
 
 		template <class T>
-		void make_pointee_instance(lua_State* L, T& x, std::false_type, std::true_type)
+		void make_pointee_instance(lua_State* L, T&& x, std::false_type, std::true_type)
 		{
 			typedef typename std::remove_reference<T>::type value_type;
 
@@ -76,7 +79,7 @@ namespace luabind {
 		}
 
 		template <class T>
-		void make_pointee_instance(lua_State* L, T& x, std::false_type, std::false_type)
+		void make_pointee_instance(lua_State* L, T&& x, std::false_type, std::false_type)
 		{
 			make_instance(L, &x);
 		}

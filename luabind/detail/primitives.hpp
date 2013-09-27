@@ -27,9 +27,6 @@
 #include <algorithm>
 #include <cstring>
 
-#include <luabind/config.hpp>
-#include <luabind/detail/yes_no.hpp>
-
 namespace luabind { namespace detail
 {
 	template< typename T > struct is_reference_wrapper : public std::false_type { enum { value = false }; };

@@ -26,7 +26,8 @@
 #include <luabind/config.hpp>
 #include <luabind/weak_ref.hpp>
 #include <luabind/detail/ref.hpp>
-#include <luabind/detail/call_member.hpp>
+//#include <luabind/detail/call_member.hpp>
+#include <luabind/detail/meta.hpp>
 #include <type_traits>
 #include <stdexcept>
 
@@ -43,6 +44,12 @@ namespace luabind
 		// on the top of the stack (the input self reference will
 		// be popped)
 		LUABIND_API void do_call_member_selection(lua_State* L, char const* name);
+
+		template<class R, typename PolicyList = meta::type_list<>, unsigned int... Indices, typename... Args>
+		R call_member_impl(lua_State* L, std::true_type /*void*/, meta::index_list<Indices...>, Args&&... args);
+
+		template<class R, typename PolicyList = meta::type_list<>, unsigned int... Indices, typename... Args>
+		R call_member_impl(lua_State* L, std::false_type /*void*/, meta::index_list<Indices...>, Args&&... args);
 	}
 
 	struct wrapped_self_t: weak_ref
@@ -89,12 +96,6 @@ namespace luabind
 	private:
 		wrapped_self_t m_self;
 	};
-
-	template <class R, typename... Args>
-	R call_member( wrap_base const* self, char const* fn, Args&&... args )
-	{
-		return self->call<R>(fn, std::forward<Args>(args)... );
-	}
 
 	namespace detail
 	{

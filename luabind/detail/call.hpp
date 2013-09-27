@@ -78,8 +78,8 @@ namespace luabind {
 
 			template< typename... ArgumentConverters >
 			struct compute_invoke_values {
-				typedef meta::index_list< FooFoo<ArgumentConverters>::consumed_args... > consumed_list;
-				typedef typename compute_stack_indices< consumed_list, 1 >::type stack_index_list;
+				using consumed_list    = meta::index_list< FooFoo<ArgumentConverters>::consumed_args... >;
+				using stack_index_list = typename compute_stack_indices< consumed_list, 1 >::type;
 				enum { arity = meta::sum<consumed_list>::value };
 			};
 
@@ -215,7 +215,7 @@ namespace luabind {
 				>
 		int invoke3(lua_State* L, function_object const& self, invoke_context& ctx, F& f,
 					 PolicyList, meta::index_list< Index0, Indices... > index_list, meta::type_list<ReturnType, Arguments...> signature_list,
-					 ReturnConverter& return_converter, ArgumentConverters&... argument_converters )
+					 ReturnConverter return_converter, ArgumentConverters... argument_converters )
 		{
 			typedef typename call_detail_new::compute_invoke_values< ArgumentConverters... > invoke_values;
 			typedef meta::type_list<Arguments...> argument_list_type;
@@ -225,7 +225,7 @@ namespace luabind {
 			int score = -1;
 			
 			if (invoke_values::arity == arguments) {
-				score = match_deferred(L, invoke_values::stack_index_list(), argument_list_type(), argument_converters...);
+				score = match_deferred(L, typename invoke_values::stack_index_list(), argument_list_type(), argument_converters...);
 			}
 			
 			if (score >= 0 && score < ctx.best_score) {
@@ -246,7 +246,7 @@ namespace luabind {
 
 			if (score == ctx.best_score && ctx.candidate_index == 1)
 			{
-				do_call_struct<F, std::is_void<ReturnType>::value>::do_call(L, f, invoke_values::stack_index_list(), argument_list_type(), return_converter, argument_converters...);
+				do_call_struct<F, std::is_void<ReturnType>::value>::do_call(L, f, typename invoke_values::stack_index_list(), argument_list_type(), return_converter, argument_converters...);
 				meta::expand_calls_hack( (argument_converters.converter_postcall(L, decorated_type<Arguments>(), meta::get< typename invoke_values::stack_index_list, Indices-1 >::value), 0)... );
 				
 				results = lua_gettop(L) - invoke_values::arity;
@@ -278,7 +278,7 @@ namespace luabind {
 		inline int invoke(lua_State* L, function_object const& self, invoke_context& ctx, F& f, Signature,
 			meta::type_list< PolicyInjectors... > const& injectors)
 		{
-			return invoke2(L, self, ctx, f, Signature(), meta::make_index_range<0, meta::size<Signature>::value>::type(), injectors);
+			return invoke2(L, self, ctx, f, Signature(), typename meta::make_index_range<0, meta::size<Signature>::value>::type(), injectors);
 		}
 
 	}

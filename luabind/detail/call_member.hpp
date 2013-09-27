@@ -29,18 +29,21 @@
 #include <luabind/error.hpp>
 #include <luabind/detail/stack_utils.hpp>
 #include <luabind/detail/call_shared.hpp>
+#include <luabind/object.hpp>
 
 namespace luabind
 {
+	/*
 	namespace adl {
 		class object;
 	}
-	
+	*/
+
 	using adl::object;
 
 	namespace detail {
 
-		template<class R, typename PolicyList = no_injectors, unsigned int... Indices, typename... Args>
+		template<class R, typename PolicyList, unsigned int... Indices, typename... Args>
 		R call_member_impl(lua_State* L, std::true_type /*void*/, meta::index_list<Indices...>, Args&&... args)
 		{
 			// don't count the function and self-reference
@@ -63,7 +66,7 @@ namespace luabind
 			stack_pop pop(L, lua_gettop(L) - top);
 		}
 
-		template<class R, typename PolicyList = no_injectors, unsigned int... Indices, typename... Args>
+		template<class R, typename PolicyList, unsigned int... Indices, typename... Args>
 		R call_member_impl(lua_State* L, std::false_type /*void*/, meta::index_list<Indices...>, Args&&... args)
 		{
 			// don't count the function and self-reference
@@ -116,6 +119,12 @@ namespace luabind
 		// be popped by pcall
 
 		return detail::call_member_impl<R,PolicyList>(obj.interpreter(), std::is_void<R>(), meta::index_range<1, sizeof...(Args)+1>(), std::forward<Args>(args)...);
+	}
+
+	template <class R, typename... Args>
+	R call_member(wrap_base const* self, char const* fn, Args&&... args)
+	{
+		return self->call<R>(fn, std::forward<Args>(args)...);
 	}
 
 }

@@ -59,7 +59,7 @@ namespace detail
   void push_aux(lua_State* interpreter, T& value, Converter*)
   {
 	  using unwrapped_type = typename apply_reference_wrapper<T>::type; 
-	  using converter_type = apply_converter_policy< Converter, unwrapped_type, cpp_to_lua >::type;
+	  using converter_type = typename apply_converter_policy< Converter, unwrapped_type, cpp_to_lua >::type;
 	  converter_type().apply(interpreter, implicit_cast<unwrapped_type&>(value));
   }
 

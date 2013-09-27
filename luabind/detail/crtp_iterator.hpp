@@ -10,6 +10,9 @@ namespace luabind {
 			public std::iterator<Category, ValueType, DifferenceType, ValueType*, ReferenceType >
 		{
 		public:
+			using base_type = std::iterator<Category, ValueType, DifferenceType, ValueType*, ReferenceType >;
+
+
 			CRTP& operator++()
 			{ 
 				upcast().increment();
@@ -33,12 +36,12 @@ namespace luabind {
 				return !upcast().equal(rhs);
 			}
 			
-			reference operator*()
+			typename base_type::reference operator*()
 			{
 				return upcast().dereference();
 			}
 
-			reference operator->()
+			typename base_type::reference operator->()
 			{
 				return upcast().dereference();
 			}

@@ -20,7 +20,6 @@
 #include <type_traits>
 #include <luabind/lua_include.hpp>
 #include <luabind/detail/make_instance.hpp>
-#include <luabind/back_reference.hpp>
 
 namespace luabind {
 
