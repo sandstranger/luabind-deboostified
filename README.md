@@ -1,6 +1,7 @@
 luabind
 =======
-- DISCLAIMER: This currently only builds on MSVC!!! Work is underway to get the stuff sorted out with compilers that actually conform to the spec!
+- DISCLAIMER: This currently only builds completely on MSVC!!! The library itself builds on GCC 4.8.1, tests need to be updated
+- Work is underway to get the stuff sorted out with compilers that actually conform to the spec!
 
 Create Lua bindings for your C++ code easily - my improvements
 - Variadic templates.
