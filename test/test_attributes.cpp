@@ -108,7 +108,7 @@ void test_main(lua_State* L)
 			.def(constructor<>())
 			.property("a", &A::get),
 
-		class_<B, bases<A>>("B")
+		class_<B, A>("B")
 			.def(constructor<>())
 			.property("x", &A::get),
 

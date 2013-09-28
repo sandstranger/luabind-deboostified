@@ -58,7 +58,7 @@ void test_main(lua_State* L)
     module(L) [
         class_<Base>("Base")
             .def("g", &Base::g),
-        class_<Derived, bases< Base > >("Derived")
+        class_<Derived, no_bases>("Derived")
             .def("f", &Derived::f),
         def("make_derived", &make_derived),
         def("make_unregistered", &make_unregistered)

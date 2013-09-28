@@ -81,7 +81,7 @@ void test_main(lua_State* L)
         class_<A>("A")
             .def(constructor<>()),
     
-        class_<B, bases<A>>("B")
+        class_<B, A>("B")
             .def(constructor<>()),
     
         class_<test_implicit>("test")

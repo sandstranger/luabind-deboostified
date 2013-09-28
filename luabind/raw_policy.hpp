@@ -46,7 +46,7 @@ namespace luabind { namespace detail  {
 		void converter_postcall(lua_State*, by_pointer<lua_State>, int) {}
 	};
 
-	struct raw_policy : conversion_policy<false>
+	struct raw_policy : conversion_policy
 	{
 		template<class T, class Direction>
 		struct apply

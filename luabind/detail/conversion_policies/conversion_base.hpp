@@ -39,11 +39,8 @@ namespace luabind {
 		struct converter_policy_has_postcall_tag {};
 	}
 
-	
-	template< bool HasArg = true>
 	struct conversion_policy : detail::conversion_policy_base
 	{
-		static const bool has_arg = HasArg;
 	};
 
 	// TODO: What's this good for?

@@ -148,11 +148,11 @@ void test_main(lua_State* L)
 		def("tester12", &tester12),
 		def("tester13", &tester13),
 
-        class_<base, bases<>, detail::null_type, std::shared_ptr<base> >("base")
+        class_<base, no_bases, detail::null_type, std::shared_ptr<base> >("base")
             .def(constructor<>())
             .def("f", &base::f),
 
-        class_<derived, bases<base>, detail::null_type, std::shared_ptr<base> >("derived")
+        class_<derived, base, detail::null_type, std::shared_ptr<base> >("derived")
             .def(constructor<>())
             .def("f", &derived::f)
     ];

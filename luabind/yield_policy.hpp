@@ -31,14 +31,13 @@ namespace luabind { namespace detail
 {
 	struct yield_policy
 	{
-		static void precall(lua_State*, meta::index_list_tag) {}
 		static void postcall(lua_State*, int results, meta::index_list_tag) {}
 	};
 }}
 
 namespace luabind
 {
-	using yield = meta::type_list<call_policy_injector<detail::yield_policy>>;
+	using yield = policy_list<call_policy_injector<detail::yield_policy>>;
 }
 
 #endif // LUABIND_YIELD_POLICY_HPP_INCLUDED

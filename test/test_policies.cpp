@@ -110,8 +110,8 @@ void test_main(lua_State* L)
 	module(L)
 	[
 		class_<test_t>("test_t")
-		.def("make", &test_t::make, adopt(return_value))
-		.def("take", &test_t::take, adopt(meta::index<2>()))
+		.def("make", &test_t::make, adopt_policy<0>())
+		.def("take", &test_t::take, adopt_policy<2>())
 	];
 	
 	module(L)
@@ -120,8 +120,8 @@ void test_main(lua_State* L)
 			.def(constructor<>())
 			.def("member_out_val", &policies_test_class::member_out_val, pure_out_value<3>())
 			.def("member_secret", &policies_test_class::member_secret, discard_result())
-			.def("f", &policies_test_class::f, adopt(_2))
-			.def("make", &policies_test_class::make, adopt(return_value))
+			.def("f", &policies_test_class::f, adopt_policy<2>())
+			.def("make", &policies_test_class::make, adopt_policy<0>())
 			.def("internal_ref", &policies_test_class::internal_ref, dependency_policy<0,1>())
 			.def("self_ref", &policies_test_class::self_ref, return_reference_to<1>()),
 
@@ -132,9 +132,9 @@ void test_main(lua_State* L)
 
 		class_<MI1>("mi1")
 			.def(constructor<>())
-			.def("add",&MI1::add,adopt(_2)),
+			.def("add",&MI1::add,adopt_policy<2>()),
 
-		class_<MI2,bases<MI1>,MI2W>("mi2")
+		class_<MI2,MI1,MI2W>("mi2")
 			.def(constructor<>())
 	];
 

@@ -25,21 +25,7 @@
 
 #include <luabind/config.hpp>
 
-namespace luabind
-{
 
-	namespace adl
-	{
-		class argument;
-	}
-
-	template< typename... Args >
-	struct constructor
-	{
-		typedef meta::type_list< void, argument const&, Args... > signature;
-	};
-
-}
 
 #endif // LUABIND_SIGNATURE_MATCH_HPP_INCLUDED
 

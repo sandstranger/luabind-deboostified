@@ -30,7 +30,7 @@ namespace detail
       }
   };
 
-  struct copy_policy : conversion_policy<>
+  struct copy_policy : conversion_policy
   {
       template <class T, class Direction>
       struct apply
@@ -41,6 +41,7 @@ namespace detail
 
 } // namespace detail
 
+	// Caution: If we use the aliased type "policy_list" here, MSVC crashes.
 	template< unsigned int N >
 	using copy_policy = meta::type_list< converter_policy_injector< N, detail::copy_policy > >;
 

@@ -85,6 +85,7 @@ namespace luabind { namespace detail
 
 namespace luabind
 {
+	// Caution: If we use the aliased type "policy_list" here, MSVC crashes.
 	template<unsigned int A, unsigned int B>
 	using dependency_policy = meta::type_list<call_policy_injector<detail::dependency_policy<A,B>>>;
 

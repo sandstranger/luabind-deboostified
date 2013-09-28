@@ -247,7 +247,7 @@ namespace meta {
 
 		using type = typename meta::join< 
 						typename meta::sub_range< TypeList, 0, Index >::type, meta::type_list<Type>,
-						typename meta::sub_range < TypeList, Index + 1, sizeof...(Types) >::type 
+						typename meta::sub_range< TypeList, Index + 1, sizeof...(Types) >::type 
 					>::type;
 	};
 
@@ -444,6 +444,7 @@ namespace meta {
 		struct make_index_range :
 			public make_index_range< curr + 1, end, Indices..., curr >
 		{
+			static_assert(end >= curr, "end must be greater or equal to start");
 		};
 
 		template< unsigned int end, unsigned int... Indices >
@@ -456,6 +457,7 @@ namespace meta {
 
 	template< unsigned int start, unsigned int end >
 	struct make_index_range {
+		static_assert(end >= start, "end must be greater than or equal to start");
 		using type = typename detail::make_index_range< start, end >::type;
 	};
 
@@ -489,12 +491,14 @@ namespace meta {
 	template< unsigned int start, unsigned int end, unsigned int... Indices >
 	struct sub_range< index_list<Indices...>, start, end >
 	{
+		static_assert(end >= start, "end must be greater or equal to start");
 		using type = typename detail::sub_range_index< index_list<Indices...>, typename make_index_range<start, end>::type >::type;
 	};
 
 	template< unsigned int start, unsigned int end, typename... Types >
 	struct sub_range< type_list<Types...>, start, end >
 	{
+		static_assert(end >= start, "end must be greater or equal to start");
 		using type = typename detail::sub_range_type< type_list<Types...>, typename make_index_range<start, end>::type >::type;
 	};
 

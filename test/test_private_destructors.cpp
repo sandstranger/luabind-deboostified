@@ -107,7 +107,7 @@ void test_main(lua_State* L)
     using namespace luabind;
 
     module(L) [
-        class_<X, bases<>, detail::null_type, ptr<X> >("X"),
+        class_<X, no_bases, detail::null_type, ptr<X> >("X"),
         def("get", &get),
 
         def("f1", &f1),

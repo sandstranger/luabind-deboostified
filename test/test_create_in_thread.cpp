@@ -37,7 +37,7 @@ void test_main(lua_State* L)
         class_<X>("X")
             .def(constructor<>()),
 
-        class_<Y, bases< >, Y_wrap>("Y")
+        class_<Y, no_bases, Y_wrap>("Y")
             .def(constructor<>())
     ];
 

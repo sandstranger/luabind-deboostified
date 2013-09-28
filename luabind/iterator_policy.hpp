@@ -88,7 +88,7 @@ struct iterator_converter
     }
 };
 
-struct iterator_policy : conversion_policy<>
+struct iterator_policy : conversion_policy
 {
     template <class T, class Direction>
     struct apply
@@ -101,7 +101,7 @@ struct iterator_policy : conversion_policy<>
 
 namespace luabind { 
 
-	using return_stl_iterator = meta::type_list<converter_policy_injector<0,detail::iterator_policy>>;
+	using return_stl_iterator = policy_list<converter_policy_injector<0,detail::iterator_policy>>;
 
 } // namespace luabind::unnamed
 

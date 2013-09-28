@@ -144,14 +144,14 @@ void test_main(lua_State* L)
 			.def(constructor<>())
 			.def(other<const operator_tester&>() + self),
 
-		class_<operator_tester3, bases< operator_tester >>("operator_tester3")
+		class_<operator_tester3, operator_tester>("operator_tester3")
 			.def(constructor<>()),
 
 		class_<op_test1>("op_test1")
 			.def(constructor<>())
 			.def(const_self == const_self),
 
-		class_<op_test2, bases< op_test1 > >("op_test2")
+		class_<op_test2, op_test1>("op_test2")
 			.def(constructor<>())
 			.def(self == self),
 

@@ -138,7 +138,7 @@ namespace luabind { namespace detail
 	};
 
 	template<class Policies = no_injectors>
-	struct out_value_policy : conversion_policy<>
+	struct out_value_policy : conversion_policy
 	{
 		struct only_accepts_nonconst_references_or_pointers {};
 		struct can_only_convert_from_lua_to_cpp {};
@@ -230,7 +230,7 @@ namespace luabind { namespace detail
 	};
 
 	template<class Policies = no_injectors>
-	struct pure_out_value_policy : conversion_policy<false>
+	struct pure_out_value_policy : conversion_policy
 	{
 		struct only_accepts_nonconst_references_or_pointers {};
 		struct can_only_convert_from_lua_to_cpp {};

@@ -45,7 +45,7 @@ namespace luabind { namespace detail
 	};
 
 	template< unsigned int N >
-	struct return_reference_to_policy : conversion_policy<>, detail::converter_policy_has_postcall_tag
+	struct return_reference_to_policy : conversion_policy, detail::converter_policy_has_postcall_tag
 	{		
 		template<typename StackIndexList>
 		static void postcall(lua_State* L, int results, StackIndexList) 

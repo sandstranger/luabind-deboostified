@@ -120,20 +120,14 @@ namespace luabind { namespace detail
 		}
 	};
 
-	template <class Pointer = void>
-	struct adopt_policy : conversion_policy<>
+	template <class Pointer>
+	struct adopt_policy_impl : conversion_policy
 	{
-		struct only_accepts_nonconst_pointers {};
-
 		template<class T, class Direction>
 		struct apply
 		{
-			typedef luabind::detail::is_nonconst_pointer<T> is_nonconst_p;
-			typedef typename std::conditional<
-                is_nonconst_p::value
-              , adopt_pointer<Pointer, Direction>
-              , only_accepts_nonconst_pointers
-            >::type type;
+			static_assert(detail::is_nonconst_pointer<T>::value, "Adopt policy only accepts non-const pointers");
+			using type = adopt_pointer<Pointer, Direction>;
 		};
 	};
 
@@ -141,22 +135,9 @@ namespace luabind { namespace detail
 
 namespace luabind
 {
+	// Caution: if we use the aliased type "policy_list" here, MSVC crashes.
 	template<unsigned int N, typename Pointer = void>
-	using adopt_policy = meta::type_list<converter_policy_injector< N, detail::adopt_policy< Pointer >>>;
-
-
-	template<unsigned int N>
-	adopt_policy<N> adopt(const meta::index<N>&)
-	{
-		return adopt_policy<N>();
-	}
-
-	template <class Pointer, unsigned int N>	
-	adopt_policy<N, Pointer> adopt(meta::index<N>)
-	{
-		return adopt_policy<N, Pointer>();
-	}
-
+	using adopt_policy = meta::type_list<converter_policy_injector<N,detail::adopt_policy_impl<Pointer>>>;
 }
 
 #endif // LUABIND_ADOPT_POLICY_HPP_INCLUDE

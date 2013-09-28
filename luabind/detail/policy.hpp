@@ -41,17 +41,29 @@
 namespace luabind
 {
 
-	typedef meta::type_list< > no_injectors;
+	using no_injectors = meta::type_list< >;
 
+	template< typename... T >
+	using policy_list = meta::type_list< T... >;
+	using no_policies = policy_list< >;
+
+	// A converter policy injector instructs the call mechanism to use a certain converter policy for
+	// an element of a function call signature that is denoted by the parameter Index
+	// 0 stands for the return value, while 1 might denote an implicit "this" argument or the first
+	// actual argument of the function call.
 	template< unsigned int Index, typename T >
 	struct converter_policy_injector
 	{
 		enum { has_postcall = std::is_convertible<T, detail::converter_policy_has_postcall_tag >::value };
 	};
 
+	// A call policy injector instructs the call mechanism to call certain static function "postcall" on type T
+	// after having executed a call.
 	template< typename T >
 	struct call_policy_injector
 	{};
+
+
 
 	// *********** converter for lua_State * arguments - consuming no explicit args *****************
 
@@ -60,8 +72,6 @@ namespace luabind
 
 		struct default_policy
 		{
-			static const bool has_arg = true;
-
 			template<class T, class Direction>
 			struct apply
 			{

@@ -95,7 +95,7 @@ void test_main(lua_State* L)
 
         def("f", (int(*)(int)) &f),
         def("f", (int(*)(int, int)) &f),
-        def("create", &create_base, adopt(return_value))
+        def("create", &create_base, adopt_policy<0>())
 //        def("set_functor", &set_functor)
             
 #if !(BOOST_MSVC < 1300)

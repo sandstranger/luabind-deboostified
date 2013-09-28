@@ -30,10 +30,10 @@ void test_main(lua_State* L)
 
     module( L )
     [
-        class_<Foo, bases<>, detail::null_type, std::shared_ptr<Foo> >( "Foo" )
+        class_<Foo, no_bases, detail::null_type, std::shared_ptr<Foo> >( "Foo" )
             .def( constructor<>() )
             .def_readwrite("baz", &Foo::m_baz),
-        class_<Bar, bases< >, detail::null_type, std::shared_ptr<Bar> >( "Bar" )
+        class_<Bar, no_bases, detail::null_type, std::shared_ptr<Bar> >( "Bar" )
             .def( constructor<>() )
             .property("fooz", &Bar::getFoo, &Bar::setFoo)
             .def_readwrite("foo", &Bar::m_foo)

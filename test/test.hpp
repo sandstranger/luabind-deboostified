@@ -32,6 +32,10 @@ void report_failure(char const* str, char const* file, int line);
 #define CAT2(a,b) a##b
 #define CAT(a,b) CAT2(a,b)
 
+#ifdef _MSC_VER
+// There seem to be lifetime issues with global variables on VC
+#define COUNTER_GUARD(type)
+#else
 #define COUNTER_GUARD(type) \
     struct CAT(type, _counter_guard) \
     { \
@@ -40,6 +44,7 @@ void report_failure(char const* str, char const* file, int line);
             TEST_CHECK(counted_type<type>::count == 0); \
         } \
     } CAT(type, _guard)
+#endif
 
 #define TEST_REPORT_AUX(x, line, file) \
 	report_failure(x, line, file)

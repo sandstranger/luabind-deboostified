@@ -153,9 +153,9 @@ void test_main(lua_State* L)
     module(L) [
         class_<X>("X")
             .def("f", &X::f),
-        class_<Y, bases< X >>("Y")
+        class_<Y, X>("Y")
             .def("g", &Y::g),
-        class_<Z, bases< X >>("Z")
+        class_<Z, X>("Z")
             .def("h", &Z::h),
         class_<U, bases<Y, Z> >("U")
             .def(constructor<int>()),
@@ -187,9 +187,9 @@ void test_main(lua_State* L)
 
     module(L) [
         class_<Base>("Base"),
-        class_<Left, bases< Base > >("Left")
+        class_<Left, Base>("Left")
             .def("left", &Left::left),
-        class_<Right, bases< Base > >("Right")
+        class_<Right, Base>("Right")
             .def("right", &Right::right),
         class_<Derived, bases<Left, Right> >("Derived")
             .def(constructor<>())

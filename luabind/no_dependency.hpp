@@ -18,13 +18,9 @@ namespace detail
       {}
   };
 
-  // wozu sind die gut?
-  typedef meta::type_list<no_dependency_policy>
-      no_dependency_node;
-
 } // namespace detail
 
-	using no_dependency = meta::type_list<call_policy_injector<detail::no_dependency_policy>>;
+	using no_dependency = policy_list<call_policy_injector<detail::no_dependency_policy>>;
 
 } // namespace luabind
 
