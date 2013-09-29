@@ -52,13 +52,13 @@ namespace luabind { namespace detail
 		}
 	};
 
-	template<unsigned int PolicyIndex=1, typename Policies = no_injectors, typename T>
+	template<unsigned int PolicyIndex = 1, typename Policies = no_policies, typename T>
 	void push_to_lua(lua_State* L, const T& v)
 	{
 		using value_type = typename unwrapped< T >::type;
 		
-		applied_converter_policy<PolicyIndex, Policies, value_type, cpp_to_lua>()
-			.apply(L, unwrapped<T>::get(v));
+		specialized_converter_policy_n<PolicyIndex, Policies, value_type, cpp_to_lua>()
+			.to_lua(L, unwrapped<T>::get(v));
 	}
 
 }}

@@ -346,7 +346,7 @@ void test_main(lua_State* L)
 		"return 6\n"
 		"end");
 	object test_object_policies = g["test_object_policies"];
-	object ret_val = test_object_policies("teststring")[no_injectors()];
+	object ret_val = test_object_policies("teststring")[no_policies()];
 	TEST_CHECK(object_cast<int>(ret_val) == 6);
 	TEST_CHECK(ret_val == 6);
 	TEST_CHECK(6 == ret_val);

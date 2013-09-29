@@ -109,13 +109,13 @@ namespace detail
 } // namespace detail
 
 template <class F, typename... SignatureElements, typename... PolicyInjectors >
-object make_function(lua_State* L, F f, meta::type_list< SignatureElements... > const&, meta::type_list< PolicyInjectors... > const& )
+object make_function(lua_State* L, F f, meta::type_list< SignatureElements... >, meta::type_list< PolicyInjectors... > )
 {
     return detail::make_function_aux( L, new detail::function_object_impl<F, meta::type_list< SignatureElements... >, meta::type_list< PolicyInjectors...> >( f ) );
 }
 
 template <class F, typename... PolicyInjectors >
-object make_function(lua_State* L, F f, meta::type_list< PolicyInjectors... > const&)
+object make_function(lua_State* L, F f, meta::type_list< PolicyInjectors... >)
 {
 	return make_function(L, f, typename detail::call_types<F>::signature_type(), meta::type_list< PolicyInjectors... >());
 	//return detail::make_function_aux(L, new detail::function_object_impl<F, typename detail::call_types<F>::signature_type, meta::type_list< PolicyInjectors...> >(f));
@@ -124,7 +124,7 @@ object make_function(lua_State* L, F f, meta::type_list< PolicyInjectors... > co
 template <class F>
 object make_function(lua_State* L, F f)
 {
-    return make_function(L, typename detail::call_types<F>::signature_type(), no_injectors() );
+	return make_function(L, typename detail::call_types<F>::signature_type(), no_policies());
 }
 
 

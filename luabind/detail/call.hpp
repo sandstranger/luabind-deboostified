@@ -153,8 +153,8 @@ namespace luabind {
 						 )
 			{
 				
-				((arg0_converter.apply(L, decorated_type<ArgumentType0>(), StackIndex0)).*f)(
-					arg_converters.apply(L, decorated_type<ArgumentTypes>(), StackIndices)...
+				((arg0_converter.to_cpp(L, decorated_type<ArgumentType0>(), StackIndex0)).*f)(
+					arg_converters.to_cpp(L, decorated_type<ArgumentTypes>(), StackIndices)...
 				);
 					
 			}
@@ -168,9 +168,9 @@ namespace luabind {
 				ReturnConverter& result_converter, Argument0Converter& arg0_converter, ArgumentConverters&... arg_converters
 				)
 			{
-				result_converter.apply(L,
-					((arg0_converter.apply(L, decorated_type<ArgumentType0>(), StackIndex0)).*f)(
-					arg_converters.apply(L, decorated_type<ArgumentTypes>(), StackIndices)...
+				result_converter.to_lua(L,
+					((arg0_converter.to_cpp(L, decorated_type<ArgumentType0>(), StackIndex0)).*f)(
+					arg_converters.to_cpp(L, decorated_type<ArgumentTypes>(), StackIndices)...
 					)
 					);
 			}
@@ -188,7 +188,7 @@ namespace luabind {
 			meta::index_list<StackIndices...>, meta::type_list<ArgumentTypes...>,
 			ReturnConverter& result_converter, ArgumentConverters&... arg_converters)
 			{
-				f(arg_converters.apply(L, decorated_type<ArgumentTypes>(), StackIndices)...);
+				f(arg_converters.to_cpp(L, decorated_type<ArgumentTypes>(), StackIndices)...);
 			}
 		};
 
@@ -203,8 +203,8 @@ namespace luabind {
 			meta::index_list<StackIndices...>, meta::type_list<ArgumentTypes...>,
 			ReturnConverter& result_converter, ArgumentConverters&... arg_converters)
 			{
-				result_converter.apply(L,
-					f(arg_converters.apply(L, decorated_type<ArgumentTypes>(), StackIndices)...)
+				result_converter.to_lua(L,
+					f(arg_converters.to_cpp(L, decorated_type<ArgumentTypes>(), StackIndices)...)
 					);
 			}
 		};
@@ -266,10 +266,10 @@ namespace luabind {
 					 meta::type_list<ReturnType, Arguments...> signature, meta::index_list<Index0,Indices...>, PolicyList)
 		{
 			typedef meta::type_list<ReturnType, Arguments...> signature_type;
-			using return_converter = applied_converter_policy<0, PolicyList, ReturnType, cpp_to_lua>;
+			using return_converter = specialized_converter_policy_n<0, PolicyList, ReturnType, cpp_to_lua>;
 			return invoke3(L, self, ctx, f, 
 				PolicyList(), meta::index_list<Index0,Indices...>(), signature,
-				return_converter(), applied_converter_policy<Indices,PolicyList,Arguments,lua_to_cpp>()...
+				return_converter(), specialized_converter_policy_n<Indices, PolicyList, Arguments, lua_to_cpp>()...
 				);
 		}
 

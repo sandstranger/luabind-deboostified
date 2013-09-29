@@ -39,7 +39,7 @@ namespace luabind
 		{
 			int top = lua_gettop(L);
 			meta::expand_calls_hack( (
-				applied_converter_policy<Indices, PolicyList, typename unwrapped<Args>::type, cpp_to_lua>().apply(L, unwrapped<Args>::get(std::forward<Args>(args))),0)...
+				specialized_converter_policy_n<Indices, PolicyList, typename unwrapped<Args>::type, cpp_to_lua>().to_lua(L, unwrapped<Args>::get(std::forward<Args>(args))),0)...
 				);
 
 			if (fn(L, sizeof...(Args), 0)) {
@@ -55,7 +55,7 @@ namespace luabind
 		{
 			int top = lua_gettop(L);
 			meta::expand_calls_hack( (
-				applied_converter_policy<Indices, PolicyList, typename unwrapped<Args>::type, cpp_to_lua>().apply(L, unwrapped<Args>::get(std::forward<Args>(args))), 0)...
+				specialized_converter_policy_n<Indices, PolicyList, typename unwrapped<Args>::type, cpp_to_lua>().to_lua(L, unwrapped<Args>::get(std::forward<Args>(args))), 0)...
 				);
 
 			if (fn(L, sizeof...(Args), 1)) {
@@ -65,17 +65,17 @@ namespace luabind
 			// pops the return values from the function call
 			stack_pop pop(L, lua_gettop(L) - top + m_params);
 
-			applied_converter_policy<0, PolicyList, Ret, lua_to_cpp> converter;
+			specialized_converter_policy_n<0, PolicyList, Ret, lua_to_cpp> converter;
 			if (converter.match(L, decorated_type<Ret>(), -1) < 0) {
 				cast_error<Ret>(L);
 			}
 
-			return converter.apply(L, decorated_type<Ret>(), -1);
+			return converter.to_cpp(L, decorated_type<Ret>(), -1);
 		}
 
 	}
 
-	template<class R, typename PolicyList = no_injectors, typename... Args>
+	template<class R, typename PolicyList = no_policies, typename... Args>
 	R call_function(lua_State* L, const char* name, Args&&... args )
 	{
 		assert(name && "luabind::call_function() expects a function name");
@@ -83,14 +83,14 @@ namespace luabind
 		return detail::call_function_impl<R, PolicyList>(L, 1, &detail::pcall, std::is_void<R>(), meta::index_range<1, sizeof...(Args) +1>(), std::forward<Args>(args)...);
 	}
 
-	template<class R, typename PolicyList = no_injectors, typename... Args>
+	template<class R, typename PolicyList = no_policies, typename... Args>
 	R call_function(luabind::object const& obj, Args&&... args)
 	{
 		obj.push(obj.interpreter());
 		return detail::call_function_impl<R, PolicyList>(obj.interpreter(), 1, &detail::pcall, std::is_void<R>(), meta::index_range<1, sizeof...(Args) +1>(), std::forward<Args>(args)...);
 	}
 
-	template<class R, typename PolicyList = no_injectors, typename... Args>
+	template<class R, typename PolicyList = no_policies, typename... Args>
 	R resume_function(lua_State* L, const char* name, Args&&... args)
 	{
 		assert(name && "luabind::resume_function() expects a function name");
@@ -98,14 +98,14 @@ namespace luabind
 		return detail::call_function_impl<R, PolicyList>(L, 1, &detail::resume_impl, std::is_void<R>(), meta::index_range<1, sizeof...(Args) +1>(), std::forward<Args>(args)...);
 	}
 
-	template<class R, typename PolicyList = no_injectors, typename... Args>
+	template<class R, typename PolicyList = no_policies, typename... Args>
 	R resume_function(luabind::object const& obj, Args&&... args)
 	{
 		obj.push(obj.interpreter());
 		return detail::call_function_impl<R, PolicyList>(obj.interpreter(), 1, &detail::resume_impl, std::is_void<R>(), meta::index_range<1, sizeof...(Args) +1>(), std::forward<Args>(args)...);
 	}
 
-	template<class R, typename PolicyList = no_injectors, typename... Args>
+	template<class R, typename PolicyList = no_policies, typename... Args>
 	R resume(lua_State* L, Args&&... args)
 	{
 		return detail::call_function_impl<R, PolicyList>(L, 0, &detail::resume_impl, std::is_void<R>(), meta::index_range<1, sizeof...(Args) +1>(), std::forward<Args>(args)...);

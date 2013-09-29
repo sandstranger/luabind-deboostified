@@ -43,7 +43,7 @@ namespace luabind {
 			enum { consumed_args = 1 };
 
 			template<class T>
-			static void apply(lua_State* L, T* ptr)
+			static void to_lua(lua_State* L, T* ptr)
 			{
 				if (ptr == 0)
 				{
@@ -58,7 +58,7 @@ namespace luabind {
 			}
 
 			template<class T>
-			T* apply(lua_State*, by_pointer<T>, int index)
+			T* to_cpp(lua_State*, by_pointer<T>, int index)
 			{
 				return static_cast<T*>(result);
 			}
@@ -97,7 +97,7 @@ namespace luabind {
 			void* result;
 
 			template<class T>
-			void apply(lua_State* L, const T* ptr)
+			void to_lua(lua_State* L, const T* ptr)
 			{
 				if (ptr == 0)
 				{
@@ -112,7 +112,7 @@ namespace luabind {
 			}
 
 			template<class T>
-			T const* apply(lua_State*, by_const_pointer<T>, int)
+			T const* to_cpp(lua_State*, by_const_pointer<T>, int)
 			{
 				return static_cast<T const*>(result);
 			}

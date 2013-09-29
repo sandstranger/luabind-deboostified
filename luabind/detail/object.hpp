@@ -55,28 +55,14 @@ namespace luabind {
 
 namespace detail 
 { 
-  template<class T, class Converter>
-  void push_aux(lua_State* interpreter, T& value, Converter*)
+  template<class T, typename... Policies>
+  void push(lua_State* interpreter, T& value, policy_list<Policies...> const& = no_policies())
   {
-	  using unwrapped_type = typename apply_reference_wrapper<T>::type; 
-	  using converter_type = typename apply_converter_policy< Converter, unwrapped_type, cpp_to_lua >::type;
-	  converter_type().apply(interpreter, implicit_cast<unwrapped_type&>(value));
+	  using PolicyList = policy_list<Policies...>;
+	  using unwrapped_type = typename apply_reference_wrapper<T>::type;
+	  using converter_type = specialized_converter_policy_n<0, PolicyList, unwrapped_type, cpp_to_lua >;
+	  converter_type().to_lua(interpreter, implicit_cast<unwrapped_type&>(value));
   }
-
-  template<class T, class Policies>
-  void push(lua_State* interpreter, T& value, Policies const&)
-  {
-      typedef typename get_converter_policy<0, Policies>::type converter_policy;
-
-      push_aux(interpreter, value, (converter_policy*)0);
-  }
-
-  template<class T>
-  void push(lua_State* interpreter, T& value)
-  {
-      push(interpreter, value, no_injectors());
-  }
-
 } // namespace detail
 
 namespace adl
@@ -886,7 +872,7 @@ namespace detail
 
       value_wrapper_traits<ValueWrapper>::unwrap(interpreter, value_wrapper);
 	  detail::stack_pop pop(interpreter, 1);
-	  applied_converter_policy<0, Policies, T, lua_to_cpp> cv;
+	  specialized_converter_policy_n<0, Policies, T, lua_to_cpp> cv;
 
 #ifndef LUABIND_NO_ERROR_CHECKING
       if (cv.match(interpreter, decorated_type<T>(), -1) < 0)
@@ -895,7 +881,7 @@ namespace detail
       }
 #endif
 
-      return cv.apply(interpreter, decorated_type<T>(), -1);
+      return cv.to_cpp(interpreter, decorated_type<T>(), -1);
   }
 
 # ifdef BOOST_MSVC
@@ -945,7 +931,7 @@ T object_cast(ValueWrapper const& value_wrapper)
     return detail::object_cast_aux(
         value_wrapper
       , (T*)0
-      , (no_injectors*)0
+      , (no_policies*)0
       , (detail::throw_error_policy<T>*)0
       , (T*)0
     );
@@ -970,7 +956,7 @@ boost::optional<T> object_cast_nothrow(ValueWrapper const& value_wrapper)
     return detail::object_cast_aux(
         value_wrapper
       , (T*)0
-      , (no_injectors*)0
+	  , (no_policies*)0
       , (detail::nothrow_error_policy<T>*)0
       , (boost::optional<T>*)0
     );
@@ -1041,12 +1027,12 @@ namespace adl
       ~call_proxy()
       {
           if (value_wrapper)
-              call((no_injectors*)0);
+			  call((no_policies*) 0);
       }
 
       operator object()
       {
-		  return call((no_injectors*) 0);
+		  return call((no_policies*) 0);
       }
 
       template<class Policies>

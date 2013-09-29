@@ -63,7 +63,7 @@ namespace luabind { namespace detail {
 	template<class T, class Policies>
 	inline void operator_result(lua_State* L, T const& x, Policies*)
 	{
-		applied_converter_policy<0, Policies, T, cpp_to_lua >().apply(L, x);
+		specialized_converter_policy_n<0, Policies, T, cpp_to_lua >().to_lua(L, x);
 	}
     
 }} // namespace luabind

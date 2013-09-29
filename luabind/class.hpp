@@ -431,7 +431,7 @@ namespace luabind
 
 		// virtual functions
 		template<class F, typename... Injectors>
-		class_& def(char const* name, F fn, policy_list< Injectors... > policies = no_injectors() )
+		class_& def(char const* name, F fn, policy_list< Injectors... > policies = no_policies() )
 		{
 			return this->virtual_def(name, fn, policies, detail::null_type());
 		}

@@ -42,16 +42,16 @@ namespace detail
 } // namespace detail
 
 template <class F, typename... PolicyInjectors>
-scope def(char const* name, F f, meta::type_list<PolicyInjectors...> const& )
+scope def(char const* name, F f, policy_list<PolicyInjectors...> const& )
 {
     return scope(std::unique_ptr<detail::registration>(
-        new detail::function_registration<F, meta::type_list<PolicyInjectors...>>(name, f)));
+        new detail::function_registration<F, policy_list<PolicyInjectors...>>(name, f)));
 }
 
 template <class F>
 scope def(char const* name, F f)
 {
-    return def(name, f, no_injectors());
+    return def(name, f, no_policies());
 }
 
 } // namespace luabind

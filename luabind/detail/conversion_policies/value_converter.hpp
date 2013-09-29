@@ -38,7 +38,7 @@ namespace luabind {
 			void* result;
 
 			template<class T>
-			void apply(lua_State* L, T x)
+			void to_lua(lua_State* L, T x)
 			{
 				if (luabind::get_back_reference(L, x))
 					return;
@@ -47,7 +47,7 @@ namespace luabind {
 			}
 
 			template<class T>
-			T apply(lua_State*, by_value<T>, int)
+			T to_cpp(lua_State*, by_value<T>, int)
 			{
 				return *static_cast<T*>(result);
 			}

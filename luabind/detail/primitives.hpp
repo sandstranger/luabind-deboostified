@@ -51,8 +51,9 @@ namespace luabind { namespace detail
 	struct cpp_to_lua {};
 
 	template<class T> struct by_value {};
-	template<class T> struct by_reference {};
 	template<class T> struct by_const_reference {};
+	template<class T> struct by_reference {};
+	template<class T> struct by_rvalue_reference {};
 	template<class T> struct by_pointer {};
 	template<class T> struct by_const_pointer {};
 

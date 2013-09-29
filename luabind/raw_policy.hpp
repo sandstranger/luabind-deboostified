@@ -33,7 +33,7 @@ namespace luabind { namespace detail  {
 	{
 		enum { consumed_args = 0 };
         
-        lua_State* apply(lua_State* L, by_pointer<lua_State>, int)
+        lua_State* to_cpp(lua_State* L, by_pointer<lua_State>, int)
 		{
 			return L;
 		}
@@ -49,7 +49,7 @@ namespace luabind { namespace detail  {
 	struct raw_policy : conversion_policy
 	{
 		template<class T, class Direction>
-		struct apply
+		struct specialize
 		{
 			typedef raw_converter type;
 		};
@@ -58,13 +58,9 @@ namespace luabind { namespace detail  {
 }} // namespace luabind::detail
 
 namespace luabind {
-
-	template<int N>
-	meta::type_list< converter_policy_injector< N, detail::raw_policy > >
-	inline raw(meta::index<N>)
-	{ 
-		return meta::type_list< converter_policy_injector< N, detail::raw_policy > >();
-	}
+	
+	template<unsigned int N>
+	using raw_policy = meta::type_list< converter_policy_injector< N, detail::raw_policy > >();
 
 } // namespace luabind
 

@@ -36,7 +36,7 @@ struct default_converter<X>
 			default_converter<int>::compute_score(L, index), default_converter<int>::compute_score(L, index + 1));
     }
 
-    X from(lua_State* L, int index)
+    X to_cpp_deferred(lua_State* L, int index)
     {
         return X(lua_tonumber(L, index), lua_tonumber(L, index + 1));
     }

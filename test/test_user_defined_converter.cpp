@@ -30,12 +30,12 @@ struct default_converter<X>
         return cv.compute_score(L, index);
     }
 
-    X from(lua_State* L, int index)
+    X to_cpp_deferred(lua_State* L, int index)
     {
         return X(lua_tonumber(L, index));
     }
 
-    void to(lua_State* L, X const& x)
+    void to_lua_deferred(lua_State* L, X const& x)
     {
         lua_pushnumber(L, x.value);
     }

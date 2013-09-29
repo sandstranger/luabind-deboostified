@@ -15,26 +15,27 @@ namespace detail
   struct copy_converter
   {
       template <class T>
-      void apply(lua_State* L, T const& x)
+      void to_lua(lua_State* L, T const& x)
       {
-          value_converter().apply(L, x);
+          value_converter().to_lua(L, x);
       }
 
       template <class T>
-      void apply(lua_State* L, T* x)
+      void to_lua(lua_State* L, T* x)
       {
           if (!x)
               lua_pushnil(L);
           else
-              apply(L, *x);
+              to_lua(L, *x);
       }
   };
 
   struct copy_policy : conversion_policy
   {
       template <class T, class Direction>
-      struct apply
+      struct specialize
       {
+		  static_assert(std::is_same<Direction, cpp_to_lua>::value, "Copy policy only supports cpp -> lua");
           typedef copy_converter type;
       };
   };

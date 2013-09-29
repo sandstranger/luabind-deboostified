@@ -64,6 +64,12 @@ namespace luabind { namespace detail
 	{
 		using type = by_const_reference<T>;
 	};
+
+	template<class T>
+	struct decorated_type_helper<T&&>
+	{
+		using type = by_rvalue_reference<T>;
+	};
 }
 
 	template< typename T >

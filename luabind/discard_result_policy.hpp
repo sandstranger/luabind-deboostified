@@ -33,7 +33,7 @@ namespace luabind { namespace detail
 	struct discard_converter
 	{
 		template<class T>
-		void apply(lua_State*, T) {}
+		void to_lua(lua_State*, T) {}
 	};
 
 	struct discard_result_policy : conversion_policy
@@ -41,7 +41,7 @@ namespace luabind { namespace detail
 		struct can_only_convert_from_cpp_to_lua {};
 
 		template<class T, class Direction>
-		struct apply
+		struct specialize
 		{
 			static_assert( std::is_same< Direction, cpp_to_lua >::value, "Can only convert from cpp to lua" );
 			typedef discard_converter type;

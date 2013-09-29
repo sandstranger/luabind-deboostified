@@ -38,7 +38,7 @@ namespace luabind { namespace detail
 	struct return_reference_to_converter<cpp_to_lua>
 	{
 		template<class T>
-		void apply(lua_State* L, const T&)
+		void to_lua(lua_State* L, const T&)
 		{
 			lua_pushnil(L);
 		}
@@ -55,7 +55,7 @@ namespace luabind { namespace detail
 		}
 
 		template<class T, class Direction>
-		struct apply
+		struct specialize
 		{
 			typedef return_reference_to_converter<Direction> type;
 		};

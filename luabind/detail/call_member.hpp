@@ -33,12 +33,6 @@
 
 namespace luabind
 {
-	/*
-	namespace adl {
-		class object;
-	}
-	*/
-
 	using adl::object;
 
 	namespace detail {
@@ -54,7 +48,7 @@ namespace luabind
 			// and all the parameters
 
 			meta::expand_calls_hack((
-				applied_converter_policy<Indices, PolicyList, typename unwrapped<Args>::type, cpp_to_lua>().apply(L, unwrapped<Args>::get(std::forward<Args>(args))), 0)...
+				specialized_converter_policy_n<Indices, PolicyList, typename unwrapped<Args>::type, cpp_to_lua>().to_lua(L, unwrapped<Args>::get(std::forward<Args>(args))), 0)...
 				);
 
 			if (pcall(L, sizeof...(Args) + 1, 0))
@@ -77,7 +71,7 @@ namespace luabind
 			// and all the parameters
 
 			meta::expand_calls_hack((
-				applied_converter_policy<Indices, PolicyList, typename unwrapped<Args>::type, cpp_to_lua>().apply(L, unwrapped<Args>::get(std::forward<Args>(args))), 0)...
+				specialized_converter_policy_n<Indices, PolicyList, typename unwrapped<Args>::type, cpp_to_lua>().to_lua(L, unwrapped<Args>::get(std::forward<Args>(args))), 0)...
 				);
 
 			if (pcall(L, sizeof...(Args) +1, 1))
@@ -88,18 +82,18 @@ namespace luabind
 			// pops the return values from the function
 			stack_pop pop(L, lua_gettop(L) - top);
 
-			applied_converter_policy<0, PolicyList, R, lua_to_cpp> converter;
+			specialized_converter_policy_n<0, PolicyList, R, lua_to_cpp> converter;
 			if (converter.match(L, decorated_type<R>(), -1) < 0) {
 				cast_error<R>(L);
 			}
 
-			return converter.apply(L, decorated_type<R>(), -1);
+			return converter.to_cpp(L, decorated_type<R>(), -1);
 		}
 
 
 	} // detail
 	
-	template<class R, typename PolicyList = no_injectors, typename... Args>
+	template<class R, typename PolicyList = no_policies, typename... Args>
 	R call_member(object const& obj, const char* name, Args&&... args)
 	{
 		// this will be cleaned up by the proxy object

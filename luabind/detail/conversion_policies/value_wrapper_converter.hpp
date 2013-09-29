@@ -33,15 +33,15 @@ namespace luabind {
 			enum { consumed_args = 1 };
 
 			template<class T>
-			T apply(lua_State* L, by_const_reference<T>, int index)
+			T to_cpp(lua_State* L, by_const_reference<T>, int index)
 			{
 				return T(from_stack(L, index));
 			}
 
 			template<class T>
-			T apply(lua_State* L, by_value<T>, int index)
+			T to_cpp(lua_State* L, by_value<T>, int index)
 			{
-				return apply(L, by_const_reference<T>(), index);
+				return to_cpp(L, by_const_reference<T>(), index);
 			}
 
 			template<class T>
@@ -61,7 +61,7 @@ namespace luabind {
 			void converter_postcall(...) {}
 
 			template<class T>
-			void apply(lua_State* interpreter, T const& value_wrapper)
+			void to_lua(lua_State* interpreter, T const& value_wrapper)
 			{
 				value_wrapper_traits<T>::unwrap(interpreter, value_wrapper);
 			}

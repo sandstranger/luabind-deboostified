@@ -38,13 +38,13 @@ namespace luabind {
 
 			enum { consumed_args = 1 };
 
-			void apply(lua_State* L, int val)
+			void to_lua(lua_State* L, int val)
 			{
 				lua_pushnumber(L, val);
 			}
 
 			template<class T>
-			T apply(lua_State* L, by_value<T>, int index)
+			T to_cpp(lua_State* L, by_value<T>, int index)
 			{
 				return static_cast<T>(static_cast<int>(lua_tonumber(L, index)));
 			}
@@ -56,7 +56,7 @@ namespace luabind {
 			}
 
 			template<class T>
-			T apply(lua_State* L, by_const_reference<T>, int index)
+			T to_cpp(lua_State* L, by_const_reference<T>, int index)
 			{
 				return static_cast<T>(static_cast<int>(lua_tonumber(L, index)));
 			}

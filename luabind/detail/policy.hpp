@@ -40,9 +40,6 @@
 
 namespace luabind
 {
-
-	using no_injectors = meta::type_list< >;
-
 	template< typename... T >
 	using policy_list = meta::type_list< T... >;
 	using no_policies = policy_list< >;
@@ -63,72 +60,58 @@ namespace luabind
 	struct call_policy_injector
 	{};
 
-
-
-	// *********** converter for lua_State * arguments - consuming no explicit args *****************
-
 	namespace detail
 	{
-
 		struct default_policy
 		{
 			template<class T, class Direction>
-			struct apply
+			struct specialize
 			{
-				typedef default_converter<T> type;
+				using type = default_converter<T>;
 			};
 		};
 
 		template<class T>
 		struct is_primitive
-		  : default_converter<T>::is_native
+			: default_converter<T>::is_native
 		{};
 
-		/*
-			get_converter_policy
-			Finds policy injector for argument with index N or default_policy
-		*/
+		namespace policy_detail {
+			template< unsigned int Index, typename PoliciesList >
+			struct get_converter_policy;
 
-		template< unsigned int Index, typename PoliciesList >
-		struct get_converter_policy;
+			template< unsigned int Index, typename Injector0, typename... Injectors >
+			struct get_converter_policy< Index, meta::type_list< Injector0, Injectors... > >
+			{
+				using type = typename get_converter_policy< Index, meta::type_list< Injectors... > >::type;
+			};
 
-		template< unsigned int Index, typename Policy0, typename... Policies >
-		struct get_converter_policy< Index, meta::type_list< Policy0, Policies... > >
-		{
-			typedef typename get_converter_policy< Index, meta::type_list< Policies... > >::type type;
-		};
+			template< unsigned int Index, typename ConverterPolicy, typename... Injectors >
+			struct get_converter_policy< Index, meta::type_list< converter_policy_injector< Index, ConverterPolicy >, Injectors... > >
+			{
+				using type = ConverterPolicy;
+			};
 
-		template< unsigned int Index, typename ConverterPolicy, typename... Policies >
-		struct get_converter_policy< Index, meta::type_list< converter_policy_injector< Index, ConverterPolicy >, Policies... > >
-		{
-			typedef ConverterPolicy type;
-		};
+			template< unsigned int Index >
+			struct get_converter_policy< Index, meta::type_list< > >
+			{
+				using type = default_policy;
+			};
+		}
 
-		template< unsigned int Index >
-		struct get_converter_policy< Index, meta::type_list< > >
-		{
-			typedef default_policy type;
-		};
+		// Fetches converter policy for Signature element [Index] from policy list [PolicyList]
+		template<unsigned int Index, typename PolicyList >
+		using fetched_converter_policy = typename policy_detail::get_converter_policy<Index, PolicyList>::type;
 
-		template< typename ConverterPolicy, typename Type, typename Direction >
-		struct apply_converter_policy {
-			typedef typename ConverterPolicy::template apply<Type, Direction>::type type;
-		};
+		// Specializes converter policy [ConverterPolicy] for type [Type] in direction [Direction]
+		template<typename ConverterPolicy, typename Type, typename Direction>
+		using specialized_converter_policy = typename ConverterPolicy::template specialize<Type, Direction>::type;
 
-		template< unsigned int Index, typename PoliciesList, typename T, typename Direction >
-		struct get_applied_converter_policy {
-			using converter_policy = typename get_converter_policy<Index, PoliciesList>::type;
-			using type = typename converter_policy::template apply<T, Direction>::type;
-		};
-
-		/*
-			Put everything of the above into one type.
-			Wouldnt it be cool if that was actually a member of the policy list itself?
-		*/
-
-		template< unsigned int Index, typename PoliciesList, typename T, typename Direction >
-		using applied_converter_policy = typename get_applied_converter_policy<Index, PoliciesList, T, Direction >::type;
-
+		// Fetches the converter policy for Signature element [Index] from the policy list [PolicyList] and specializes it
+		// for the concrete type [T] with [Direction] being either "lua_to_cpp" or "cpp_to_lua".
+		template<unsigned int Index, typename PolicyList, typename T, typename Direction>
+		using specialized_converter_policy_n = typename policy_detail::get_converter_policy<Index, PolicyList>::type::template specialize<T, Direction >::type;
+		
 		/*
 			call_policies
 		*/
@@ -136,38 +119,6 @@ namespace luabind
 		template< typename List, class Sought >
 		struct has_call_policy : public meta::contains< List, call_policy_injector< Sought > >
 		{
-		};
-
-		/*
-			make_default_policy_list
-		*/
-		template< typename Signature >
-		struct make_default_converter_list;
-
-		template< typename Signature, typename... Converters >
-		struct make_default_converter_list_trailing;
-
-		template< typename HeadElement, typename... TrailingElements, typename... Converters >
-		struct make_default_converter_list_trailing< meta::type_list< HeadElement, TrailingElements... >, Converters... >
-		{
-			typedef typename default_policy::apply<HeadElement, lua_to_cpp>::type this_converter;
-			typedef typename make_default_converter_list_trailing< meta::type_list< TrailingElements... >, Converters..., this_converter >::type type;
-		};
-
-		template< typename... Converters >
-		struct make_default_converter_list_trailing< meta::type_list< >, Converters... >
-		{
-			typedef meta::type_list< Converters... > type;
-		};
-
-		template< typename SignatureElement0, typename... SignatureElements >
-		struct make_default_converter_list< meta::type_list< SignatureElement0, SignatureElements... > >
-		{
-			typedef meta::type_list< 
-				typename default_policy::template apply< SignatureElement0, cpp_to_lua >::type,
-			    typename default_policy::template apply< SignatureElements, lua_to_cpp >::type...	// There seems to be a serious bug here with the parameter pack expansion of msvc++?!
-			> type;			
-			
 		};
 
 	}

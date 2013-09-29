@@ -57,9 +57,9 @@ namespace luabind { namespace detail
 		enum { consumed_args = 1 };
 
 		template<class T>
-		T* apply(lua_State* L, by_pointer<T>, int index)
+		T* to_cpp(lua_State* L, by_pointer<T>, int index)
 		{
-            T* ptr = pointer_converter::apply(
+            T* ptr = pointer_converter::to_cpp(
                 L, decorated_type<T*>(), index);
 
             object_rep* obj = static_cast<object_rep*>(
@@ -99,7 +99,7 @@ namespace luabind { namespace detail
 		typedef adopt_pointer type;
 
 		template<class T>
-		void apply(lua_State* L, T* ptr)
+		void to_lua(lua_State* L, T* ptr)
 		{
 			if (ptr == 0) 
 			{
@@ -124,7 +124,7 @@ namespace luabind { namespace detail
 	struct adopt_policy_impl : conversion_policy
 	{
 		template<class T, class Direction>
-		struct apply
+		struct specialize
 		{
 			static_assert(detail::is_nonconst_pointer<T>::value, "Adopt policy only accepts non-const pointers");
 			using type = adopt_pointer<Pointer, Direction>;

@@ -42,7 +42,7 @@ namespace luabind {
 		enum { consumed_args = 0 };
 
 		template <class U>
-		lua_State* apply(lua_State* L, U, int index)
+		lua_State* to_cpp(lua_State* L, U, int index)
 		{
 			return L;
 		}

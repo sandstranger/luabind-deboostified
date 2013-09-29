@@ -36,10 +36,10 @@ namespace luabind { namespace detail {
 		enum { consumed_args = 1 };
 
         template<class T>
-		T apply(lua_State* L, by_const_reference<T>, int index)
+		T to_cpp(lua_State* L, by_const_reference<T>, int index)
 		{
 			typedef typename T::value_type value_type;
-			applied_converter_policy<1, Policies, value_type, lua_to_cpp> converter;
+			specialized_converter_policy_n<1, Policies, value_type, lua_to_cpp> converter;
 
 			T container;
 
@@ -54,9 +54,9 @@ namespace luabind { namespace detail {
 		}
 
 		template<class T>
-		T apply(lua_State* L, by_value<T>, int index)
+		T to_cpp(lua_State* L, by_value<T>, int index)
 		{
-			return apply(L, by_const_reference<T>(), index);
+			return to_cpp(L, by_const_reference<T>(), index);
 		}
 
 		template<class T>
@@ -79,10 +79,10 @@ namespace luabind { namespace detail {
 	struct container_converter_cpp_to_lua
 	{
 		template<class T>
-		void apply(lua_State* L, const T& container)
+		void to_lua(lua_State* L, const T& container)
 		{
 			typedef typename T::value_type value_type;
-			applied_converter_policy<1, Policies, value_type, lua_to_cpp> converter;
+			specialized_converter_policy_n<1, Policies, value_type, lua_to_cpp> converter;
 
 			lua_newtable(L);
 
@@ -97,33 +97,30 @@ namespace luabind { namespace detail {
 		}
 	};
 
-	template<class Policies = no_injectors>
+	template<class Policies = no_policies>
 	struct container_policy : conversion_policy
 	{
 		struct only_accepts_nonconst_pointers {};
 
 		template<class T, class Direction>
-		struct apply;
+		struct specialize;
 
 		template<class T>
-		struct apply<T, lua_to_cpp> {
+		struct specialize<T, lua_to_cpp> {
 			using type = container_converter_lua_to_cpp<Policies>;
 		};
 
 		template<class T>
-		struct apply<T, cpp_to_lua> {
+		struct specialize<T, cpp_to_lua> {
 			using type = container_converter_cpp_to_lua<Policies>;
 		};
-
-		template< typename T, typename DirectionTag >
-		using applied = typename apply<T, DirectionTag>::type;
 	};
 
 }}
 
 namespace luabind
 {
-	template<unsigned int N, typename ElementPolicies = no_injectors >
+	template<unsigned int N, typename ElementPolicies = no_policies >
 	using container_policy = meta::type_list<converter_policy_injector<N,detail::container_policy<ElementPolicies>>>;
 }
 

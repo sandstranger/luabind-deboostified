@@ -46,9 +46,9 @@ struct default_converter<std::shared_ptr<T> >
     }
 
     template <class U>
-    std::shared_ptr<T> apply(lua_State* L, U, int index)
+    std::shared_ptr<T> to_cpp(lua_State* L, U, int index)
     {
-        T* raw_ptr = default_converter<T*>::apply(
+        T* raw_ptr = default_converter<T*>::to_cpp(
             L, decorated_type<T*>(), index);
         if (!raw_ptr)
             return std::shared_ptr<T>();
@@ -56,7 +56,7 @@ struct default_converter<std::shared_ptr<T> >
             raw_ptr, detail::shared_ptr_deleter(L, index));
     }
 
-    void apply(lua_State* L, std::shared_ptr<T> const& p)
+    void to_lua(lua_State* L, std::shared_ptr<T> const& p)
     {
         if (detail::shared_ptr_deleter* d =
                 std::get_deleter<detail::shared_ptr_deleter>(p))
@@ -65,7 +65,7 @@ struct default_converter<std::shared_ptr<T> >
         }
         else
         {
-            detail::value_converter().apply(L, p);
+            detail::value_converter().to_lua(L, p);
         }
     }
 

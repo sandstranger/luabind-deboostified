@@ -76,13 +76,13 @@ struct iterator_converter
     typedef iterator_converter type;
 
     template <class Container>
-    void apply(lua_State* L, Container& container)
+    void to_lua(lua_State* L, Container& container)
     {
         make_range(L, container);
     }
 
     template <class Container>
-    void apply(lua_State* L, Container const& container)
+    void tu_lua(lua_State* L, Container const& container)
     {
         make_range(L, container);
     }
@@ -91,8 +91,9 @@ struct iterator_converter
 struct iterator_policy : conversion_policy
 {
     template <class T, class Direction>
-    struct apply
+    struct specialize
     {
+		static_assert(std::is_same<Direction, cpp_to_lua>::value, "Iterator policy can only convert from cpp to lua.");
         typedef iterator_converter type;
     };
 };

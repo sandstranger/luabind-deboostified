@@ -60,22 +60,22 @@ namespace luabind { namespace detail
 		static const int value = sizeof(indirect_sizeof_test(decorated_type<T>()));
 	};
 	
-	template<int Size, class Policies = no_injectors>
+	template<int Size, class Policies = no_policies>
 	struct out_value_converter
 	{
 		enum { consumed_args = 1 };
 
         template<class T>
-		T& apply(lua_State* L, by_reference<T>, int index)
+		T& to_cpp(lua_State* L, by_reference<T>, int index)
 		{
-			applied_converter_policy<1, Policies, T, lua_to_cpp> converter;
+			specialized_converter_policy_n<1, Policies, T, lua_to_cpp> converter;
 
 #if defined(__GNUC__) && __GNUC__ >= 4
 			T* storage = reinterpret_cast<T*>(m_storage);
-			new (storage) T(converter.apply(L, decorated_type<T>(), index));
+			new (storage) T(converter.to_cpp(L, decorated_type<T>(), index));
 			return *storage;
 #else
-			new (m_storage) T(converter.apply(L, decorated_type<T>(), index));
+			new (m_storage) T(converter.to_cpp(L, decorated_type<T>(), index));
 			return *reinterpret_cast<T*>(m_storage);
 #endif
 		}
@@ -83,33 +83,33 @@ namespace luabind { namespace detail
 		template<class T>
 		static int match(lua_State* L, by_reference<T>, int index)
 		{
-			return applied_converter_policy<1, Policies, T, lua_to_cpp >::match(L, decorated_type<T>(), index);
+			return specialized_converter_policy_n<1, Policies, T, lua_to_cpp >::match(L, decorated_type<T>(), index);
 		}
 
 		template<class T>
 		void converter_postcall(lua_State* L, by_reference<T>, int) 
 		{
-			applied_converter_policy<2,Policies,T,cpp_to_lua> converter;
+			specialized_converter_policy_n<2,Policies,T,cpp_to_lua> converter;
 #if defined(__GNUC__) && __GNUC__ >= 4
 			T* storage = reinterpret_cast<T*>(m_storage);
-			converter.apply(L, *storage);
+			converter.to_lua(L, *storage);
 			storage->~T();
 #else
-			converter.apply(L, *reinterpret_cast<T*>(m_storage));
+			converter.to_lua(L, *reinterpret_cast<T*>(m_storage));
 			reinterpret_cast<T*>(m_storage)->~T();
 #endif
 		}
 
 		template<class T>
-		T* apply(lua_State* L, by_pointer<T>, int index)
+		T* to_cpp(lua_State* L, by_pointer<T>, int index)
 		{
-			applied_converter_policy<1, Policies, T, lua_to_cpp > converter;
+			specialized_converter_policy_n<1, Policies, T, lua_to_cpp > converter;
 #if defined(__GNUC__) && __GNUC__ >= 4
 			T* storage = reinterpret_cast<T*>(m_storage);
-			new (storage) T(converter.apply(L, decorated_type<T>(), index));
+			new (storage) T(converter.to_cpp(L, decorated_type<T>(), index));
 			return storage;
 #else
-			new (m_storage) T(converter.apply(L, decorated_type<T>(), index));
+			new (m_storage) T(converter.to_cpp(L, decorated_type<T>(), index));
 			return reinterpret_cast<T*>(m_storage);
 #endif
 		}
@@ -117,19 +117,19 @@ namespace luabind { namespace detail
 		template<class T>
 		static int match(lua_State* L, by_pointer<T>, int index)
 		{
-			return applied_converter_policy<1, Policies, T, lua_to_cpp>::match(L, decorated_type<T>(), index);
+			return specialized_converter_policy_n<1, Policies, T, lua_to_cpp>::match(L, decorated_type<T>(), index);
 		}
 
 		template<class T>
 		void converter_postcall(lua_State* L, by_pointer<T>, int)
 		{
-			applied_converter_policy<2,Policies,T,cpp_to_lua> converter;
+			specialized_converter_policy_n<2, Policies, T, cpp_to_lua> converter;
 #if defined(__GNUC__) && __GNUC__ >= 4
 			T* storage = reinterpret_cast<T*>(m_storage);
-			converter.apply(L, *storage);
+			converter.to_lua(L, *storage);
 			storage->~T();
 #else
-			converter.apply(L, *reinterpret_cast<T*>(m_storage));
+			converter.to_lua(L, *reinterpret_cast<T*>(m_storage));
 			reinterpret_cast<T*>(m_storage)->~T();
 #endif
 		}
@@ -137,29 +137,29 @@ namespace luabind { namespace detail
 		char m_storage[Size];
 	};
 
-	template<class Policies = no_injectors>
+	template<class Policies = no_policies>
 	struct out_value_policy : conversion_policy
 	{
 		struct only_accepts_nonconst_references_or_pointers {};
 		struct can_only_convert_from_lua_to_cpp {};
 
 		template<class T, class Direction>
-		struct apply
+		struct specialize
 		{
-			static_assert(std::is_same< Direction, lua_to_cpp >::value, "Can only convert from lua to cpp");
-			static_assert(meta::or_< is_nonconst_reference<T>, is_nonconst_pointer<T> >::value, "Only accepts non const references or pointers");
+			static_assert(std::is_same< Direction, lua_to_cpp >::value, "Out value policy can only convert from lua to cpp");
+			static_assert(meta::or_< is_nonconst_reference<T>, is_nonconst_pointer<T> >::value, "Out value policy only accepts non const references or pointers");
 
 			typedef out_value_converter<indirect_sizeof<T>::value, Policies> type;
 		};
 	};
 
-	template<int Size, class Policies = no_injectors>
+	template<int Size, class Policies = no_policies>
 	struct pure_out_value_converter
 	{
 		enum { consumed_args = 0 };
 
         template<class T>
-		T& apply(lua_State*, by_reference<T>, int)
+		T& to_cpp(lua_State*, by_reference<T>, int)
 		{
 #if defined(__GNUC__) && __GNUC__ >= 4
 			T* storage = reinterpret_cast<T*>(m_storage);
@@ -180,20 +180,20 @@ namespace luabind { namespace detail
 		template<class T>
 		void converter_postcall(lua_State* L, by_reference<T>, int) 
 		{
-			applied_converter_policy<1,Policies,T,cpp_to_lua> converter;
+			specialized_converter_policy_n<1, Policies, T, cpp_to_lua> converter;
 
 #if defined(__GNUC__) && __GNUC__ >= 4
 			T* storage = reinterpret_cast<T*>(m_storage);
-			converter.apply(L, *storage);
+			converter.to_lua(L, *storage);
 			storage->~T();
 #else
-			converter.apply(L, *reinterpret_cast<T*>(m_storage));
+			converter.to_lua(L, *reinterpret_cast<T*>(m_storage));
 			reinterpret_cast<T*>(m_storage)->~T();
 #endif
 		}
 
 		template<class T>
-		T* apply(lua_State*, by_pointer<T>, int)
+		T* to_cpp(lua_State*, by_pointer<T>, int)
 		{
 #if defined(__GNUC__) && __GNUC__ >= 4
 			T* storage = reinterpret_cast<T*>(m_storage);
@@ -214,13 +214,13 @@ namespace luabind { namespace detail
 		template<class T>
 		void converter_postcall(lua_State* L, by_pointer<T>, int) 
 		{
-			applied_converter_policy<1,Policies,T,cpp_to_lua> converter;
+			specialized_converter_policy_n<1, Policies, T, cpp_to_lua> converter;
 #if defined(__GNUC__) && __GNUC__ >= 4
 			T* storage = reinterpret_cast<T*>(m_storage);
-			converter.apply(L, *storage);
+			converter.to_lua(L, *storage);
 			storage->~T();
 #else
-			converter.apply(L, *reinterpret_cast<T*>(m_storage));
+			converter.to_lua(L, *reinterpret_cast<T*>(m_storage));
 			reinterpret_cast<T*>(m_storage)->~T();
 #endif
 		}
@@ -229,17 +229,17 @@ namespace luabind { namespace detail
 		char m_storage[Size];
 	};
 
-	template<class Policies = no_injectors>
+	template<class Policies = no_policies>
 	struct pure_out_value_policy : conversion_policy
 	{
 		struct only_accepts_nonconst_references_or_pointers {};
 		struct can_only_convert_from_lua_to_cpp {};
 
 		template<class T, class Direction>
-		struct apply
+		struct specialize
 		{
-			static_assert(std::is_same< Direction, lua_to_cpp >::value, "Can only convert from lua to cpp");
-			static_assert(meta::or_< is_nonconst_reference<T>, is_nonconst_pointer<T> >::value, "Only accepts non const references or pointers");
+			static_assert(std::is_same< Direction, lua_to_cpp >::value, "Pure out value policy can only convert from lua to cpp");
+			static_assert(meta::or_< is_nonconst_reference<T>, is_nonconst_pointer<T> >::value, "Pure out value policy only accepts non const references or pointers");
 
 			typedef pure_out_value_converter<indirect_sizeof<T>::value, Policies> type;
 		};
@@ -249,10 +249,10 @@ namespace luabind { namespace detail
 
 namespace luabind
 {
-	template<unsigned int N, class Policies = no_injectors >
+	template<unsigned int N, class Policies = no_policies >
 	using out_value = meta::type_list<converter_policy_injector<N,detail::out_value_policy<Policies>>>;
 
-	template<unsigned int N, class Policies = no_injectors >
+	template<unsigned int N, class Policies = no_policies >
 	using pure_out_value = meta::type_list<converter_policy_injector<N,detail::pure_out_value_policy<Policies>>>;
 }
 

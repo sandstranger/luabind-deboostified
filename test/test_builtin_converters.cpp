@@ -7,10 +7,10 @@
 #include <luabind/luabind.hpp>
 
 #define LUABIND_TEST_BUILTIN(type, value) \
-    default_converter<type>().to(L, value); \
+    default_converter<type>().to_lua_deferred(L, value); \
     default_converter<type> CAT(cv, __LINE__); \
     TEST_CHECK(CAT(cv, __LINE__).compute_score(L, -1) >= 0); \
-    TEST_CHECK(CAT(cv, __LINE__).from(L, -1) == value); \
+    TEST_CHECK(CAT(cv, __LINE__).to_cpp_deferred(L, -1) == value); \
     lua_pop(L, 1)
 
 void test_main(lua_State* L)

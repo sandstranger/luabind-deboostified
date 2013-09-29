@@ -64,24 +64,19 @@ namespace luabind {
 			return Derived::compute_score(L, index);
 		}
 
-		value_type apply(lua_State* L, detail::by_value<T>, int index)
+		value_type to_cpp(lua_State* L, detail::by_value<T>, int index)
 		{
-			return derived().from(L, index);
+			return derived().to_cpp_deferred(L, index);
 		}
 
-		value_type apply(lua_State* L, detail::by_value<T const>, int index)
+		value_type to_cpp(lua_State* L, detail::by_const_reference<T>, int index)
 		{
-			return derived().from(L, index);
+			return derived().to_cpp_deferred(L, index);
 		}
 
-		value_type apply(lua_State* L, detail::by_const_reference<T>, int index)
+		void to_lua(lua_State* L, param_type value)
 		{
-			return derived().from(L, index);
-		}
-
-		void apply(lua_State* L, param_type value)
-		{
-			derived().to(L, value);
+			derived().to_lua_deferred(L, value);
 		}
 
 		Derived& derived()
@@ -92,7 +87,7 @@ namespace luabind {
 
 	template <typename QualifiedT>
 	struct integer_converter
-		: native_converter_base<typename std::remove_reference<typename std::remove_const<QualifiedT>::type>::type>
+		: native_converter_base<typename std::remove_const<QualifiedT>::type>
 	{
 		typedef typename std::remove_reference<typename std::remove_const<QualifiedT>::type>::type T;
 		typedef typename native_converter_base<T>::param_type param_type;
@@ -103,12 +98,12 @@ namespace luabind {
 			return lua_type(L, index) == LUA_TNUMBER ? 0 : -1;
 		}
 
-		static value_type from(lua_State* L, int index)
+		static value_type to_cpp_deferred(lua_State* L, int index)
 		{
 			return static_cast<T>(lua_tointeger(L, index));
 		}
 
-		void to(lua_State* L, param_type value)
+		void to_lua_deferred(lua_State* L, param_type value)
 		{
 			lua_pushinteger(L, static_cast<lua_Integer>(value));
 		}
@@ -127,12 +122,12 @@ namespace luabind {
 			return lua_type(L, index) == LUA_TNUMBER ? 0 : -1;
 		}
 
-		static value_type from(lua_State* L, int index)
+		static value_type to_cpp_deferred(lua_State* L, int index)
 		{
 			return static_cast<T>(lua_tonumber(L, index));
 		}
 
-		static void to(lua_State* L, param_type value)
+		static void to_lua_deferred(lua_State* L, param_type value)
 		{
 			lua_pushnumber(L, static_cast<lua_Number>(value));
 		}
@@ -147,12 +142,12 @@ namespace luabind {
 			return lua_type(L, index) == LUA_TBOOLEAN ? 0 : -1;
 		}
 
-		static bool from(lua_State* L, int index)
+		static bool to_cpp_deferred(lua_State* L, int index)
 		{
 			return lua_toboolean(L, index) == 1;
 		}
 
-		static void to(lua_State* L, bool value)
+		static void to_lua_deferred(lua_State* L, bool value)
 		{
 			lua_pushboolean(L, value);
 		}
@@ -178,12 +173,12 @@ namespace luabind {
 			return lua_type(L, index) == LUA_TSTRING ? 0 : -1;
 		}
 
-		static std::string from(lua_State* L, int index)
+		static std::string to_cpp_deferred(lua_State* L, int index)
 		{
 			return std::string(lua_tostring(L, index), lua_rawlen(L, index));
 		}
 
-		static void to(lua_State* L, std::string const& value)
+		static void to_lua_deferred(lua_State* L, std::string const& value)
 		{
 			lua_pushlstring(L, value.data(), value.size());
 		}
@@ -214,12 +209,12 @@ namespace luabind {
 		}
 
 		template <class U>
-		static char const* apply(lua_State* L, U, int index)
+		static char const* to_cpp(lua_State* L, U, int index)
 		{
 			return lua_tostring(L, index);
 		}
 
-		static void apply(lua_State* L, char const* str)
+		static void to_lua(lua_State* L, char const* str)
 		{
 			lua_pushstring(L, str);
 		}
@@ -231,6 +226,11 @@ namespace luabind {
 
 	template <>
 	struct default_converter<const char* const>
+		: default_converter<char const*>
+	{};
+
+	template <>
+	struct default_converter<const char* const&>
 		: default_converter<char const*>
 	{};
 
