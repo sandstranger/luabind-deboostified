@@ -54,7 +54,7 @@ namespace luabind { namespace detail
 		std::pair<void*, int> get_instance(class_id target) const
 		{
 			if (m_instance == 0)
-				return std::pair<void*, int>((void*)0, -1);
+				return std::pair<void*, int>(nullptr, -1);
 			return m_instance->get(m_classrep->casts(), target);
 		}
 
@@ -89,12 +89,8 @@ namespace luabind { namespace detail
 		}
 
 	private:
-
-	object_rep(object_rep const&)
-	{}
-
-	void operator=(object_rep const&)
-	{}
+		object_rep(object_rep const&) = delete;
+		void operator=(object_rep const&) = delete;
 
         instance_holder* m_instance;
 		std::aligned_storage<32>::type m_instance_buffer;

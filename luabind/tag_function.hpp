@@ -5,6 +5,7 @@
 #ifndef LUABIND_TAG_FUNCTION_081129_HPP
 #define LUABIND_TAG_FUNCTION_081129_HPP
 
+#include <luabind/config.hpp>
 #include <luabind/detail/meta.hpp>
 #include <luabind/lua_state_fwd.hpp>
 
@@ -32,6 +33,7 @@ namespace luabind {
 			return Signature();
 		}
 
+#ifndef LUABIND_NO_INTERNAL_TAG_ARGUMENTS
 		template <class Signature, class F, typename... PolicyInjectors>
 		int invoke(
 			lua_State* L, function_object const& self, invoke_context& ctx
@@ -41,6 +43,16 @@ namespace luabind {
 		{
 			return invoke(L, self, ctx, tagged.f, Signature(), injectors);
 		}
+#else
+		//template< typename PolicyList, typename Signature, typename F>
+		//inline int invoke(lua_State* L, function_object const& self, invoke_context& ctx, F& f)
+
+		template < typename PolicyList, typename Signature, typename F >
+		int invoke( lua_State* L, function_object const& self, invoke_context& ctx, tagged_function<Signature, F> /*const*/& tagged )
+		{
+			return invoke<PolicyList, Signature>(L, self, ctx, tagged.f);
+		}
+#endif
 
 		template <class Function>
 		struct signature_from_function;

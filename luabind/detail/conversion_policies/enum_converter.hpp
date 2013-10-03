@@ -52,7 +52,12 @@ namespace luabind {
 			template<class T>
 			static int match(lua_State* L, by_value<T>, int index)
 			{
-				if (lua_isnumber(L, index)) return 0; else return -1;
+				if (lua_isnumber(L, index)) {
+					return 0;
+				}
+				else {
+					return no_match;
+				}
 			}
 
 			template<class T>
@@ -64,7 +69,7 @@ namespace luabind {
 			template<class T>
 			static int match(lua_State* L, by_const_reference<T>, int index)
 			{
-				if (lua_isnumber(L, index)) return 0; else return -1;
+				if (lua_isnumber(L, index)) return 0; else return no_match;
 			}
 
 			template<class T>

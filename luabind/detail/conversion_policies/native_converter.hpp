@@ -95,7 +95,7 @@ namespace luabind {
 
 		static int compute_score(lua_State* L, int index)
 		{
-			return lua_type(L, index) == LUA_TNUMBER ? 0 : -1;
+			return lua_type(L, index) == LUA_TNUMBER ? 0 : no_match;
 		}
 
 		static value_type to_cpp_deferred(lua_State* L, int index)
@@ -119,7 +119,7 @@ namespace luabind {
 
 		static int compute_score(lua_State* L, int index)
 		{
-			return lua_type(L, index) == LUA_TNUMBER ? 0 : -1;
+			return lua_type(L, index)==LUA_TNUMBER ? 0 : no_match;
 		}
 
 		static value_type to_cpp_deferred(lua_State* L, int index)
@@ -139,7 +139,7 @@ namespace luabind {
 	{
 		static int compute_score(lua_State* L, int index)
 		{
-			return lua_type(L, index) == LUA_TBOOLEAN ? 0 : -1;
+			return lua_type(L, index)==LUA_TBOOLEAN ? 0 : no_match;
 		}
 
 		static bool to_cpp_deferred(lua_State* L, int index)
@@ -170,7 +170,7 @@ namespace luabind {
 	{
 		static int compute_score(lua_State* L, int index)
 		{
-			return lua_type(L, index) == LUA_TSTRING ? 0 : -1;
+			return lua_type(L, index)==LUA_TSTRING ? 0 : no_match;
 		}
 
 		static std::string to_cpp_deferred(lua_State* L, int index)
@@ -205,7 +205,7 @@ namespace luabind {
 		static int match(lua_State* L, U, int index)
 		{
 			int type = lua_type(L, index);
-			return (type == LUA_TSTRING || type == LUA_TNIL) ? 0 : -1;
+			return (type == LUA_TSTRING || type == LUA_TNIL) ? 0 : no_match;
 		}
 
 		template <class U>

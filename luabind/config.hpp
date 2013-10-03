@@ -98,9 +98,19 @@
 # define LUABIND_API
 #endif
 
+// This switches between using tag arguments / structure specialization for code size tests
+#define LUABIND_NO_INTERNAL_TAG_ARGUMENTS
+
 namespace luabind {
 
 LUABIND_API void disable_super_deprecation();
+
+	namespace detail {
+		const int max_argument_count  = 100;
+		const int max_hierarchy_depth = 100;
+	}
+
+const int no_match = -(detail::max_argument_count*detail::max_hierarchy_depth + 1);
 
 } // namespace luabind
 

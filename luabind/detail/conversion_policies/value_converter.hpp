@@ -57,10 +57,10 @@ namespace luabind {
 			{
 				// special case if we get nil in, try to match the holder type
 				if (lua_isnil(L, index))
-					return -1;
+					return no_match;
 
 				object_rep* obj = get_instance(L, index);
-				if (obj == 0) return -1;
+				if (obj == 0) return no_match;
 
 				std::pair<void*, int> s = obj->get_instance(registered_class<T>::id);
 				result = s.first;

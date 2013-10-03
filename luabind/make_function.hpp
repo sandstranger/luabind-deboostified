@@ -36,7 +36,12 @@ namespace detail
 
       int call(lua_State* L, invoke_context& ctx) /*const*/
       {
+#ifndef LUABIND_NO_INTERNAL_TAG_ARGUMENTS
           return invoke(L, *this, ctx, f, Signature(), InjectorList());
+#else
+		  return invoke<InjectorList,Signature>(L, *this, ctx, f);
+		  //inline int invoke(lua_State* L, function_object const& self, invoke_context& ctx, F& f)
+#endif
       }
 
       void format_signature(lua_State* L, char const* function) const
@@ -51,7 +56,11 @@ namespace detail
 		  
 		  try
 		  {
+#ifndef LUABIND_NO_INTERNAL_TAG_ARGUMENTS
 			  results = invoke(L, *impl, ctx, impl->f, Signature(), InjectorList());
+#else
+			  results = invoke<InjectorList,Signature>(L, *impl, ctx, impl->f);
+#endif
 		  }
 		  catch (...)
 		  {
@@ -118,7 +127,6 @@ template <class F, typename... PolicyInjectors >
 object make_function(lua_State* L, F f, meta::type_list< PolicyInjectors... >)
 {
 	return make_function(L, f, typename detail::call_types<F>::signature_type(), meta::type_list< PolicyInjectors... >());
-	//return detail::make_function_aux(L, new detail::function_object_impl<F, typename detail::call_types<F>::signature_type, meta::type_list< PolicyInjectors...> >(f));
 }
 
 template <class F>

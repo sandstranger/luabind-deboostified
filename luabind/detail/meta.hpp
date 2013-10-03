@@ -97,6 +97,8 @@ namespace meta {
 	template< typename... Types >
 	struct type_list : public type_list_tag
 	{
+		template< unsigned int Index >
+		using at = typename get<type_list,Index>::type;
 	};
 
 	template< typename... Types1, typename... Types2 >

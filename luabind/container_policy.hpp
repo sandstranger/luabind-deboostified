@@ -62,7 +62,7 @@ namespace luabind { namespace detail {
 		template<class T>
 		static int match(lua_State* L, by_const_reference<T>, int index)
 		{
-			if (lua_istable(L, index)) return 0; else return -1;
+			if (lua_istable(L, index)) return 0; else return no_match;
 		}
 
 		template<class T>

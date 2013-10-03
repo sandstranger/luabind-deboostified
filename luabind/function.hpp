@@ -24,7 +24,7 @@ namespace detail
 
       void register_(lua_State* L) const
       {
-          object fn = make_function(L, f /*, typename call_types<F>::signature_type()*/, PolicyInjectors() );
+          object fn = make_function(L, f, PolicyInjectors() );
 
           add_overload(
               object(from_stack(L, -1))

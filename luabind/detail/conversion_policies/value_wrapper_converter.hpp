@@ -48,8 +48,8 @@ namespace luabind {
 			static int match(lua_State* L, by_const_reference<T>, int index)
 			{
 				return value_wrapper_traits<T>::check(L, index)
-					? (std::numeric_limits<int>::max)() / LUABIND_MAX_ARITY
-					: -1;
+					? max_hierarchy_depth
+					: no_match;
 			}
 
 			template<class T>

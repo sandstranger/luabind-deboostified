@@ -20,7 +20,7 @@ namespace luabind {
 
 int combine_score(int s1, int s2)
 {
-    if (s1 < 0 || s2 < 0) return -1;
+//    if (s1 < 0 || s2 < 0) return -1;
     return s1 + s2;
 }
 
