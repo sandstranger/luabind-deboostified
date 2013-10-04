@@ -36,6 +36,11 @@ public:
         return id->before(*other.id);
     }
 
+	size_t hash_code() const
+	{
+		return id->hash_code();
+	}
+
     char const* name() const
     {
         return id->name();

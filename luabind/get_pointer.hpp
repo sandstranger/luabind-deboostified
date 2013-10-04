@@ -24,6 +24,8 @@
 # define LUABIND_GET_POINTER_051023_HPP
 #include <memory>
 
+// TODO: Rename to pointer_traits
+
 namespace luabind {
 
 	template<typename T>
@@ -42,6 +44,49 @@ namespace luabind {
 	T* get_pointer(const std::shared_ptr<T>& pointer)
 	{
 		return pointer.get();
+	}
+
+
+	namespace detail {
+
+		template<typename T>
+		struct pointer_traits;
+
+		template<typename T>
+		struct pointer_traits<T*>
+		{
+			typedef T value_type;
+		};
+
+		template<typename T>
+		struct pointer_traits<std::unique_ptr<T>>
+		{
+			typedef T value_type;
+		};
+
+		template<typename T>
+		struct pointer_traits<std::shared_ptr<T>>
+		{
+			typedef T value_type;
+		};
+
+		template<typename T>
+		using is_pointer_to_const = std::is_const< typename pointer_traits<T>::value_type >;
+
+
+		template<typename T>
+		void release_ownership(std::unique_ptr<T>& p)
+		{
+			p.release();
+		}
+
+		template <class P>
+		void release_ownership(P const&)
+		{
+			throw std::runtime_error(
+				"luabind: smart pointer does not allow ownership transfer");
+		}
+
 	}
 
 } // namespace luabind

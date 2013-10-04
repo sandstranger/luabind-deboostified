@@ -78,6 +78,7 @@ namespace luabind {
 		template <class T>
 		void make_pointee_instance(lua_State* L, T&& x, std::false_type, std::false_type)
 		{
+			// need a second make_instance that moves x into place
 			make_instance(L, &x);
 		}
 

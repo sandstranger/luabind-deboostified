@@ -171,7 +171,7 @@ namespace luabind
 	};
 
 	// TODO: Could specialize for certain base classes to make the interface "type safe".
-	template<typename T, typename BaseOrBases = no_bases, typename WrappedType = detail::null_type, typename HeldType = detail::null_type >
+	template<typename T, typename BaseOrBases = no_bases, typename HolderType = detail::null_type, typename WrapperType = detail::null_type>
 	struct class_;
 
 	// TODO: this function will only be invoked if the user hasn't defined a correct overload
@@ -412,11 +412,11 @@ namespace luabind
 	} // namespace detail
 
 	// registers a class in the lua environment
-	template<class T, typename BaseOrBases, typename WrappedType, typename HeldType >
+	template<class T, typename BaseOrBases, typename HolderType, typename WrapperType >
 	struct class_
 		: detail::class_base
 	{
-		using self_t = class_<T, BaseOrBases, WrappedType, HeldType>;
+		using self_t = class_<T, BaseOrBases, HolderType, WrapperType>;
 		using BaseList = make_bases< BaseOrBases >;
 
 
@@ -513,8 +513,8 @@ namespace luabind
 	private:
 		void init()
 		{
-			class_base::init(typeid(T), detail::registered_class<T>::id, typeid(WrappedType), detail::registered_class<WrappedType>::id);
-			add_wrapper_cast((WrappedType*) 0);
+			class_base::init(typeid(T), detail::registered_class<T>::id, typeid(WrapperType), detail::registered_class<WrapperType>::id);
+			add_wrapper_cast((WrapperType*) 0);
 			generate_baseclass_list();
 		}
 
@@ -590,12 +590,12 @@ namespace luabind
 			using policy_list_type = policy_list< Injectors... >;
 
 			using construct_type = typename std::conditional<
-				detail::is_null_type<WrappedType>::value,
+				detail::is_null_type<WrapperType>::value,
 				T,
-				WrappedType
+				WrapperType
 			>::type;
 
-			using registration_type = detail::constructor_registration<construct_type, HeldType, signature_type, policy_list_type>;
+			using registration_type = detail::constructor_registration<construct_type, HolderType, signature_type, policy_list_type>;
             this->add_member        (new registration_type());
             this->add_default_member(new registration_type());
 

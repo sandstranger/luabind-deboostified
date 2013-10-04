@@ -846,24 +846,10 @@ object detail::basic_iterator<AccessPolicy>::key() const
 namespace detail 
 {
 
-  template<
-      class T
-    , class ValueWrapper
-    , class Policies
-    , class ErrorPolicy
-    , class ReturnType
-  >
-  ReturnType object_cast_aux(
-      ValueWrapper const& value_wrapper
-    , T*
-    , Policies*
-    , ErrorPolicy*
-    , ReturnType*
-  )
+  template<class T, class ValueWrapper, class Policies, class ErrorPolicy, class ReturnType >
+  ReturnType object_cast_aux( ValueWrapper const& value_wrapper, T*, Policies*, ErrorPolicy*, ReturnType* )
   {
-      lua_State* interpreter = value_wrapper_traits<ValueWrapper>::interpreter(
-          value_wrapper
-      );
+      lua_State* interpreter = value_wrapper_traits<ValueWrapper>::interpreter( value_wrapper );
 
 #ifndef LUABIND_NO_ERROR_CHECKING
       if (!interpreter) 
@@ -884,11 +870,6 @@ namespace detail
       return cv.to_cpp(interpreter, decorated_type<T>(), -1);
   }
 
-# ifdef BOOST_MSVC
-#  pragma warning(push)
-#  pragma warning(disable:4702) // unreachable code
-# endif
-
   template<class T>
   struct throw_error_policy
   {
@@ -907,10 +888,6 @@ namespace detail
           return *(typename std::remove_reference<T>::type*)0;
       }
   };
-
-# ifdef BOOST_MSVC
-#  pragma warning(pop)
-# endif
 
 #ifdef LUABIND_SUPPORT_NOTHROW_POLICY
   template<class T>
@@ -1013,13 +990,11 @@ namespace adl
   struct call_proxy
   {
       call_proxy(ValueWrapper& value_wrapper, Arguments arguments)
-        : value_wrapper(&value_wrapper)
-        , arguments(arguments)
+        : value_wrapper(&value_wrapper), arguments(arguments)
       {}
 
       call_proxy(call_proxy const& other)
-        : value_wrapper(other.value_wrapper)
-        , arguments(other.arguments)
+        : value_wrapper(other.value_wrapper), arguments(other.arguments)
       {
           other.value_wrapper = 0;
       }
