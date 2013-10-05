@@ -55,11 +55,11 @@ void test_main(lua_State* L)
 {
     module(L)
     [
-        class_<base0, no_bases, base_wrap0>("base0")
+        class_<base0, no_bases, default_holder, base_wrap0>("base0")
           .def(constructor<>()),
         def("filter0", &filter0),
 
-        class_<base1, no_bases, base_wrap1, std::shared_ptr<base1> >("base1")
+		class_<base1, no_bases, std::shared_ptr<base1>, base_wrap1 >("base1")
           .def(constructor<>()),
         def("filter1", &filter1)
     ];

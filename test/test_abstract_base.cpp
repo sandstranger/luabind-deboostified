@@ -77,7 +77,7 @@ void test_main(lua_State* L)
 {
     module(L)
     [
-        class_<abstract, no_bases, abstract_wrap >("abstract")
+        class_<abstract, no_bases, default_holder, abstract_wrap >("abstract")
             .def(constructor<>())
             .def("hello", &abstract::hello),
 

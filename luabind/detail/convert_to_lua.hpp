@@ -27,41 +27,44 @@
 #include <luabind/config.hpp>
 #include <luabind/detail/policy.hpp>
 
-namespace luabind { namespace detail
-{
+namespace luabind { 
+	
+	namespace detail {
 
-	template< typename T >
-	struct unwrapped {
-		static const bool is_wrapped_ref = false;
-		typedef T type;
+		template< typename T >
+		struct unwrapped {
+			static const bool is_wrapped_ref = false;
+			typedef T type;
 
-		static const T& get( const T& t ) {
-			return t;
-		}
-	};
+			static const T& get( const T& t ) {
+				return t;
+			}
+		};
 
-	template< typename T >
-	struct unwrapped< std::reference_wrapper< T > >
-	{
-		static const bool is_wrapped_ref = true;
-		typedef T& type;
-
-		static T& get(const std::reference_wrapper<T>& refwrap)
+		template< typename T >
+		struct unwrapped< std::reference_wrapper< T > >
 		{
-			return refwrap.get();
-		}
-	};
+			static const bool is_wrapped_ref = true;
+			typedef T& type;
 
-	template<unsigned int PolicyIndex = 1, typename Policies = no_policies, typename T>
-	void push_to_lua(lua_State* L, const T& v)
-	{
-		using value_type = typename unwrapped< T >::type;
+			static T& get(const std::reference_wrapper<T>& refwrap)
+			{
+				return refwrap.get();
+			}
+		};
+
+		template<unsigned int PolicyIndex = 1, typename Policies = no_policies, typename T>
+		void push_to_lua(lua_State* L, const T& v)
+		{
+			using value_type = typename unwrapped< T >::type;
 		
-		specialized_converter_policy_n<PolicyIndex, Policies, value_type, cpp_to_lua>()
-			.to_lua(L, unwrapped<T>::get(v));
+			specialized_converter_policy_n<PolicyIndex, Policies, value_type, cpp_to_lua>()
+				.to_lua(L, unwrapped<T>::get(v));
+		}
+
 	}
 
-}}
+}
 
 #endif
 

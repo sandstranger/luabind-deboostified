@@ -26,8 +26,8 @@
 #include <type_traits>
 #include <luabind/lua_include.hpp>
 #include <luabind/detail/decorate_type.hpp>
-#include <luabind/detail/has_get_pointer.hpp>
 #include <luabind/detail/make_instance.hpp>
+#include <luabind/pointer_traits.hpp>
 #include <luabind/from_stack.hpp>
 
 
@@ -58,7 +58,7 @@ namespace luabind {
 		{
 			if (get_pointer(x))
 			{
-				make_instance(L, std::forward<T>(x));
+				make_pointer_instance(L, std::forward<T>(x));
 			}
 			else
 			{
@@ -72,14 +72,14 @@ namespace luabind {
 			typedef typename std::remove_reference<T>::type value_type;
 
 			std::unique_ptr<value_type> ptr(new value_type(std::move(x)));
-			make_instance(L, std::move(ptr));
+			make_pointer_instance(L, std::move(ptr));
 		}
 
 		template <class T>
 		void make_pointee_instance(lua_State* L, T&& x, std::false_type, std::false_type)
 		{
 			// need a second make_instance that moves x into place
-			make_instance(L, &x);
+			make_pointer_instance(L, &x);
 		}
 
 		template <class T, class Clone>

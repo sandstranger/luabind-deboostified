@@ -61,7 +61,7 @@ namespace luabind {
 
 		// Create an appropriate instance holder for the given pointer like object.
 		template <class P>
-		void make_instance(lua_State* L, P p)
+		void make_pointer_instance(lua_State* L, P p)
 		{
 			std::pair<class_id, void*> dynamic = get_dynamic_class(L, get_pointer(p));
 
@@ -91,6 +91,73 @@ namespace luabind {
 			}
 
 			instance->set_instance(static_cast<holder_type*>(storage));
+		}
+
+
+		template< typename ValueType >
+		void make_value_instance(lua_State* L, ValueType&& val, std::true_type /* is smart ptr */)
+		{
+			std::pair<class_id, void*> dynamic = get_dynamic_class(L, get_pointer(val));
+			class_rep* cls = get_pointee_class(L, val, dynamic.first);
+
+			typedef decltype(*get_pointer(val)) pointee_type;
+
+			if(!cls) {
+				throw std::runtime_error("Trying to use unregistered class: " + std::string(typeid(pointee_type).name()));
+			}
+
+			object_rep* instance = push_new_instance(L, cls);
+
+			typedef typename std::remove_reference<ValueType>::type value_type;
+			typedef pointer_like_holder<value_type> holder_type;
+
+			void* storage = instance->allocate(sizeof(holder_type));
+
+			try {
+				new (storage) holder_type(L, std::forward<ValueType>(val), dynamic.first, dynamic.second );
+			}
+			catch(...) {
+				instance->deallocate(storage);
+				lua_pop(L, 1);
+				throw;
+			}
+
+			instance->set_instance(static_cast<holder_type*>(storage));
+		}
+
+		template< typename ValueType >
+		void make_value_instance(lua_State* L, ValueType&& val, std::false_type /* smart ptr */ )
+		{
+			const auto value_type_id = detail::registered_class<ValueType>::id;
+			class_rep* cls = get_pointee_class(L, &val, value_type_id);
+
+			if(!cls) {
+				throw std::runtime_error("Trying to use unregistered class: "+ std::string(typeid(ValueType).name()));
+			}
+
+			object_rep* instance = push_new_instance(L, cls);
+			
+			typedef typename std::remove_reference<ValueType>::type value_type;
+			typedef value_holder<value_type> holder_type;
+
+			void* storage = instance->allocate(sizeof(holder_type));
+
+			try {
+				new (storage) holder_type(L, std::forward<ValueType>(val));
+			}
+			catch(...) {
+				instance->deallocate(storage);
+				lua_pop(L, 1);
+				throw;
+			}
+
+			instance->set_instance(static_cast<holder_type*>(storage));
+		}
+
+		template< typename ValueType >
+		void make_value_instance(lua_State* L, ValueType&& val)
+		{
+			make_value_instance(L, std::forward<ValueType>(val), has_get_pointer<ValueType>());
 		}
 
 	} // namespace luabind::detail

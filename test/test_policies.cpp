@@ -134,7 +134,7 @@ void test_main(lua_State* L)
 			.def(constructor<>())
 			.def("add",&MI1::add,adopt_policy<2>()),
 
-		class_<MI2,MI1,MI2W>("mi2")
+		class_<MI2,MI1,default_holder,MI2W>("mi2")
 			.def(constructor<>())
 	];
 

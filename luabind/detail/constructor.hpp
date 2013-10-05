@@ -6,11 +6,12 @@
 #define LUABIND_DETAIL_CONSTRUCTOR_081018_HPP
 
 #include <luabind/get_main_thread.hpp>
-#include <luabind/detail/object.hpp>
+#include <luabind/lua_argument_proxy.hpp>
 #include <luabind/wrapper_base.hpp>
 #include <luabind/detail/inheritance.hpp>
 
 namespace luabind {
+
 	namespace detail {
 
 		inline void inject_backref(lua_State*, void*, void*)
@@ -43,10 +44,8 @@ namespace luabind {
 
 				void* storage = self->allocate(sizeof(holder_type));
 
-				self->set_instance(new (storage) holder_type(
-					std::move( ptr ), registered_class<T>::id, naked_ptr));
+				self->set_instance(new (storage) holder_type(std::move( ptr ), registered_class<T>::id, naked_ptr));
 			}
-
 		};
 
 
@@ -60,9 +59,9 @@ namespace luabind {
 		{
 		};
 
-	}
+	}	// namespace detail
 
-} 
+}	// namespace luabind
 
 # endif // LUABIND_DETAIL_CONSTRUCTOR_081018_HPP
 

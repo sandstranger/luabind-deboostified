@@ -54,7 +54,7 @@ namespace luabind {
 				if (luabind::get_back_reference(L, ptr))
 					return;
 
-				make_instance(L, ptr);
+				make_pointer_instance(L, ptr);
 			}
 
 			template<class T>
@@ -108,7 +108,7 @@ namespace luabind {
 				if (luabind::get_back_reference(L, ptr))
 					return;
 
-				make_instance(L, ptr);
+				make_pointer_instance(L, ptr);
 			}
 
 			template<class T>

@@ -27,38 +27,25 @@
 
 namespace luabind {
 
-//
-// Concept ``ValueWrapper``
-//
+	//
+	// Concept "lua_proxy"
+	//
 
-template<class T>
-struct value_wrapper_traits
-{
-    typedef std::false_type is_specialized;
-};
+	template<class T>
+	struct lua_proxy_traits
+	{
+		typedef std::false_type is_specialized;
+	};
 
-template<class T>
-struct is_value_wrapper
-  : value_wrapper_traits<T>::is_specialized
-{};
+	template<class T>
+	struct is_lua_proxy_type
+	  : lua_proxy_traits<T>::is_specialized
+	{};
 
-} // namespace luabind
-
-namespace luabind {
-
-template<class T>
-struct is_value_wrapper_arg
-  : is_value_wrapper<
-      typename std::remove_const<
-          typename std::remove_reference<T>::type
-      >::type
-    >
-{};
-
-template< class T >
-struct is_value_wrapper_arg2
-	: std::conditional < is_value_wrapper_arg<T>::value, std::true_type, std::false_type >::type
-{};
+	template< class T >
+	struct is_lua_proxy_arg
+		: std::conditional<is_lua_proxy_type<typename std::remove_const<typename std::remove_reference<T>::type>::type>::value, std::true_type, std::false_type >::type
+	{};
 
 } // namespace luabind
 

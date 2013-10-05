@@ -50,29 +50,33 @@ namespace luabind {
 	namespace detail {
 
 		template<typename T>
-		struct pointer_traits;
+		struct pointer_traits {
+			enum { is_pointer = false };
+		};
 
 		template<typename T>
 		struct pointer_traits<T*>
 		{
+			enum { is_pointer = true };
 			typedef T value_type;
 		};
 
 		template<typename T>
 		struct pointer_traits<std::unique_ptr<T>>
 		{
+			enum { is_pointer = true };
 			typedef T value_type;
 		};
 
 		template<typename T>
 		struct pointer_traits<std::shared_ptr<T>>
 		{
+			enum { is_pointer = true };
 			typedef T value_type;
 		};
 
 		template<typename T>
 		using is_pointer_to_const = std::is_const< typename pointer_traits<T>::value_type >;
-
 
 		template<typename T>
 		void release_ownership(std::unique_ptr<T>& p)
@@ -87,7 +91,55 @@ namespace luabind {
 				"luabind: smart pointer does not allow ownership transfer");
 		}
 
-	}
+		namespace has_get_pointer_
+		{
+
+			struct any
+			{
+				template<class T> any(T const&);
+			};
+
+			struct no_overload_tag
+			{};
+
+			typedef char(&yes)[1];
+			typedef char(&no)[2];
+
+			no_overload_tag operator, (no_overload_tag, int);
+
+			template<class T>
+			T* get_pointer(T const volatile*);
+
+			template<class T>
+			T* get_pointer(std::unique_ptr<T> const&);
+
+			template<class T>
+			T* get_pointer(std::shared_ptr<T> const&);
+
+			detail::has_get_pointer_::no_overload_tag
+				get_pointer(detail::has_get_pointer_::any);
+
+
+			template<class T>
+			yes check(T const&);
+			no check(no_overload_tag);
+
+			template<class T>
+			struct impl
+			{
+				static typename std::add_lvalue_reference<T>::type x;
+				static const bool value = (sizeof(has_get_pointer_::check((get_pointer(x), 0)))==1);
+				typedef std::integral_constant<bool, value> type;
+			};
+
+		} // namespace has_get_pointer_
+
+		template<class T>
+		struct has_get_pointer
+			: has_get_pointer_::impl<T>::type
+		{};
+
+	} // namespace detail
 
 } // namespace luabind
 

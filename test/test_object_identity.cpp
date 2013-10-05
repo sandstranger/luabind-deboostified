@@ -81,6 +81,7 @@ void test_main(lua_State* L)
 		"tab[temp] = 1\n"
 		"assert(tab[temp] == 1)");
 	
+	// The following assertion fails.
 	DOSTRING(L,
 		"t = test_param()\n"
 		"tab = {}\n"

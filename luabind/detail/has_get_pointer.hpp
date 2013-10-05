@@ -25,57 +25,10 @@
 
 #include <memory>
 
-namespace luabind { namespace detail { 
+namespace luabind { 
+	
 
-	namespace has_get_pointer_
-	{
-
-		struct any
-		{
-			template<class T> any(T const&);
-		};
-
-		struct no_overload_tag
-		{};
-
-		typedef char (&yes)[1];
-		typedef char (&no)[2];
-
-		no_overload_tag operator, (no_overload_tag, int);
-
-		template<class T>
-		T* get_pointer(T const volatile*);
-
-		template<class T>
-		T* get_pointer(std::unique_ptr<T> const&);
-
-		template<class T>
-		T* get_pointer(std::shared_ptr<T> const&);
-
-		detail::has_get_pointer_::no_overload_tag
-			get_pointer(detail::has_get_pointer_::any);
-
-
-		template<class T>
-		yes check(T const&);
-		no check(no_overload_tag);
-
-		template<class T>
-		struct impl
-		{
-			static typename std::add_lvalue_reference<T>::type x;
-			static const bool value = (sizeof(has_get_pointer_::check((get_pointer(x), 0))) == 1);
-			typedef std::integral_constant<bool, value> type;
-		};
-
-	} // namespace has_get_pointer_
-
-template<class T>
-struct has_get_pointer
-  : has_get_pointer_::impl<T>::type
-{};
-
-}} // namespace luabind::detail
+} // namespace luabind
 
 #endif // LUABIND_HAS_GET_POINTER_051022_HPP
 

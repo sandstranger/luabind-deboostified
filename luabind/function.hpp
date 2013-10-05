@@ -25,12 +25,7 @@ namespace detail
       void register_(lua_State* L) const
       {
           object fn = make_function(L, f, PolicyInjectors() );
-
-          add_overload(
-              object(from_stack(L, -1))
-            , name
-            , fn
-          );
+          add_overload(object(from_stack(L, -1)), name, fn);
       }
 
       char const* name;

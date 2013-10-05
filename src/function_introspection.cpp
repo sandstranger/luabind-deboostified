@@ -48,6 +48,7 @@
 #include <luabind/detail/object.hpp>    // for argument, object, etc
 #include <luabind/from_stack.hpp>       // for from_stack
 #include <luabind/scope.hpp>            // for module, module_, scope
+#include <luabind/lua_argument_proxy.hpp>
 
 // Library/third-party includes
 // - none

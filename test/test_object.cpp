@@ -27,6 +27,7 @@
 #include <luabind/detail/debug.hpp>
 #include <luabind/error.hpp>
 #include <luabind/operator.hpp>
+#include <luabind/lua_iterator_proxy.hpp>
 #include <utility>
 
 using namespace luabind;
@@ -330,7 +331,7 @@ void test_main(lua_State* L)
 	obj = luabind::object();
 
 	// call the function and tell lua to adopt the pointer passed as first argument
-	test_param_policies(5, new test_param())[adopt_policy<2>()];
+	test_param_policies.call<adopt_policy<2>>(5, new test_param());
 
 	DOSTRING(L, "assert(test_match(7) == 1)");
 	DOSTRING(L, "assert(test_match('oo') == 0)");
@@ -346,7 +347,7 @@ void test_main(lua_State* L)
 		"return 6\n"
 		"end");
 	object test_object_policies = g["test_object_policies"];
-	object ret_val = test_object_policies("teststring")[no_policies()];
+	object ret_val = test_object_policies.call<no_policies>("teststring");
 	TEST_CHECK(object_cast<int>(ret_val) == 6);
 	TEST_CHECK(ret_val == 6);
 	TEST_CHECK(6 == ret_val);

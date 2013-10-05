@@ -31,7 +31,7 @@
 #include <luabind/detail/conversion_policies/pointer_converter.hpp>
 #include <luabind/detail/conversion_policies/reference_converter.hpp>
 #include <luabind/detail/conversion_policies/value_converter.hpp>
-#include <luabind/detail/conversion_policies/value_wrapper_converter.hpp>
+#include <luabind/detail/conversion_policies/lua_proxy_converter.hpp>
 #include <luabind/detail/conversion_policies/native_converter.hpp>
 
 namespace luabind {
@@ -63,7 +63,7 @@ namespace luabind {
 		template< class T >
 		struct default_converter_generator
 			: public meta::select_ <
-				meta::case_< is_value_wrapper_arg2<T>, value_wrapper_converter<T> >,
+				meta::case_< is_lua_proxy_arg<T>, lua_proxy_converter<T> >,
 				meta::case_< std::is_enum<typename std::remove_reference<T>::type>, enum_converter >,
 				meta::case_< is_nonconst_pointer<T>, pointer_converter >,
 				meta::case_< is_const_pointer<T>, const_pointer_converter >,

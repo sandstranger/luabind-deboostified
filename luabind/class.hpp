@@ -78,17 +78,16 @@
 #include <luabind/config.hpp>
 #include <luabind/scope.hpp>
 #include <luabind/back_reference.hpp>
-#include <luabind/function.hpp>
+#include <luabind/function.hpp>	// -> object.hpp
 #include <luabind/dependency_policy.hpp>
-#include <luabind/detail/constructor.hpp>
-#include <luabind/detail/call.hpp>
+#include <luabind/detail/constructor.hpp>	// -> object.hpp
 #include <luabind/detail/deduce_signature.hpp>
 #include <luabind/detail/primitives.hpp>
 #include <luabind/detail/property.hpp>
 #include <luabind/detail/typetraits.hpp>
 #include <luabind/detail/class_rep.hpp>
-#include <luabind/detail/call.hpp>
 #include <luabind/detail/object_rep.hpp>
+#include <luabind/detail/call.hpp>
 #include <luabind/detail/call_member.hpp>
 #include <luabind/detail/enum_maker.hpp>
 #include <luabind/detail/operator_id.hpp>
@@ -121,6 +120,7 @@ namespace luabind
 	struct bases { };
 	
 	using no_bases = bases< >;
+	using default_holder = detail::null_type;
 
 	namespace detail {
 
@@ -310,18 +310,8 @@ namespace luabind
             void register_(lua_State* L) const
             {
                 typedef typename default_pointer<Pointer, Class>::type pointer;
-
-                object fn = make_function(
-                    L
-                  , construct<Class, pointer, Signature>(), Signature()
-				  , Policies()
-                );
-
-                add_overload(
-                    object(from_stack(L, -1))
-                  , "__init"
-                  , fn
-                );
+				object fn = make_function(L, construct<Class, pointer, Signature>(), Signature(), Policies());
+                add_overload(object(from_stack(L, -1)), "__init", fn);
             }
         };
 

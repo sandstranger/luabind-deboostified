@@ -31,8 +31,7 @@
 #include <luabind/wrapper_base.hpp>
 #endif
 
-#include <luabind/detail/has_get_pointer.hpp>
-#include <luabind/get_pointer.hpp>
+#include <luabind/pointer_traits.hpp>
 
 namespace luabind {
   struct wrap_base;

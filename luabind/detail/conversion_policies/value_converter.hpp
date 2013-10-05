@@ -38,12 +38,12 @@ namespace luabind {
 			void* result;
 
 			template<class T>
-			void to_lua(lua_State* L, T x)
+			void to_lua(lua_State* L, T&& x)
 			{
 				if (luabind::get_back_reference(L, x))
 					return;
 
-				make_pointee_instance(L, std::move(x), std::true_type());
+				make_value_instance(L, std::forward<T>(x));
 			}
 
 			template<class T>

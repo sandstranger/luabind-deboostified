@@ -13,10 +13,10 @@
 
 namespace luabind {
 
-namespace detail
-{
+	namespace detail
+	{
 # ifndef LUABIND_NO_EXCEPTIONS
-  LUABIND_API void handle_exception_aux(lua_State* L);
+		LUABIND_API void handle_exception_aux(lua_State* L);
 # endif
 
 // MSVC complains about member being sensitive to alignment (C4121)
@@ -26,115 +26,98 @@ namespace detail
 #  pragma pack(16)
 # endif
 
-  template <class F, class Signature, class InjectorList>
-  struct function_object_impl : function_object
-  {
-      function_object_impl(F f)
-        : function_object(&entry_point)
-        , f(f)
-      {}
+		template <class F, class Signature, class InjectorList>
+		struct function_object_impl : function_object
+		{
+			function_object_impl(F f)
+				: function_object(&entry_point), f(f)
+			{}
 
-      int call(lua_State* L, invoke_context& ctx) /*const*/
-      {
+			int call(lua_State* L, invoke_context& ctx) /*const*/
+			{
 #ifndef LUABIND_NO_INTERNAL_TAG_ARGUMENTS
-          return invoke(L, *this, ctx, f, Signature(), InjectorList());
+				return invoke(L, *this, ctx, f, Signature(), InjectorList());
 #else
-		  return invoke<InjectorList,Signature>(L, *this, ctx, f);
-		  //inline int invoke(lua_State* L, function_object const& self, invoke_context& ctx, F& f)
+				return invoke<InjectorList, Signature>(L, *this, ctx, f);
 #endif
-      }
+			}
 
-      void format_signature(lua_State* L, char const* function) const
-      {
-          detail::format_signature(L, function, Signature());
-      }
+			void format_signature(lua_State* L, char const* function) const
+			{
+				detail::format_signature(L, function, Signature());
+			}
 
+			static bool invoke_defer(lua_State* L, function_object_impl* impl, invoke_context& ctx, F& f, int& results)
+			{
+				bool exception_caught = false;
 
-	  static bool invoke_defer(lua_State* L, function_object_impl* impl, invoke_context& ctx, F& f, int& results)
-	  {
-		  bool exception_caught = false;
-		  
-		  try
-		  {
+				try {
 #ifndef LUABIND_NO_INTERNAL_TAG_ARGUMENTS
-			  results = invoke(L, *impl, ctx, impl->f, Signature(), InjectorList());
+					results = invoke(L, *impl, ctx, impl->f, Signature(), InjectorList());
 #else
-			  results = invoke<InjectorList,Signature>(L, *impl, ctx, impl->f);
+					results = invoke<InjectorList, Signature>(L, *impl, ctx, impl->f);
 #endif
-		  }
-		  catch (...)
-		  {
-			  exception_caught = true;
-			  handle_exception_aux(L);
-		  }
+				}
+				catch(...) {
+					exception_caught = true;
+					handle_exception_aux(L);
+				}
 
-		  return exception_caught;
-	  }
+				return exception_caught;
+			}
 
+			static int entry_point(lua_State* L)
+			{
+				function_object_impl const* impl_const = *(function_object_impl const**) lua_touserdata(L, lua_upvalueindex(1));
 
-
-      static int entry_point(lua_State* L)
-      {
-          function_object_impl const* impl_const =
-              *(function_object_impl const**)lua_touserdata(L, lua_upvalueindex(1));
-
-		  // TODO: Can this be done differently?
-		  function_object_impl* impl = const_cast<function_object_impl*>(impl_const);
-          invoke_context ctx;
-
-          int results = 0;
+				// TODO: Can this be done differently?
+				function_object_impl* impl = const_cast<function_object_impl*>(impl_const);
+				invoke_context ctx;
+				int results = 0;
 
 # ifndef LUABIND_NO_EXCEPTIONS
-          bool exception_caught = invoke_defer( L, impl, ctx, impl->f, results );
-
-          if (exception_caught)
-              lua_error(L);
+				bool exception_caught = invoke_defer(L, impl, ctx, impl->f, results);
+				if(exception_caught) lua_error(L);
 # else
-          results = invoke(L, *impl, ctx, impl->f, Signature(), impl->policies);
+				results = invoke(L, *impl, ctx, impl->f, Signature(), impl->policies);
 # endif
+				if(!ctx) {
+					ctx.format_error(L, impl);
+					lua_error(L);
+				}
 
-          if (!ctx)
-          {
-              ctx.format_error(L, impl);
-              lua_error(L);
-          }
+				return results;
+			}
 
-          return results;
-      }
-
-      F f;
-  };
+			F f;
+		};
 
 # ifdef _MSC_VER
 #  pragma pack(pop)
 # endif
 
-  LUABIND_API object make_function_aux(
-      lua_State* L, function_object* impl
-  );
+		LUABIND_API object make_function_aux(lua_State* L, function_object* impl);
+		LUABIND_API void add_overload(object const&, char const*, object const&);
 
-  LUABIND_API void add_overload(object const&, char const*, object const&);
+	} // namespace detail
 
-} // namespace detail
+	template <class F, typename... SignatureElements, typename... PolicyInjectors >
+	object make_function(lua_State* L, F f, meta::type_list< SignatureElements... >, meta::type_list< PolicyInjectors... > )
+	{
+		return detail::make_function_aux( L, new detail::function_object_impl<F, meta::type_list< SignatureElements... >, meta::type_list< PolicyInjectors...> >( f ) );
+	}
 
-template <class F, typename... SignatureElements, typename... PolicyInjectors >
-object make_function(lua_State* L, F f, meta::type_list< SignatureElements... >, meta::type_list< PolicyInjectors... > )
-{
-    return detail::make_function_aux( L, new detail::function_object_impl<F, meta::type_list< SignatureElements... >, meta::type_list< PolicyInjectors...> >( f ) );
-}
+	template <class F, typename... PolicyInjectors >
+	object make_function(lua_State* L, F f, meta::type_list< PolicyInjectors... >)
+	{
+		return make_function(L, f, typename detail::call_types<F>::signature_type(), meta::type_list< PolicyInjectors... >());
+	}
 
-template <class F, typename... PolicyInjectors >
-object make_function(lua_State* L, F f, meta::type_list< PolicyInjectors... >)
-{
-	return make_function(L, f, typename detail::call_types<F>::signature_type(), meta::type_list< PolicyInjectors... >());
-}
-
-template <class F>
-object make_function(lua_State* L, F f)
-{
-	return make_function(L, typename detail::call_types<F>::signature_type(), no_policies());
-}
-
+	template <class F>
+	object make_function(lua_State* L, F f)
+	{
+		return make_function(L, typename detail::call_types<F>::signature_type(), no_policies());
+	}
 
 } // namespace luabind
 

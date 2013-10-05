@@ -29,13 +29,21 @@
 #include <luabind/detail/convert_to_lua.hpp>
 #include <luabind/detail/pcall.hpp>
 #include <luabind/detail/call_shared.hpp>
+#include <luabind/detail/stack_utils.hpp>
 
 namespace luabind
 {
+	namespace adl {
+		class object;
+	}
+
+	using adl::object;
+
 	namespace detail {
 
+#ifndef LUABIND_NO_INTERNAL_TAG_ARGUMENTS
 		template<typename Ret, typename PolicyList, typename... Args, unsigned int... Indices, typename Fn>
-		void call_function_impl(lua_State* L, int m_params, Fn fn, std::true_type, meta::index_list<Indices...>, Args&&... args)
+		void call_function_impl(lua_State* L, int m_params, Fn fn, std::true_type /* void */, meta::index_list<Indices...>, Args&&... args)
 		{
 			int top = lua_gettop(L);
 			meta::expand_calls_hack( (
@@ -51,7 +59,7 @@ namespace luabind
 		}
 
 		template<typename Ret, typename PolicyList, typename... Args, unsigned int... Indices, typename Fn>
-		Ret call_function_impl(lua_State* L, int m_params, Fn fn, std::false_type, meta::index_list<Indices...>, Args&&... args)
+		Ret call_function_impl(lua_State* L, int m_params, Fn fn, std::false_type /* void */ , meta::index_list<Indices...>, Args&&... args)
 		{
 			int top = lua_gettop(L);
 			meta::expand_calls_hack( (
@@ -72,7 +80,65 @@ namespace luabind
 
 			return converter.to_cpp(L, decorated_type<Ret>(), -1);
 		}
+#else
+		template<typename Ret, typename PolicyList, typename IndexList, unsigned int NumParams, int(*Function)(lua_State*, int, int), bool IsVoid = std::is_void<Ret>::value>
+		struct call_function_struct;
 
+		template<typename Ret, typename PolicyList, unsigned int NumParams, int(*Function)(lua_State*, int, int), unsigned int... Indices >
+		struct call_function_struct< Ret, PolicyList, meta::index_list<Indices...>, NumParams, Function, true /* void */ >
+		{
+			template< typename... Args >
+			static void call(lua_State* L, Args&&... args) {
+				int top = lua_gettop(L);
+				meta::expand_calls_hack((
+					specialized_converter_policy_n<Indices, PolicyList, typename unwrapped<Args>::type, cpp_to_lua>().to_lua(L, unwrapped<Args>::get(std::forward<Args>(args))), 0)...
+					);
+
+				if(Function(L, sizeof...(Args), 0)) {
+					assert(lua_gettop(L)==top-NumParams+1);
+					call_error(L);
+				}
+				// pops the return values from the function call
+				stack_pop pop(L, lua_gettop(L)-top+NumParams);
+			}
+		};
+
+		template<typename Ret, typename PolicyList, unsigned int NumParams, int(*Function)(lua_State*, int, int), unsigned int... Indices >
+		struct call_function_struct< Ret, PolicyList, meta::index_list<Indices...>, NumParams, Function, false /* void */ >
+		{
+			template< typename... Args >
+			static Ret call(lua_State* L, Args&&... args) {
+				int top = lua_gettop(L);
+				meta::expand_calls_hack((
+					specialized_converter_policy_n<Indices, PolicyList, typename unwrapped<Args>::type, cpp_to_lua>().to_lua(L, unwrapped<Args>::get(std::forward<Args>(args))), 0)...
+					);
+
+				if(Function(L, sizeof...(Args), 1)) {
+					assert(lua_gettop(L)==top-NumParams+1);
+					call_error(L);
+				}
+				// pops the return values from the function call
+				stack_pop pop(L, lua_gettop(L)-top+NumParams);
+
+				specialized_converter_policy_n<0, PolicyList, Ret, lua_to_cpp> converter;
+				if(converter.match(L, decorated_type<Ret>(), -1)<0) {
+					cast_error<Ret>(L);
+				}
+
+				return converter.to_cpp(L, decorated_type<Ret>(), -1);
+			}
+		};
+#endif
+	}
+
+	template<class R, typename PolicyList = no_policies, typename... Args>
+	R call_pushed_function(lua_State* L, Args&&... args)
+	{
+#ifndef LUABIND_NO_INTERNAL_TAG_ARGUMENTS
+		return detail::call_function_impl<R, PolicyList>(L, 1, &detail::pcall, std::is_void<R>(), meta::index_range<1, sizeof...(Args) +1>(), std::forward<Args>(args)...);
+#else
+		return detail::call_function_struct<R, PolicyList, meta::index_range<1, sizeof...(Args)+1>, 1, &detail::pcall >::call(L, std::forward<Args>(args)...);
+#endif
 	}
 
 	template<class R, typename PolicyList = no_policies, typename... Args>
@@ -80,14 +146,17 @@ namespace luabind
 	{
 		assert(name && "luabind::call_function() expects a function name");
 		lua_getglobal(L, name);
-		return detail::call_function_impl<R, PolicyList>(L, 1, &detail::pcall, std::is_void<R>(), meta::index_range<1, sizeof...(Args) +1>(), std::forward<Args>(args)...);
+		return call_pushed_function<R, PolicyList>(L, std::forward<Args>(args)...);
 	}
 
 	template<class R, typename PolicyList = no_policies, typename... Args>
-	R call_function(luabind::object const& obj, Args&&... args)
+	R resume_pushed_function(lua_State* L, Args&&... args)
 	{
-		obj.push(obj.interpreter());
-		return detail::call_function_impl<R, PolicyList>(obj.interpreter(), 1, &detail::pcall, std::is_void<R>(), meta::index_range<1, sizeof...(Args) +1>(), std::forward<Args>(args)...);
+#ifndef LUABIND_NO_INTERNAL_TAG_ARGUMENTS
+		return detail::call_function_impl<R, PolicyList>(L, 1, &detail::resume_impl, std::is_void<R>(), meta::index_range<1, sizeof...(Args) +1>(), std::forward<Args>(args)...);
+#else
+		return detail::call_function_struct<R, PolicyList, meta::index_range<1, sizeof...(Args)+1>, 1, &detail::resume_impl >::call(L, std::forward<Args>(args)...);
+#endif
 	}
 
 	template<class R, typename PolicyList = no_policies, typename... Args>
@@ -95,20 +164,17 @@ namespace luabind
 	{
 		assert(name && "luabind::resume_function() expects a function name");
 		lua_getglobal(L, name);
-		return detail::call_function_impl<R, PolicyList>(L, 1, &detail::resume_impl, std::is_void<R>(), meta::index_range<1, sizeof...(Args) +1>(), std::forward<Args>(args)...);
-	}
-
-	template<class R, typename PolicyList = no_policies, typename... Args>
-	R resume_function(luabind::object const& obj, Args&&... args)
-	{
-		obj.push(obj.interpreter());
-		return detail::call_function_impl<R, PolicyList>(obj.interpreter(), 1, &detail::resume_impl, std::is_void<R>(), meta::index_range<1, sizeof...(Args) +1>(), std::forward<Args>(args)...);
+		return resume_pushed_function<R, PolicyList>(L, std::forward<Args>(args)...);
 	}
 
 	template<class R, typename PolicyList = no_policies, typename... Args>
 	R resume(lua_State* L, Args&&... args)
 	{
+#ifndef LUABIND_NO_INTERNAL_TAG_ARGUMENTS
 		return detail::call_function_impl<R, PolicyList>(L, 0, &detail::resume_impl, std::is_void<R>(), meta::index_range<1, sizeof...(Args) +1>(), std::forward<Args>(args)...);
+#else
+		return detail::call_function_struct<R, PolicyList, meta::index_range<1, sizeof...(Args)+1>, 0, &detail::resume_impl >::call(L, std::forward<Args>(args)...);
+#endif
 	}
 
 }

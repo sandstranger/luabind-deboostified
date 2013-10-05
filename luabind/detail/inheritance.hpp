@@ -1,9 +1,9 @@
 // Copyright Daniel Wallin 2009. Use, modification and distribution is
 // subject to the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
-
 #ifndef LUABIND_INHERITANCE_090217_HPP
 # define LUABIND_INHERITANCE_090217_HPP
+
 # include <luabind/config.hpp>
 # include <cassert>
 # include <limits>
@@ -11,7 +11,9 @@
 # include <memory>
 # include <vector>
 # include <luabind/typeid.hpp>
+
 namespace luabind { 
+
 	namespace detail {
 
 		typedef void*(*cast_function)(void*);
@@ -67,21 +69,19 @@ namespace luabind {
 		inline class_id class_id_map::get(type_id const& type) const
 		{
 			map_type::const_iterator i = m_classes.find(type);
-			if (i == m_classes.end() || i->second >= local_id_base)
+			if(i == m_classes.end() || i->second >= local_id_base) {
 				return unknown_class;
-			return i->second;
+			} else {
+				return i->second;
+			}
 		}
 
 		inline class_id class_id_map::get_local(type_id const& type)
 		{
-			std::pair<map_type::iterator, bool> result = m_classes.insert(
-				std::make_pair(type, 0));
+			std::pair<map_type::iterator, bool> result = m_classes.insert(std::make_pair(type, 0));
 
-			if (result.second)
-				result.first->second = m_local_id++;
-
-			assert(m_local_id >= local_id_base);
-
+			if (result.second) result.first->second = m_local_id++;
+			assert(m_local_id>=local_id_base);
 			return result.first->second;
 		}
 
@@ -160,8 +160,9 @@ namespace luabind {
 		  : registered_class<T>
 		{};
 
-	}
-} // namespace luabind::detail
+	}	// namespace detail
+
+} // namespace luabind
 
 #endif // LUABIND_INHERITANCE_090217_HPP
 

@@ -100,12 +100,21 @@ namespace luabind {
 
 		static value_type to_cpp_deferred(lua_State* L, int index)
 		{
-			return static_cast<T>(lua_tointeger(L, index));
+			if((std::is_unsigned<value_type>::value && sizeof(value_type)>=sizeof(lua_Integer))||(sizeof(value_type)>sizeof(lua_Integer))) {
+				return static_cast<T>(lua_tonumber(L, index));
+			} else {
+				return static_cast<T>(lua_tointeger(L, index));
+			}
 		}
 
 		void to_lua_deferred(lua_State* L, param_type value)
 		{
-			lua_pushinteger(L, static_cast<lua_Integer>(value));
+			if((std::is_unsigned<value_type>::value && sizeof(value_type)>=sizeof(lua_Integer))||(sizeof(value_type)>sizeof(lua_Integer)))
+			{
+				lua_pushnumber(L, value);
+			} else {
+				lua_pushinteger(L, static_cast<lua_Integer>(value));
+			}
 		}
 	};
 

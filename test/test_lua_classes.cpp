@@ -138,19 +138,19 @@ void test_main(lua_State* L)
 {
 	module(L)
 	[
-		class_<A, no_bases, A_wrap, std::shared_ptr<A> >("A")
+		class_<A, no_bases, std::shared_ptr<A>, A_wrap>("A")
 			.def(constructor<>())
 			.def("f", &A::f, &A_wrap::default_f)
 			.def("g", &A::g, &A_wrap::default_g),
 
-		class_<B, A, B_wrap, std::shared_ptr<A> >("B")
+		class_<B, A, std::shared_ptr<A>, B_wrap >("B")
 			.def(constructor<>())
 			.def("f", &B::f, &B_wrap::default_f)
 			.def("g", &B::g, &B_wrap::default_g),
 
         def("filter", &filter),
 
-        class_<base, no_bases, base_wrap>("base")
+        class_<base, no_bases, default_holder, base_wrap>("base")
 			.def(constructor<>())
 			.def("f", &base::f, &base_wrap::default_f)
 			.def("g", &base::g),

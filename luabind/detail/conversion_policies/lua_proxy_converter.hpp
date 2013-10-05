@@ -17,7 +17,7 @@
 #ifndef LUABIND_VALUE_WRAPPER_CONVERTER_HPP_INCLUDED
 #define LUABIND_VALUE_WRAPPER_CONVERTER_HPP_INCLUDED
 
-#include <luabind/value_wrapper.hpp>
+#include <luabind/lua_proxy.hpp>
 #include <type_traits>
 
 namespace luabind {
@@ -25,9 +25,9 @@ namespace luabind {
 	namespace detail {
 
 		template <class U>
-		struct value_wrapper_converter
+		struct lua_proxy_converter
 		{
-			typedef value_wrapper_converter<U> type;
+			typedef lua_proxy_converter<U> type;
 			typedef std::true_type is_native;
 
 			enum { consumed_args = 1 };
@@ -47,7 +47,7 @@ namespace luabind {
 			template<class T>
 			static int match(lua_State* L, by_const_reference<T>, int index)
 			{
-				return value_wrapper_traits<T>::check(L, index)
+				return lua_proxy_traits<T>::check(L, index)
 					? max_hierarchy_depth
 					: no_match;
 			}
@@ -63,7 +63,7 @@ namespace luabind {
 			template<class T>
 			void to_lua(lua_State* interpreter, T const& value_wrapper)
 			{
-				value_wrapper_traits<T>::unwrap(interpreter, value_wrapper);
+				lua_proxy_traits<T>::unwrap(interpreter, value_wrapper);
 			}
 		};
 

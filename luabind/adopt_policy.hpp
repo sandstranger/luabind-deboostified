@@ -116,7 +116,7 @@ namespace luabind { namespace detail
             typedef typename pointer_or_default<Pointer, T>::type
                 pointer_type;
 
-            make_instance(L, pointer_type(ptr));
+            make_pointer_instance(L, pointer_type(ptr));
 		}
 	};
 
