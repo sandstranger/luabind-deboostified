@@ -12,4 +12,12 @@ Create Lua bindings for your C++ code easily - my improvements
 - No backward compatibility to any old or faulty (MS) compilers.
 - This is 24mb of Intellisense db versus close to 90mb with original luabind, also Intellisense is not crippled by boost preprocessor usage.
 
-- Important: This is not drop in replacable. I removed the quirky auto detection mode on the 4 class_ template parameters, so you have to explicitly say class_&lt;MyClass, bases&lt;Any Number of bases>, WrapperType, HolderType> .... other than that I think it is pretty compatible.
+Important: This is not drop in replacable.
+- The template parameters to class class_ work a bit differently to the original (Wrapper and Holder have a specific index, if you don't want one of them, use null_type)
+- The policies are not implemented as functions with a wrapped integer argument, they're aliases to policy lists containing exactly the one respective policy
+
+What next?
+- The policy system is pretty fragile with it's specialization for qualified types, that could simplified and strengthened.
+- There is currently no way to move objects around. Would it be bad if we allowed to move from lua to cpp?
+- The holder type parameter for classes is basically completely useless, as no conversion operations on them are created. You can't even pass something that is held in a shared_ptr&lt;T> to a function that takes a shared_ptr&lt;T>.
+- So... Rework object_rep/instance_holder to be able to know if it holds a value or a pointer to a value, register holder_type's during class registration so they can be used during argument matching?
