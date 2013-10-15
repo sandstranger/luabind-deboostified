@@ -17,7 +17,4 @@ Important: This is not drop in replacable.
 - The policies are not implemented as functions with a wrapped integer argument, they're aliases to policy lists containing exactly the one respective policy
 
 What next?
-- The policy system is pretty fragile with it's specialization for qualified types, that could simplified and strengthened.
-- There is currently no way to move objects around. Would it be bad if we allowed to move from lua to cpp?
-- The holder type parameter for classes is basically completely useless, as no conversion operations on them are created. You can't even pass something that is held in a shared_ptr&lt;T> to a function that takes a shared_ptr&lt;T>.
-- So... Rework object_rep/instance_holder to be able to know if it holds a value or a pointer to a value, register holder_type's during class registration so they can be used during argument matching?
+- There is an update in the pipeline that adds memory locality efficiency for lua-side objects, support for move-only types (read: no more adopt policies, because you can handle transfer of ownership with smart_ptrs like you would do in modern c++), more efficient refs. It's held back by the necessity to change the wrap_base-inheritance stuff accordingly, which will in turn be one indirection more inefficient according to current plans. I'm lacking the overview if inheritance on the lua side is actually used frequently and if changes in its syntax would be OK, because the unit tests are crowded with wrap_base stuff but I have never actually used this functionality myself.
