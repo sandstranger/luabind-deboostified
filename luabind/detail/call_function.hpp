@@ -41,14 +41,24 @@ namespace luabind
 
 	namespace detail {
 
+		template< typename PolicyList, unsigned int pos >
+		void push_arguments(lua_State* L) {};
+
+		template< typename PolicyList, unsigned int Pos, typename Arg0, typename... Args >
+		void push_arguments(lua_State* L, Arg0&& arg0, Args&&... args)
+		{
+			using converter_type = specialized_converter_policy< fetched_converter_policy<Pos, PolicyList>, Arg0, cpp_to_lua >;
+			converter_type().to_lua(L, unwrapped<Arg0>::get(std::forward<Arg0>(arg0)));
+			push_arguments<PolicyList, Pos+1>(L, std::forward<Args>(args)...);
+		};
+
 #ifndef LUABIND_NO_INTERNAL_TAG_ARGUMENTS
 		template<typename Ret, typename PolicyList, typename... Args, unsigned int... Indices, typename Fn>
 		void call_function_impl(lua_State* L, int m_params, Fn fn, std::true_type /* void */, meta::index_list<Indices...>, Args&&... args)
 		{
 			int top = lua_gettop(L);
-			meta::expand_calls_hack( (
-				specialized_converter_policy_n<Indices, PolicyList, typename unwrapped<Args>::type, cpp_to_lua>().to_lua(L, unwrapped<Args>::get(std::forward<Args>(args))),0)...
-				);
+
+			push_arguments<PolicyList, 1>(L, std::forward<Args>(args)...);
 
 			if (fn(L, sizeof...(Args), 0)) {
 				assert(lua_gettop(L) == top - m_params + 1);
@@ -62,9 +72,8 @@ namespace luabind
 		Ret call_function_impl(lua_State* L, int m_params, Fn fn, std::false_type /* void */ , meta::index_list<Indices...>, Args&&... args)
 		{
 			int top = lua_gettop(L);
-			meta::expand_calls_hack( (
-				specialized_converter_policy_n<Indices, PolicyList, typename unwrapped<Args>::type, cpp_to_lua>().to_lua(L, unwrapped<Args>::get(std::forward<Args>(args))), 0)...
-				);
+			
+			push_arguments<PolicyList, 1>(L, std::forward<Args>(args)...);
 
 			if (fn(L, sizeof...(Args), 1)) {
 				assert(lua_gettop(L) == top - m_params + 1);
@@ -90,9 +99,8 @@ namespace luabind
 			template< typename... Args >
 			static void call(lua_State* L, Args&&... args) {
 				int top = lua_gettop(L);
-				meta::expand_calls_hack((
-					specialized_converter_policy_n<Indices, PolicyList, typename unwrapped<Args>::type, cpp_to_lua>().to_lua(L, unwrapped<Args>::get(std::forward<Args>(args))), 0)...
-					);
+				
+				push_arguments<PolicyList, 1>(L, std::forward<Args>(args)...);
 
 				if(Function(L, sizeof...(Args), 0)) {
 					assert(lua_gettop(L)==top-NumParams+1);
@@ -109,9 +117,8 @@ namespace luabind
 			template< typename... Args >
 			static Ret call(lua_State* L, Args&&... args) {
 				int top = lua_gettop(L);
-				meta::expand_calls_hack((
-					specialized_converter_policy_n<Indices, PolicyList, typename unwrapped<Args>::type, cpp_to_lua>().to_lua(L, unwrapped<Args>::get(std::forward<Args>(args))), 0)...
-					);
+				
+				push_arguments<PolicyList, 1>(L, std::forward<Args>(args)...);
 
 				if(Function(L, sizeof...(Args), 1)) {
 					assert(lua_gettop(L)==top-NumParams+1);
