@@ -69,7 +69,7 @@ namespace luabind {
 				lua_pop(L, 1);
 				return 1;
 			}
-			return -1;
+			return no_match;
 		}
 
 		template <class U>
