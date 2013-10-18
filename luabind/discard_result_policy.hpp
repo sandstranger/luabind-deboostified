@@ -36,7 +36,7 @@ namespace luabind { namespace detail
 		void to_lua(lua_State*, T) {}
 	};
 
-	struct discard_result_policy : conversion_policy
+	struct discard_result_policy
 	{
 		struct can_only_convert_from_cpp_to_lua {};
 

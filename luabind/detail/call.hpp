@@ -10,6 +10,8 @@
 #include <luabind/detail/meta.hpp>
 #include <luabind/detail/policy.hpp>
 #include <luabind/yield_policy.hpp>
+#include <luabind/detail/decorate_type.hpp>
+#include <luabind/detail/object.hpp>
 
 #ifdef LUABIND_NO_INTERNAL_TAG_ARGUMENTS
 #include <tuple>
@@ -123,8 +125,7 @@ namespace luabind {
 				static void postcall(lua_State* L, int results) {}
 			};
 
-#ifndef LUABIND_NO_INTERNAL_TAG_ARGUMENTS
-			
+#ifndef LUABIND_NO_INTERNAL_TAG_ARGUMENTS		
 			template< typename... ArgumentConverters >
 			struct compute_invoke_values {
 				using consumed_list = meta::index_list< FooFoo<ArgumentConverters>::consumed_args... >;

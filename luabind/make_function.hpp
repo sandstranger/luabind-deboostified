@@ -116,7 +116,7 @@ namespace luabind {
 	template <class F>
 	object make_function(lua_State* L, F f)
 	{
-		return make_function(L, typename detail::call_types<F>::signature_type(), no_policies());
+		return make_function(L, f, typename detail::call_types<F>::signature_type(), no_policies());
 	}
 
 } // namespace luabind

@@ -22,6 +22,7 @@
 
 #include "test.hpp"
 #include <luabind/object.hpp>
+#include <luabind/detail/conversion_policies/conversion_policies.hpp>
 
 using namespace luabind;
 

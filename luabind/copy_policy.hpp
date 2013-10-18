@@ -30,7 +30,7 @@ namespace detail
       }
   };
 
-  struct copy_policy : conversion_policy
+  struct copy_policy
   {
       template <class T, class Direction>
       struct specialize

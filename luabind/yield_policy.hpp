@@ -27,16 +27,17 @@
 #include <luabind/config.hpp>
 #include <luabind/detail/policy.hpp>
 
-namespace luabind { namespace detail 
-{
-	struct yield_policy
-	{
-		static void postcall(lua_State*, int results, meta::index_list_tag) {}
-	};
-}}
+namespace luabind {
+	
+	namespace detail {
 
-namespace luabind
-{
+		struct yield_policy
+		{
+			static void postcall(lua_State*, int results, meta::index_list_tag) {}
+		};
+
+	}
+
 	using yield = policy_list<call_policy_injector<detail::yield_policy>>;
 }
 

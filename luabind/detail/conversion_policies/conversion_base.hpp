@@ -33,23 +33,6 @@
 
 namespace luabind {
 
-	namespace detail
-	{
-		struct conversion_policy_base {};	
-		struct converter_policy_has_postcall_tag {};
-	}
-
-	struct conversion_policy : detail::conversion_policy_base
-	{
-	};
-
-	// TODO: What's this good for?
-	struct indirection_layer
-	{
-		template<class T>
-		indirection_layer(const T&);
-	};
-
 	namespace detail {
 
 		// Something's strange with the references here... need to know when to copy :(
@@ -87,9 +70,10 @@ namespace luabind {
 		{
 			make_pointee_instance(L, std::forward<T>(x), has_get_pointer<T>(), Clone());
 		}
+
 	}
 
-	template <class T, class Enable = void>
+	template <class T, class Enable>
 	struct default_converter;
 
 }

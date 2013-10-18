@@ -49,6 +49,7 @@
 #include <luabind/from_stack.hpp>       // for from_stack
 #include <luabind/scope.hpp>            // for module, module_, scope
 #include <luabind/lua_argument_proxy.hpp>
+#include <luabind/detail/conversion_policies/conversion_policies.hpp>
 
 // Library/third-party includes
 // - none

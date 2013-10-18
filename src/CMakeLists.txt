@@ -111,6 +111,7 @@ set(LUABIND_DEFAULT_POLICIES
 	../luabind/detail/conversion_policies/reference_converter.hpp
 	../luabind/detail/conversion_policies/value_converter.hpp
 	../luabind/detail/conversion_policies/enum_converter.hpp
+	../luabind/detail/conversion_policies/function_converter.hpp
 	../luabind/detail/conversion_policies/conversion_base.hpp
 	../luabind/detail/conversion_policies/conversion_policies.hpp
 	../luabind/detail/conversion_policies/lua_proxy_converter.hpp

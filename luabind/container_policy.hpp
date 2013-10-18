@@ -98,7 +98,7 @@ namespace luabind { namespace detail {
 	};
 
 	template<class Policies = no_policies>
-	struct container_policy : conversion_policy
+	struct container_policy
 	{
 		struct only_accepts_nonconst_pointers {};
 

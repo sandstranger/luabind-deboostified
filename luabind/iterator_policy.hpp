@@ -88,7 +88,7 @@ struct iterator_converter
     }
 };
 
-struct iterator_policy : conversion_policy
+struct iterator_policy
 {
     template <class T, class Direction>
     struct specialize

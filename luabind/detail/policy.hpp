@@ -25,13 +25,15 @@
 #define LUABIND_POLICY_HPP_INCLUDED
 
 #include <luabind/config.hpp>
+#include <luabind/detail/primitives.hpp>
+#include <luabind/detail/decorate_type.hpp>
 
 #include <typeinfo>
 #include <type_traits>
 #include <string>
 #include <memory>
 
-#include <luabind/detail/conversion_policies/conversion_policies.hpp>
+//#include <luabind/detail/conversion_policies/conversion_policies.hpp>
 #include <luabind/detail/meta.hpp>
 
 #if LUA_VERSION_NUM < 502
@@ -43,6 +45,12 @@ namespace luabind
 	template< typename... T >
 	using policy_list = meta::type_list< T... >;
 	using no_policies = policy_list< >;
+
+	namespace detail {
+
+		struct converter_policy_has_postcall_tag {};
+
+	}
 
 	// A converter policy injector instructs the call mechanism to use a certain converter policy for
 	// an element of a function call signature that is denoted by the parameter Index
@@ -59,6 +67,10 @@ namespace luabind
 	template< typename T >
 	struct call_policy_injector
 	{};
+
+
+	template< typename T, typename Enable = void >
+	struct default_converter;
 
 	namespace detail
 	{

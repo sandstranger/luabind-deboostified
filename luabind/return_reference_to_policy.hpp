@@ -26,44 +26,44 @@
 #include <luabind/detail/policy.hpp>    // for index_map, policy_cons, etc
 #include <luabind/lua_include.hpp>      // for lua_State, lua_pushnil, etc
 
-namespace luabind { namespace detail
-{
-	struct cpp_to_lua;
-	struct null_type;
+namespace luabind { 
+	
+	namespace detail {
+		struct cpp_to_lua;
+		struct null_type;
 
-	template<class T>
-	struct return_reference_to_converter;
-
-	template<>
-	struct return_reference_to_converter<cpp_to_lua>
-	{
 		template<class T>
-		void to_lua(lua_State* L, const T&)
-		{
-			lua_pushnil(L);
-		}
-	};
+		struct return_reference_to_converter;
 
-	template< unsigned int N >
-	struct return_reference_to_policy : conversion_policy, detail::converter_policy_has_postcall_tag
-	{		
-		template<typename StackIndexList>
-		static void postcall(lua_State* L, int results, StackIndexList) 
+		template<>
+		struct return_reference_to_converter<cpp_to_lua>
 		{
-			lua_pushvalue(L, meta::get<StackIndexList,N>::value);
-			lua_replace(L, meta::get<StackIndexList,0>::value+results);
-		}
-
-		template<class T, class Direction>
-		struct specialize
-		{
-			typedef return_reference_to_converter<Direction> type;
+			template<class T>
+			void to_lua(lua_State* L, const T&)
+			{
+				lua_pushnil(L);
+			}
 		};
-	};
-}}
 
-namespace luabind
-{
+		template< unsigned int N >
+		struct return_reference_to_policy : detail::converter_policy_has_postcall_tag
+		{		
+			template<typename StackIndexList>
+			static void postcall(lua_State* L, int results, StackIndexList) 
+			{
+				lua_pushvalue(L, meta::get<StackIndexList,N>::value);
+				lua_replace(L, meta::get<StackIndexList,0>::value+results);
+			}
+
+			template<class T, class Direction>
+			struct specialize
+			{
+				typedef return_reference_to_converter<Direction> type;
+			};
+		};
+	
+	}
+
 	template<unsigned int N>
 	using return_reference_to = meta::type_list<converter_policy_injector<0,detail::return_reference_to_policy<N>>>;
 }

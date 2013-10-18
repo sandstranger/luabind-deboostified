@@ -4,6 +4,7 @@
 #include <luabind/lua_include.hpp>
 #include <luabind/lua_proxy_interface.hpp>
 #include <luabind/lua_index_proxy.hpp>
+#include <luabind/from_stack.hpp>
 
 namespace luabind {
 

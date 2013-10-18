@@ -6,6 +6,8 @@
 
 #include <luabind/detail/object.hpp>
 #include <luabind/make_function.hpp>
+#include <luabind/detail/conversion_policies/conversion_policies.hpp>
+#include <luabind/detail/object.hpp>
 
 namespace luabind { namespace detail {
 

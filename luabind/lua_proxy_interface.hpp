@@ -22,8 +22,8 @@ namespace luabind {
 		void push(lua_State* interpreter, T& value, policy_list<Policies...> const& = no_policies())
 		{
 			using PolicyList = policy_list<Policies...>;
-			using unwrapped_type = typename apply_reference_wrapper<T>::type;
-			using converter_type = specialized_converter_policy_n<0, PolicyList, unwrapped_type, cpp_to_lua >;
+			typedef T unwrapped_type; // = T; //typename apply_reference_wrapper<T>::type;
+			using converter_type = specialized_converter_policy_n<0, PolicyList, T/*unwrapped_type*/, cpp_to_lua >;
 			converter_type().to_lua(interpreter, implicit_cast<unwrapped_type&>(value));
 		}
 

@@ -20,6 +20,7 @@
 #include <type_traits>
 #include <luabind/detail/conversion_policies/conversion_base.hpp>
 #include <luabind/detail/conversion_policies/pointer_converter.hpp>
+#include <luabind/back_reference.hpp>
 
 namespace luabind {
 

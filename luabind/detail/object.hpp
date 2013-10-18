@@ -43,6 +43,7 @@
 #include <luabind/lua_proxy_interface.hpp>
 #include <luabind/lua_index_proxy.hpp>
 #include <luabind/lua_iterator_proxy.hpp>
+#include <luabind/detail/class_rep.hpp>
 
 #if LUA_VERSION_NUM < 502
 # define lua_pushglobaltable(L) lua_pushvalue(L, LUA_GLOBALSINDEX)

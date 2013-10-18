@@ -22,13 +22,14 @@
 
 #include "test.hpp"
 
+#include <luabind/luabind.hpp>
 #include <luabind/out_value_policy.hpp>
 #include <luabind/return_reference_to_policy.hpp>
 #include <luabind/copy_policy.hpp>
 #include <luabind/adopt_policy.hpp>
 #include <luabind/discard_result_policy.hpp>
 #include <luabind/dependency_policy.hpp>
-#include <luabind/luabind.hpp>
+
 
 struct test_copy {};
 
@@ -103,6 +104,22 @@ struct MI2 : public MI1
 
 struct MI2W : public MI2, public luabind::wrap_base {};
 
+
+void function_test1(std::function<void(int, int)> func) {
+	func(3, 4);
+}
+
+
+int function_test2_impl(int a, int b)
+{
+	return a+b;
+}
+
+std::function<int(int, int)> function_test2()
+{
+	return std::function<int(int, int)>(function_test2_impl);
+}
+
 void test_main(lua_State* L)
 {
 	using namespace luabind;
@@ -129,6 +146,9 @@ void test_main(lua_State* L)
 		def("copy_val", &copy_val, copy_policy<0>()),
 		def("copy_val_const", &copy_val_const, copy_policy<0>()),
 		def("secret", &secret, discard_result()),
+
+		def("function_test1", &function_test1),
+		def("function_test2", &function_test2),
 
 		class_<MI1>("mi1")
 			.def(constructor<>())
@@ -224,5 +244,18 @@ void test_main(lua_State* L)
 
 	// adopt with wrappers
 	DOSTRING(L, "mi1():add(mi2())");
+
+	// function converter
+	DOSTRING(L,
+		"result = nil\n"
+		"test = function( a, b ) result = a + b; end\n"
+		"function_test1( test )\n"
+		"assert(result == 7)\n"
+		);
+
+	DOSTRING(L,
+			 "local func = function_test2()\n"
+			 "assert(func(4,5)==9)"
+		);
 }
 

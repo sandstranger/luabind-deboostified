@@ -121,7 +121,7 @@ namespace luabind { namespace detail
 	};
 
 	template <class Pointer>
-	struct adopt_policy_impl : conversion_policy
+	struct adopt_policy_impl
 	{
 		template<class T, class Direction>
 		struct specialize

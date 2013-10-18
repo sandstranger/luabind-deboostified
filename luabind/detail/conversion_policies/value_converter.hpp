@@ -19,6 +19,8 @@
 
 #include <type_traits>
 #include <luabind/lua_include.hpp>
+#include <luabind/back_reference.hpp>
+#include <luabind/detail/object_rep.hpp>
 
 namespace luabind {
 
