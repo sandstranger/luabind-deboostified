@@ -181,21 +181,6 @@ namespace meta {
 	};
 
 	/*
-	pop_back
-	*/
-	template< typename TypeN, typename... Types >
-	struct pop_back< type_list< Types..., TypeN > >
-	{
-		using type = type_list< Types... >;
-	};
-
-	template< >
-	struct pop_back< type_list< > >
-	{
-		using type = type_list< >;
-	};
-
-	/*
 	Index access to type list
 	*/
 

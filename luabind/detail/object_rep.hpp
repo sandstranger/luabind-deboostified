@@ -29,6 +29,7 @@
 #include <luabind/detail/instance_holder.hpp>
 #include <luabind/detail/ref.hpp>
 #include <type_traits>	// std::aligned_storage
+#include <cstdlib>
 
 namespace luabind { 
 	
