@@ -87,7 +87,7 @@ namespace luabind {
 
 	template <typename QualifiedT>
 	struct integer_converter
-		: native_converter_base<typename std::remove_const<QualifiedT>::type>
+		: native_converter_base<typename std::remove_reference<typename std::remove_const<QualifiedT>::type>::type>
 	{
 		typedef typename std::remove_reference<typename std::remove_const<QualifiedT>::type>::type T;
 		typedef typename native_converter_base<T>::param_type param_type;
@@ -264,7 +264,7 @@ namespace luabind {
 	{};
 
 	template <typename T>
-	struct default_converter < T, typename std::enable_if< std::is_integral<T>::value >::type >
+	struct default_converter < T, typename std::enable_if< std::is_integral<typename std::remove_reference<T>::type>::value >::type >
 		: integer_converter<T> 
 	{
 	};

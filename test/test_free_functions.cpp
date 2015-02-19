@@ -98,12 +98,10 @@ void test_main(lua_State* L)
         def("create", &create_base, adopt_policy<0>())
 //        def("set_functor", &set_functor)
             
-#if !(BOOST_MSVC < 1300)
         ,
         def("test_value_converter", &test_value_converter),
         def("test_pointer_converter", &test_pointer_converter)
-#endif
-            
+  
     ];
 
     DOSTRING(L,
@@ -124,10 +122,11 @@ void test_main(lua_State* L)
     base* ptr = call_function<base*,adopt_policy<0>>(L, "lua_create");
     delete ptr;
 
-#if !(BOOST_MSVC < 1300)
+	int Arg0=1;
+	call_function<int>(L, "f", Arg0);
+
     DOSTRING(L, "test_value_converter('converted string')");
     DOSTRING(L, "test_pointer_converter('converted string')");
-#endif
 
     DOSTRING_EXPECTED(L, "f('incorrect', 'parameters')",
         "No matching overload found, candidates:\n"
@@ -141,7 +140,7 @@ void test_main(lua_State* L)
         call_function<void>(L, "failing_fun");
         TEST_ERROR("function didn't fail when it was expected to");
     }
-    catch(luabind::error const& e)
+    catch(luabind::error const&)
     {
         if (std::string("[string \"function failing_fun() error('expected "
 #if LUA_VERSION_NUM >= 502
