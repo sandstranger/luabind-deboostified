@@ -7,8 +7,8 @@
 
 #include <tuple>
 
-namespace meta {
-
+namespace luabind { namespace meta
+{
 	struct type_list_tag {};
 	struct index_list_tag {};
 
@@ -555,7 +555,7 @@ namespace meta {
 	{
 	};
 
-}
+}}
 
 #endif
 
