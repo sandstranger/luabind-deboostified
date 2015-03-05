@@ -194,6 +194,11 @@ namespace luabind {
 	};
 
 	template <>
+	struct default_converter<std::string&>
+		: default_converter<std::string>
+	{};
+
+	template <>
 	struct default_converter<std::string const>
 		: default_converter<std::string>
 	{};

@@ -44,6 +44,11 @@ int f(int x, int y)
     return x + y;
 }
 
+int string_length(std::string v)
+{
+	return v.length();
+}
+
 base* create_base()
 {
     return new base();
@@ -95,10 +100,8 @@ void test_main(lua_State* L)
 
         def("f", (int(*)(int)) &f),
         def("f", (int(*)(int, int)) &f),
-        def("create", &create_base, adopt_policy<0>())
-//        def("set_functor", &set_functor)
-            
-        ,
+        def("create", &create_base, adopt_policy<0>()),
+		def("string_length", &string_length),
         def("test_value_converter", &test_value_converter),
         def("test_pointer_converter", &test_pointer_converter)
   
@@ -123,8 +126,11 @@ void test_main(lua_State* L)
     delete ptr;
 
 	int Arg0=1;
-	call_function<int>(L, "f", Arg0);
+	TEST_CHECK(call_function<int>(L, "f", Arg0)==2);
 
+	std::string Arg1="lua means moon";
+	TEST_CHECK(call_function<int>(L, "string_length", Arg1)==14);
+	
     DOSTRING(L, "test_value_converter('converted string')");
     DOSTRING(L, "test_pointer_converter('converted string')");
 
