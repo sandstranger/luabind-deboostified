@@ -262,7 +262,7 @@ namespace luabind {
 			if (score == ctx.best_score && ctx.candidate_index == 1)
 			{
 				do_call_struct<F, std::is_void<ReturnType>::value>::do_call(L, f, typename invoke_values::stack_index_list(), argument_list_type(), return_converter, argument_converters...);
-				meta::expand_calls_hack((argument_converters.converter_postcall(L, decorated_type<Arguments>(), meta::get< typename invoke_values::stack_index_list, Indices - 1 >::value), 0)...);
+				meta::init_order{(argument_converters.converter_postcall(L, decorated_type<Arguments>(), meta::get< typename invoke_values::stack_index_list, Indices - 1 >::value), 0)...};
 
 				results = lua_gettop(L) - invoke_values::arity;
 				if (has_call_policy<PolicyList, yield_policy>::value) {
@@ -394,11 +394,11 @@ namespace luabind {
 							)						
 					);
 
-					meta::expand_calls_hack(
+					meta::init_order{
 						(std::get<ArgumentIndices>(argument_tuple).converter_postcall(L,
 						typename meta::get<typename traits::decorated_argument_list, ArgumentIndices>::type(),
 						meta::get<typename traits::stack_index_list, ArgumentIndices>::value), 0)...
-						);
+					};
 				}
 			};
 
@@ -416,11 +416,11 @@ namespace luabind {
 											
 					);
 
-					meta::expand_calls_hack(
+					meta::init_order{
 						(std::get<ArgumentIndices>(argument_tuple).converter_postcall(L,
 						typename meta::get<typename traits::decorated_argument_list, ArgumentIndices>::type(),
 						meta::get<typename traits::stack_index_list, ArgumentIndices>::value), 0)...
-						);
+					};
 				}
 			};
 
@@ -441,11 +441,11 @@ namespace luabind {
 						)
 					);
 
-					meta::expand_calls_hack(
+					meta::init_order{
 						(std::get<ArgumentIndices>(argument_tuple).converter_postcall(L,
 						typename meta::get<typename traits::decorated_argument_list, ArgumentIndices>::type(),
 						meta::get<typename traits::stack_index_list, ArgumentIndices>::value), 0)...
-						);
+					};
 				}
 			};
 
@@ -464,11 +464,11 @@ namespace luabind {
 						meta::get<stack_indices, ArgumentIndices>::value)...
 						);
 
-					meta::expand_calls_hack(
+					meta::init_order{
 						(std::get<ArgumentIndices>(argument_tuple).converter_postcall(L,
 						typename meta::get<typename traits::decorated_argument_list, ArgumentIndices>::type(),
 						meta::get<typename traits::stack_index_list, ArgumentIndices>::value), 0)...
-						);
+					};
 				}
 			};
 

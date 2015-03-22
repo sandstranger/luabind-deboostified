@@ -34,10 +34,10 @@ namespace luabind { namespace meta
 	{
 		using type =  T;
 	};
-
-	template< typename... Args >
-	void expand_calls_hack(Args&&... args)
-	{}
+	
+	struct init_order {
+		init_order(std::initializer_list<int>) {}
+	};
 
 	// common operators
 	template< typename T >
