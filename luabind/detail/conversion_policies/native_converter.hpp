@@ -275,7 +275,7 @@ namespace luabind {
 	};
 
 	template <typename T>
-	struct default_converter < T, typename std::enable_if< std::is_floating_point<T>::value >::type >
+	struct default_converter < T, typename std::enable_if< std::is_floating_point<typename std::remove_reference<T>::type>::value >::type >
 		: number_converter<T>
 	{
 	};

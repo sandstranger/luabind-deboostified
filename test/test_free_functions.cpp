@@ -130,6 +130,9 @@ void test_main(lua_State* L)
 
 	std::string Arg1="lua means moon";
 	TEST_CHECK(call_function<int>(L, "string_length", Arg1)==14);
+
+	double Arg2=2;
+	TEST_CHECK(call_function<int>(L, "f", Arg2)==3);
 	
     DOSTRING(L, "test_value_converter('converted string')");
     DOSTRING(L, "test_pointer_converter('converted string')");
