@@ -120,9 +120,9 @@ namespace luabind {
 
 	template <typename QualifiedT>
 	struct number_converter
-		: native_converter_base<typename std::remove_reference<typename std::remove_const<QualifiedT>::type>::type>
+		: native_converter_base<typename std::remove_const<typename std::remove_reference<QualifiedT>::type>::type>
 	{
-		typedef typename std::remove_reference<typename std::remove_const<QualifiedT>::type>::type T;
+		typedef typename std::remove_const<typename std::remove_reference<QualifiedT>::type>::type T;
 		typedef typename native_converter_base<T>::param_type param_type;
 		typedef typename native_converter_base<T>::value_type value_type;
 
