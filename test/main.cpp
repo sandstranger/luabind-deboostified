@@ -129,12 +129,6 @@ int main()
 		L.check();
 		return tests_failure ? 1 : 0;
 	}
-	catch (luabind::error const& e)
-	{
-		std::cerr << "Terminated with exception: \"" << e.what() << "\"\n"
-			<< lua_tostring(e.state(), -1) << "\n";
-		return 1;
-	}
 	catch (std::exception const& e)
 	{
 		std::cerr << "Terminated with exception: \"" << e.what() << "\"\n";
