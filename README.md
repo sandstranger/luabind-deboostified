@@ -17,3 +17,4 @@ Create Lua bindings for your C++ code easily - my improvements
 - The template parameters to class class_ work a bit differently to the original (Wrapper and Holder have a specific index, if you don't want one of them, use null_type and/or no_bases)
 - The policies are not implemented as functions with a wrapped integer argument, they're aliases to policy lists containing exactly the one respective policy
 - The error callback is no longer the function that is pushed as pcall's error handler, but is instead called to push the error handler onto the stack
+- Exceptions thrown by luabind will now carry the error message, it no longer has to be pulled from the lua stack separately
