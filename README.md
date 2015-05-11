@@ -3,6 +3,7 @@ luabind
 Currently, at least the following compilers are supported:
 - MSVC 2013 Update 3
 - Clang/LLVM 3.6.0
+- G++ 4.9
 
 If you can confirm support on another platform, please let me know!
 
