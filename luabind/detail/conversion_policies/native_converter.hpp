@@ -87,9 +87,9 @@ namespace luabind {
 
 	template <typename QualifiedT>
 	struct integer_converter
-		: native_converter_base<typename std::remove_const<QualifiedT>::type>
+		: native_converter_base<typename std::remove_const<typename std::remove_reference<QualifiedT>::type>::type>
 	{
-		typedef typename std::remove_reference<typename std::remove_const<QualifiedT>::type>::type T;
+		typedef typename std::remove_const<typename std::remove_reference<QualifiedT>::type>::type T;
 		typedef typename native_converter_base<T>::param_type param_type;
 		typedef typename native_converter_base<T>::value_type value_type;
 
@@ -120,9 +120,9 @@ namespace luabind {
 
 	template <typename QualifiedT>
 	struct number_converter
-		: native_converter_base<typename std::remove_reference<typename std::remove_const<QualifiedT>::type>::type>
+		: native_converter_base<typename std::remove_const<typename std::remove_reference<QualifiedT>::type>::type>
 	{
-		typedef typename std::remove_reference<typename std::remove_const<QualifiedT>::type>::type T;
+		typedef typename std::remove_const<typename std::remove_reference<QualifiedT>::type>::type T;
 		typedef typename native_converter_base<T>::param_type param_type;
 		typedef typename native_converter_base<T>::value_type value_type;
 
@@ -192,6 +192,11 @@ namespace luabind {
 			lua_pushlstring(L, value.data(), value.size());
 		}
 	};
+
+	template <>
+	struct default_converter<std::string&>
+		: default_converter<std::string>
+	{};
 
 	template <>
 	struct default_converter<std::string const>
@@ -264,13 +269,13 @@ namespace luabind {
 	{};
 
 	template <typename T>
-	struct default_converter < T, typename std::enable_if< std::is_integral<T>::value >::type >
+	struct default_converter < T, typename std::enable_if< std::is_integral<typename std::remove_reference<T>::type>::value >::type >
 		: integer_converter<T> 
 	{
 	};
 
 	template <typename T>
-	struct default_converter < T, typename std::enable_if< std::is_floating_point<T>::value >::type >
+	struct default_converter < T, typename std::enable_if< std::is_floating_point<typename std::remove_reference<T>::type>::value >::type >
 		: number_converter<T>
 	{
 	};

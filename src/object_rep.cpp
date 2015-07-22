@@ -39,7 +39,6 @@ namespace luabind { namespace detail
 		, m_classrep(crep)
 		, m_dependency_cnt(0)
 	{
-		bool val = true;
 	}
 
 	object_rep::~object_rep()

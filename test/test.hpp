@@ -101,12 +101,10 @@ int counted_type<T>::count = 0;
     catch (luabind::error const& e)             \
     {                                           \
 		using namespace std;					\
-		if (std::strcmp(                        \
-            lua_tostring(e.state(), -1)         \
-          , (char const*)expected))             \
+		if (std::strcmp(e.what(),				\
+			(char const*)expected))             \
         {                                       \
-            TEST_ERROR(lua_tostring(e.state(), -1)); \
-            lua_pop(L, 1);                      \
+            TEST_ERROR(e.what());				\
         }                                       \
     }                                           \
     catch (std::string const& s)                \
@@ -124,8 +122,7 @@ int counted_type<T>::count = 0;
     }                                           \
     catch (luabind::error const& e)             \
     {                                           \
-        TEST_ERROR(lua_tostring(e.state(), -1)); \
-            lua_pop(L, 1);                      \
+        TEST_ERROR(e.what());					\
     }                                           \
     catch (std::string const& s)                \
     {                                           \

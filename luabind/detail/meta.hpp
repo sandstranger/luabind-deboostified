@@ -7,8 +7,8 @@
 
 #include <tuple>
 
-namespace meta {
-
+namespace luabind { namespace meta
+{
 	struct type_list_tag {};
 	struct index_list_tag {};
 
@@ -34,10 +34,10 @@ namespace meta {
 	{
 		using type =  T;
 	};
-
-	template< typename... Args >
-	void expand_calls_hack(Args&&... args)
-	{}
+	
+	struct init_order {
+		init_order(std::initializer_list<int>) {}
+	};
 
 	// common operators
 	template< typename T >
@@ -184,39 +184,30 @@ namespace meta {
 	pop_back
 	*/
 
-	template< typename TypeN, typename IndexSequence >
-	struct insert_head;
+    // Empty case
+    template< >
+    struct pop_back< type_list< > >
+    {
+        using type = type_list< >;
+    };
 
-	template< typename TypeN, typename ...Types>
-	struct insert_head< TypeN, type_list<Types...> >
-	{
-		typedef type_list< TypeN, Types... > type;
-	};
+    // Single element case
+    template< typename TypeN> struct pop_back< type_list< TypeN > >
+    {
+        typedef type_list<> type; // TypeN will be removed
+    };
 
-	// Empty case
-	template< >
-	struct pop_back< type_list< > >
-	{
-		using type = type_list< >;
-	};
+    // Normal case, recursively pop_back while pushing all but one onto the front
+    template< typename TypeN, typename... Types >
+    struct pop_back< type_list< TypeN, Types... > >
+    {
+        typedef typename pop_back< type_list<Types...> >::type tail;
+        typedef typename push_front<tail, TypeN>::type type;
+    };
 
-	// Single element case
-	template< typename TypeN> struct pop_back< type_list< TypeN > >
-	{
-		typedef type_list<> type; // TypeN will be removed
-	};
-
-	// Normal case, recursively pop_back while pushing all but one onto the head
-	template< typename TypeN, typename... Types >
-	struct pop_back< type_list< TypeN, Types... > >
-	{
-		typedef typename pop_back< type_list<Types...> >::type tail;
-		typedef typename insert_head< TypeN, tail>::type type;
-	};
-
-	/*
-	Index access to type list
-	*/
+    /*
+    get
+    */
 
 	template< typename Element0, typename... Elements, unsigned int Index >
 	struct get< type_list<Element0, Elements...>, Index > {
@@ -589,7 +580,7 @@ namespace meta {
 	{
 	};
 
-}
+}}
 
 #endif
 
