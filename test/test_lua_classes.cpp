@@ -236,13 +236,11 @@ void test_main(lua_State* L)
 		LUABIND_CHECK_STACK(L);
 
 		try { call_function<int>(L, "gen_error"); }
-		catch (luabind::error&)
+		catch (luabind::error const& e)
 		{
-            bool result(
-                lua_tostring(L, -1) == std::string("[string \"function "
+            bool result(e.what() == std::string("[string \"function "
                     "gen_error()...\"]:2: assertion failed!"));
 			TEST_CHECK(result);
-			lua_pop(L, 1);
 		}
 	}
 
@@ -257,13 +255,12 @@ void test_main(lua_State* L)
 		LUABIND_CHECK_STACK(L);
 
 		try { call_function<void>(L, "gen_error"); }
-		catch (luabind::error&)
+		catch (luabind::error const& e)
 		{
             bool result(
-                lua_tostring(L, -1) == std::string("[string \"function "
+                e.what() == std::string("[string \"function "
                     "gen_error()...\"]:2: assertion failed!"));
 			TEST_CHECK(result);
-			lua_pop(L, 1);
 		}
 	}
 
@@ -271,13 +268,12 @@ void test_main(lua_State* L)
 		LUABIND_CHECK_STACK(L);
 
 		try { call_function<void, adopt_policy<0>>(L, "gen_error"); }
-		catch (luabind::error&)
+		catch (luabind::error const& e)
 		{
             bool result(
-                lua_tostring(L, -1) == std::string("[string \"function "
+                e.what() == std::string("[string \"function "
                     "gen_error()...\"]:2: assertion failed!"));
 			TEST_CHECK(result);
-			lua_pop(L, 1);
 		}
 	}
 

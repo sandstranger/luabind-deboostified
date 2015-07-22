@@ -47,9 +47,9 @@ namespace luabind
 			// pcall will pop the function and self reference
 			// and all the parameters
 
-			meta::expand_calls_hack((
+			meta::init_order{(
 				specialized_converter_policy_n<Indices, PolicyList, typename unwrapped<Args>::type, cpp_to_lua>().to_lua(L, unwrapped<Args>::get(std::forward<Args>(args))), 0)...
-				);
+			};
 
 			if (pcall(L, sizeof...(Args) + 1, 0))
 			{
@@ -70,9 +70,9 @@ namespace luabind
 			// pcall will pop the function and self reference
 			// and all the parameters
 
-			meta::expand_calls_hack((
+			meta::init_order{(
 				specialized_converter_policy_n<Indices, PolicyList, typename unwrapped<Args>::type, cpp_to_lua>().to_lua(L, unwrapped<Args>::get(std::forward<Args>(args))), 0)...
-				);
+			};
 
 			if (pcall(L, sizeof...(Args) +1, 1))
 			{
