@@ -418,11 +418,9 @@ void test_main(lua_State* L)
 #endif
 
     object not_initialized;
-#ifdef LUABIND_SUPPORT_NOTHROW_POLICY
-    TEST_CHECK(!object_cast_nothrow<int>(not_initialized));
-#endif
-	 TEST_CHECK(!not_initialized.is_valid());
-	 TEST_CHECK(!not_initialized);
+    TEST_CHECK(!object_cast_nothrow<int>(not_initialized, 0));
+	TEST_CHECK(!not_initialized.is_valid());
+	TEST_CHECK(!not_initialized);
 
     DOSTRING(L, "t = { {1}, {2}, {3}, {4} }");
 
