@@ -137,8 +137,6 @@ void test_main(lua_State* L)
     DOSTRING(L, "test_value_converter('converted string')");
     DOSTRING(L, "test_pointer_converter('converted string')");
 
-	int a = lua_gettop(L);
-
     DOSTRING_EXPECTED(L, "f('incorrect', 'parameters')",
         "No matching overload found, candidates:\n"
         "int f(int,int)\n"
@@ -146,15 +144,14 @@ void test_main(lua_State* L)
 
 
 	DOSTRING(L, "function failing_fun() error('expected error message') end");
-	int vb=lua_gettop(L);
+
     try
     {
         call_function<void>(L, "failing_fun");
         TEST_ERROR("function didn't fail when it was expected to");
     }
     catch(luabind::error const& e)
-	{
-		int vc=lua_gettop(L);
+    {
         if (std::string("[string \"function failing_fun() error('expected "
 #if LUA_VERSION_NUM >= 502
             "error ..."
@@ -166,7 +163,5 @@ void test_main(lua_State* L)
             TEST_ERROR("function failed with unexpected error message");
         }
     }
-	int va=lua_gettop(L);
-
 }
 
