@@ -49,7 +49,7 @@ namespace luabind {
 				detail::format_signature(L, function, Signature());
 			}
 
-			static bool invoke_defer(lua_State* L, function_object_impl* impl, invoke_context& ctx, F& f, int& results)
+            static bool invoke_defer(lua_State* L, function_object_impl* impl, invoke_context& ctx, int& results)
 			{
                 _unused(f);
 				bool exception_caught = false;
@@ -79,7 +79,7 @@ namespace luabind {
 				int results = 0;
 
 # ifndef LUABIND_NO_EXCEPTIONS
-				bool exception_caught = invoke_defer(L, impl, ctx, impl->f, results);
+                bool exception_caught = invoke_defer(L, impl, ctx, results);
 				if(exception_caught) lua_error(L);
 # else
 				results = invoke(L, *impl, ctx, impl->f, Signature(), impl->policies);

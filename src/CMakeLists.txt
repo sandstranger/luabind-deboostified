@@ -18,7 +18,7 @@ set(LUABIND_SRCS
 	object_rep.cpp
 	open.cpp
 	operator.cpp
-	pcall.cpp
+  pcall.cpp
 	scope.cpp
 	set_package_preload.cpp
 	stack_content_by_name.cpp
@@ -158,7 +158,7 @@ set_property(TARGET
 set(ALLHEADERS ${LUABIND_API} ${LUABIND_DETAIL_API} PARENT_SCOPE)
 set(APIHEADERS ${LUABIND_API} PARENT_SCOPE)
 
-if(INSTALL_LUABIND)
+if(LUABIND_INSTALL)
 	if(NOT INCLUDE_DIR)
 		set(INCLUDE_DIR include)
 	endif()
