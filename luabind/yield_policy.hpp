@@ -26,7 +26,6 @@
 
 #include <luabind/config.hpp>
 #include <luabind/detail/policy.hpp>
-#include <___unused.h>
 
 namespace luabind {
 	
