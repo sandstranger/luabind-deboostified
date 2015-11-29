@@ -45,14 +45,14 @@ namespace luabind {
 		enum { consumed_args = 0 };
 
 		template <class U>
-		lua_State* to_cpp(lua_State* L, U, int index)
+        lua_State* to_cpp(lua_State* L, U, int /*index*/)
 		{
             _unused(index);
 			return L;
 		}
 
 		template <class U>
-		static int match(lua_State*, U, int index)
+        static int match(lua_State*, U, int /*index*/)
 		{
             _unused(index);
 			return 0;

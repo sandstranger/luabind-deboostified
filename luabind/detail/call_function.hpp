@@ -44,7 +44,7 @@ namespace luabind
 	namespace detail {
 
 		template< typename PolicyList, unsigned int pos >
-        void push_arguments(lua_State* L) { _unused(L); }
+        void push_arguments(lua_State* /*L*/) {};
 
 		template< typename PolicyList, unsigned int Pos, typename Arg0, typename... Args >
 		void push_arguments(lua_State* L, Arg0&& arg0, Args&&... args)
