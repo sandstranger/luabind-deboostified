@@ -28,8 +28,6 @@
 #include <luabind/detail/primitives.hpp>
 #include <luabind/detail/decorate_type.hpp>
 
-#include <___unused.h>
-
 #include <typeinfo>
 #include <type_traits>
 #include <string>
