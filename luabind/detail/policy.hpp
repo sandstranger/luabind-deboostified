@@ -136,7 +136,6 @@ namespace luabind
 	}
 } // namespace luabind::detail
 
-
 namespace luabind {
   extern LUABIND_API meta::index<0> return_value;
   extern LUABIND_API meta::index<0> result;
