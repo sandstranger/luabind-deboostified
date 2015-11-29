@@ -29,7 +29,6 @@
 #include <luabind/detail/class_registry.hpp>
 #include <luabind/lua_argument_proxy.hpp>
 #include <luabind/lua_iterator_proxy.hpp>
-#include <___unused.h>
 
 /*
 #include <iostream>
@@ -43,8 +42,6 @@ namespace luabind
 	{
 		lua_State* L = o.interpreter();
         detail::class_rep * crep = NULL;
-
-        _unused(givenClassRep);
 
 		o.push(L);
 		if (detail::is_class_rep(L, -1)) {
