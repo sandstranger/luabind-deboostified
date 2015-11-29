@@ -138,6 +138,7 @@ namespace luabind
 	}
 } // namespace luabind::detail
 
+template<class T> void _unused( const T& ) {}
 
 namespace luabind { namespace
 {
