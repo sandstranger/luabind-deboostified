@@ -87,7 +87,7 @@ namespace luabind { namespace detail
 				get<T>().~T();
 			}
 
-			std::aligned_storage_t<Size> m_storage;
+			typename std::aligned_storage<Size>::type m_storage;
 		
 		};
 
@@ -113,7 +113,7 @@ namespace luabind { namespace detail
 				get().~T();
 			}
 
-			std::aligned_storage_t<sizeof(T),alignof(T)> m_storage;
+			typename std::aligned_storage<sizeof(T),alignof(T)>::type m_storage;
 
 		};
 
@@ -185,7 +185,7 @@ namespace luabind { namespace detail
 			// Note to myself:
 			// Using the size and template members instead of a policy templated for the type seems
 			// to be done to tame template bloat. Need to check if this is worth is.
-			using base_type = std::remove_pointer_t< std::remove_reference_t< T > >;
+			using base_type = typename std::remove_pointer< typename std::remove_reference< T >::type >::type;
 			typedef out_value_converter<base_type, Policies> type;
 		};
 	};
