@@ -22,7 +22,6 @@
 
 #include <luabind/lua_proxy.hpp>
 #include <luabind/object.hpp>
-#include <boost/mpl/assert.hpp>
 
 struct X_tag;
 
@@ -36,24 +35,26 @@ namespace luabind
   template<>
   struct lua_proxy_traits<X>
   {
-      typedef boost::mpl::true_ is_specialized;
+      typedef std::true_type is_specialized;
   };
 } // namespace luabind
 
-BOOST_MPL_ASSERT(( luabind::is_lua_proxy_type<X> ));
-BOOST_MPL_ASSERT_NOT(( luabind::is_lua_proxy_type<X&> ));
-BOOST_MPL_ASSERT_NOT(( luabind::is_lua_proxy_type<X const&> ));
+#define LUABIND_STATIC_ASSERT(expr) static_assert(expr, #expr)
 
-BOOST_MPL_ASSERT(( luabind::is_lua_proxy_arg<X> ));
-BOOST_MPL_ASSERT(( luabind::is_lua_proxy_arg<X const> ));
-BOOST_MPL_ASSERT(( luabind::is_lua_proxy_arg<X&> ));
-BOOST_MPL_ASSERT(( luabind::is_lua_proxy_arg<X const&> ));
-BOOST_MPL_ASSERT_NOT(( luabind::is_lua_proxy_arg<int> ));
-BOOST_MPL_ASSERT_NOT(( luabind::is_lua_proxy_arg<int[4]> ));
+LUABIND_STATIC_ASSERT(luabind::is_lua_proxy_type<X>::value);
+LUABIND_STATIC_ASSERT(!luabind::is_lua_proxy_type<X&>::value);
+LUABIND_STATIC_ASSERT(!luabind::is_lua_proxy_type<X const&>::value);
 
-BOOST_MPL_ASSERT(( luabind::is_lua_proxy_arg<X const&> ));
-BOOST_MPL_ASSERT(( luabind::is_lua_proxy_arg<luabind::object&> ));
-BOOST_MPL_ASSERT(( luabind::is_lua_proxy_arg<luabind::object const&> ));
+LUABIND_STATIC_ASSERT(luabind::is_lua_proxy_arg<X>::value);
+LUABIND_STATIC_ASSERT(luabind::is_lua_proxy_arg<X const>::value);
+LUABIND_STATIC_ASSERT(luabind::is_lua_proxy_arg<X&>::value);
+LUABIND_STATIC_ASSERT(luabind::is_lua_proxy_arg<X const&>::value);
+LUABIND_STATIC_ASSERT(!luabind::is_lua_proxy_arg<int>::value);
+LUABIND_STATIC_ASSERT(!luabind::is_lua_proxy_arg<int[4]>::value);
+
+LUABIND_STATIC_ASSERT(luabind::is_lua_proxy_arg<X const&>::value);
+LUABIND_STATIC_ASSERT(luabind::is_lua_proxy_arg<luabind::object&>::value);
+LUABIND_STATIC_ASSERT(luabind::is_lua_proxy_arg<luabind::object const&>::value);
 
 int main()
 {
