@@ -134,9 +134,9 @@ namespace luabind { namespace detail
 			return storage_.get();
 		}
 
-		static int match(lua_State* L, by_reference<T>, int index)
+		int match(lua_State* L, by_reference<T>, int index)
 		{
-			return converter_.match(L, decorated_type<T&>(), index);
+			return converter_.match(L, decorated_type<T>(), index);
 		}
 
 		void converter_postcall(lua_State* L, by_reference<T>, int) 
