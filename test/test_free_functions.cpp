@@ -155,13 +155,7 @@ void test_main(lua_State* L)
     catch(luabind::error const& e)
 	{
 		int vc=lua_gettop(L);
-        if (std::string("[string \"function failing_fun() error('expected "
-#if LUA_VERSION_NUM >= 502
-            "error ..."
-#else
-            "erro..."
-#endif
-            "\"]:1: expected error message") != e.what())
+        if (std::string("[string \"function failing_fun() error('expected error ...\"]:1: expected error message") != e.what())
         {
             TEST_ERROR("function failed with unexpected error message");
         }
