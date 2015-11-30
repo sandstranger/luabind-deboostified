@@ -42,7 +42,7 @@ namespace luabind
 	namespace detail {
 
 		template< typename PolicyList, unsigned int pos >
-		void push_arguments(lua_State* L) {};
+        void push_arguments(lua_State* /*L*/) {};
 
 		template< typename PolicyList, unsigned int Pos, typename Arg0, typename... Args >
 		void push_arguments(lua_State* L, Arg0&& arg0, Args&&... args)
@@ -50,7 +50,7 @@ namespace luabind
 			using converter_type = specialized_converter_policy< fetched_converter_policy<Pos, PolicyList>, Arg0, cpp_to_lua >;
 			converter_type().to_lua(L, unwrapped<Arg0>::get(std::forward<Arg0>(arg0)));
 			push_arguments<PolicyList, Pos+1>(L, std::forward<Args>(args)...);
-		};
+		}
 
 #ifndef LUABIND_NO_INTERNAL_TAG_ARGUMENTS
 		template<typename Ret, typename PolicyList, typename... Args, unsigned int... Indices, typename Fn>

@@ -64,7 +64,7 @@ foreach(test ${TESTS})
 	add_test(NAME ${test} COMMAND test_${test})
 endforeach()
 
-if(BUILD_TESTING)
+if(LUABIND_BUILD_TESTING)
 	get_filename_component(BASE "${CMAKE_CURRENT_SOURCE_DIR}/../luabind" ABSOLUTE)
 	foreach(HEADER ${APIHEADERS})
 		get_filename_component(FULLHEADER "${HEADER}" ABSOLUTE)
