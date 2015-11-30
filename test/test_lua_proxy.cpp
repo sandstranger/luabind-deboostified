@@ -20,7 +20,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
 // OR OTHER DEALINGS IN THE SOFTWARE.
 
-#include <luabind/value_wrapper.hpp>
+#include <luabind/lua_proxy.hpp>
 #include <luabind/object.hpp>
 #include <boost/mpl/assert.hpp>
 
@@ -28,42 +28,32 @@ struct X_tag;
 
 struct X
 {
-    typedef X_tag value_wrapper_tag;
+    typedef X_tag lua_proxy_tag;
 };
 
 namespace luabind
 {
-#ifdef LUABIND_USE_VALUE_WRAPPER_TAG
   template<>
-  struct value_wrapper_traits<X_tag>
+  struct lua_proxy_traits<X>
   {
       typedef boost::mpl::true_ is_specialized;
   };
-#else
-  // used on compilers supporting partial template specialization
-  template<>
-  struct value_wrapper_traits<X>
-  {
-      typedef boost::mpl::true_ is_specialized;
-  };
-#endif
-
 } // namespace luabind
 
-BOOST_MPL_ASSERT(( luabind::is_value_wrapper<X> ));
-BOOST_MPL_ASSERT_NOT(( luabind::is_value_wrapper<X&> ));
-BOOST_MPL_ASSERT_NOT(( luabind::is_value_wrapper<X const&> ));
+BOOST_MPL_ASSERT(( luabind::is_lua_proxy_type<X> ));
+BOOST_MPL_ASSERT_NOT(( luabind::is_lua_proxy_type<X&> ));
+BOOST_MPL_ASSERT_NOT(( luabind::is_lua_proxy_type<X const&> ));
 
-BOOST_MPL_ASSERT(( luabind::is_value_wrapper_arg<X> ));
-BOOST_MPL_ASSERT(( luabind::is_value_wrapper_arg<X const> ));
-BOOST_MPL_ASSERT(( luabind::is_value_wrapper_arg<X&> ));
-BOOST_MPL_ASSERT(( luabind::is_value_wrapper_arg<X const&> ));
-BOOST_MPL_ASSERT_NOT(( luabind::is_value_wrapper_arg<int> ));
-BOOST_MPL_ASSERT_NOT(( luabind::is_value_wrapper_arg<int[4]> ));
+BOOST_MPL_ASSERT(( luabind::is_lua_proxy_arg<X> ));
+BOOST_MPL_ASSERT(( luabind::is_lua_proxy_arg<X const> ));
+BOOST_MPL_ASSERT(( luabind::is_lua_proxy_arg<X&> ));
+BOOST_MPL_ASSERT(( luabind::is_lua_proxy_arg<X const&> ));
+BOOST_MPL_ASSERT_NOT(( luabind::is_lua_proxy_arg<int> ));
+BOOST_MPL_ASSERT_NOT(( luabind::is_lua_proxy_arg<int[4]> ));
 
-BOOST_MPL_ASSERT(( luabind::is_value_wrapper_arg<X const&> ));
-BOOST_MPL_ASSERT(( luabind::is_value_wrapper_arg<luabind::object&> ));
-BOOST_MPL_ASSERT(( luabind::is_value_wrapper_arg<luabind::object const&> ));
+BOOST_MPL_ASSERT(( luabind::is_lua_proxy_arg<X const&> ));
+BOOST_MPL_ASSERT(( luabind::is_lua_proxy_arg<luabind::object&> ));
+BOOST_MPL_ASSERT(( luabind::is_lua_proxy_arg<luabind::object const&> ));
 
 int main()
 {
