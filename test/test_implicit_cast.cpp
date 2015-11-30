@@ -124,6 +124,7 @@ void test_main(lua_State* L)
     DOSTRING(L, "assert(enum_by_const_ref(LBENUM.VAL1) == LBENUM.VAL1)");
     DOSTRING(L, "assert(enum_by_const_ref(LBENUM.VAL2) == LBENUM.VAL2)");
 
+	// This test fails because shared_ptr-converter is broken.
 	DOSTRING_EXPECTED(L,
 		"a = A()\n"
 		"no_convert(a)",
