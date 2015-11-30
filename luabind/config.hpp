@@ -42,6 +42,13 @@
 #define LUABIND_MAX_BASES 1
 #endif
 
+#ifdef NDEBUG
+# ifndef LUABIND_NO_ERROR_CHECKING
+#  define LUABIND_NO_ERROR_CHECKING
+# endif
+#define LUABIND_NO_EXCEPTIONS
+#endif
+
 // LUABIND_NO_ERROR_CHECKING
 // define this to remove all error checks
 // this will improve performance and memory
