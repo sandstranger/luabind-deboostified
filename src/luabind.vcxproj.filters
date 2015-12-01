@@ -80,6 +80,9 @@
     <ClCompile Include="wrapper_base.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="memory.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\luabind\detail\call.hpp">
@@ -371,6 +374,15 @@
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="..\luabind\yield_policy.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\luabind\memory.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\luabind\memory_allocator.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\luabind\types.hpp">
       <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>

@@ -315,6 +315,7 @@
     <ClCompile Include="headertest.cpp" />
     <ClCompile Include="inheritance.cpp" />
     <ClCompile Include="link_compatibility.cpp" />
+    <ClCompile Include="memory.cpp" />
     <ClCompile Include="object_rep.cpp" />
     <ClCompile Include="open.cpp" />
     <ClCompile Include="operator.cpp" />
@@ -404,6 +405,8 @@
     <ClInclude Include="..\luabind\lua_proxy_interface.hpp" />
     <ClInclude Include="..\luabind\lua_state_fwd.hpp" />
     <ClInclude Include="..\luabind\make_function.hpp" />
+    <ClInclude Include="..\luabind\memory.hpp" />
+    <ClInclude Include="..\luabind\memory_allocator.hpp" />
     <ClInclude Include="..\luabind\nil.hpp" />
     <ClInclude Include="..\luabind\no_dependency.hpp" />
     <ClInclude Include="..\luabind\object.hpp" />
@@ -419,6 +422,7 @@
     <ClInclude Include="..\luabind\shared_ptr_converter.hpp" />
     <ClInclude Include="..\luabind\tag_function.hpp" />
     <ClInclude Include="..\luabind\typeid.hpp" />
+    <ClInclude Include="..\luabind\types.hpp" />
     <ClInclude Include="..\luabind\version.hpp" />
     <ClInclude Include="..\luabind\weak_ref.hpp" />
     <ClInclude Include="..\luabind\wrapper_base.hpp" />
