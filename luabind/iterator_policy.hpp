@@ -101,7 +101,10 @@ namespace luabind {
 
 namespace luabind {
 
-	using return_stl_iterator = policy_list<converter_policy_injector<0, detail::iterator_policy>>;
+	namespace policy
+	{
+		using return_stl_iterator = converter_policy_injector<0, detail::iterator_policy>;
+	}
 
 } // namespace luabind
 
