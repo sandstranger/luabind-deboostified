@@ -109,9 +109,6 @@
     <ClInclude Include="..\luabind\detail\constructor.hpp">
       <Filter>include\detail</Filter>
     </ClInclude>
-    <ClInclude Include="..\luabind\detail\conversion_policies.hpp">
-      <Filter>include\detail</Filter>
-    </ClInclude>
     <ClInclude Include="..\luabind\detail\conversion_storage.hpp">
       <Filter>include\detail</Filter>
     </ClInclude>

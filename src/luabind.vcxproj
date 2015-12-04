@@ -350,7 +350,6 @@
     <ClInclude Include="..\luabind\detail\class_registry.hpp" />
     <ClInclude Include="..\luabind\detail\class_rep.hpp" />
     <ClInclude Include="..\luabind\detail\constructor.hpp" />
-    <ClInclude Include="..\luabind\detail\conversion_policies.hpp" />
     <ClInclude Include="..\luabind\detail\conversion_policies\conversion_base.hpp" />
     <ClInclude Include="..\luabind\detail\conversion_policies\conversion_policies.hpp" />
     <ClInclude Include="..\luabind\detail\conversion_policies\enum_converter.hpp" />
