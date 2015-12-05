@@ -93,16 +93,8 @@ namespace luabind {
 		return pcall_callback;
 	}
     
-    static const char* format_message(luabind::string& s, const char* desc, const char* name)
-	{
-        s = desc;
-        s += ": ";
-        s += name;
-        return s.c_str();
-	}
-
     unresolved_name::unresolved_name(const char* desc, const char* name) :
-        std::runtime_error(format_message(m_message, desc, name))
+        std::runtime_error((luabind::string(desc)+": "+name).c_str())
     {}
 
 }

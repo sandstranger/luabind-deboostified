@@ -89,8 +89,6 @@ namespace luabind
     {
     public:
         unresolved_name(const char* desc, const char* name);
-    private:
-        luabind::string m_message;
     };
 }
 
