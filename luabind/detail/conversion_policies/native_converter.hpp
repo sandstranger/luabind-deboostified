@@ -275,6 +275,11 @@ namespace luabind {
 		: default_converter<char const*>
 	{};
 
+    template <std::size_t N>
+    struct default_converter <char(&)[N]>
+        : default_converter<char const*>
+    {};
+
 	template <std::size_t N>
 	struct default_converter <const char(&)[N]>
 		: default_converter<char const*>
