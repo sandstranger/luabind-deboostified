@@ -52,7 +52,6 @@ namespace luabind {
 			void set_instance(instance_holder* instance) { m_instance = instance; }
 
 			void add_dependency(lua_State* L, int index);
-			void release_dependency_refs(lua_State* L);
 
 			std::pair<void*, int> get_instance(class_id target) const
 			{
@@ -99,6 +98,7 @@ namespace luabind {
 			std::aligned_storage<32>::type m_instance_buffer;
 			class_rep* m_classrep; // the class information about this object's type
 			std::size_t m_dependency_cnt; // counts dependencies
+            detail::lua_reference m_dependency_ref; // reference to lua table holding dependency references
 		};
 
 		template<class T>

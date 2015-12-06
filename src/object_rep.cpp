@@ -37,7 +37,7 @@ namespace luabind { namespace detail
 	object_rep::object_rep(instance_holder* instance, class_rep* crep)
 		: m_instance(instance)
 		, m_classrep(crep)
-		, m_dependency_cnt(0)
+		, m_dependency_cnt(1)
 	{
 	}
 
@@ -51,27 +51,17 @@ namespace luabind { namespace detail
 
 	void object_rep::add_dependency(lua_State* L, int index)
 	{
-        assert(m_dependency_cnt < sizeof(object_rep));
-
-        void* key = (char*)this + m_dependency_cnt;
-
-        lua_pushlightuserdata(L, key);
+        if (!m_dependency_ref.is_valid())
+        {
+            lua_newtable(L);
+            m_dependency_ref.set(L);
+        }
+        m_dependency_ref.get(L);
         lua_pushvalue(L, index);
-        lua_rawset(L, LUA_REGISTRYINDEX);
-
+        lua_rawseti(L, -2, m_dependency_cnt);
+        lua_pop(L, 1);
         ++m_dependency_cnt;
 	}
-
-    void object_rep::release_dependency_refs(lua_State* L)
-    {
-        for (std::size_t i = 0; i < m_dependency_cnt; ++i)
-        {
-            void* key = (char*)this + i;
-            lua_pushlightuserdata(L, key);
-            lua_pushnil(L);
-            lua_rawset(L, LUA_REGISTRYINDEX);
-        }
-    }
 
     int destroy_instance(lua_State* L)
     {
@@ -90,7 +80,6 @@ namespace luabind { namespace detail
             lua_call(L, 1, 0);
         }
 
-        instance->release_dependency_refs(L);
         instance->~object_rep();
 
         lua_pushnil(L);
