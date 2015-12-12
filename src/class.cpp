@@ -32,6 +32,16 @@
 #include <cstring>
 #include <iostream>
 
+namespace
+{
+    bool custom_type_marking_disabled = false;
+}
+
+LUABIND_API void luabind::set_custom_type_marking(bool enable)
+{
+    custom_type_marking_disabled = !enable;
+}
+
 namespace luabind {
 	namespace detail {
 
@@ -282,9 +292,14 @@ namespace luabind {
 
 		void add_custom_name(type_id const& i, luabind::string& s)
 		{
-			s += " [";
-			s += i.name();
-			s += "]";
+			if (!custom_type_marking_disabled)
+			{
+			    s = "custom [";
+			    s += i.name();
+			    s += "]";
+			}
+			else
+			    s = i.name();
 		}
 
 		luabind::string get_class_name(lua_State* L, type_id const& i)
@@ -298,7 +313,7 @@ namespace luabind {
 
 			if(crep == 0)
 			{
-				ret = "custom";
+				//ret = "custom";
 				add_custom_name(i, ret);
 			} else
 			{
@@ -325,4 +340,3 @@ namespace luabind {
 
 	}
 } // namespace luabind::detail
-
