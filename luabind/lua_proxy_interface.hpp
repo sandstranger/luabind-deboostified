@@ -235,11 +235,9 @@ namespace luabind {
 			detail::stack_pop pop(interpreter, 1);
 			specialized_converter_policy_n<0, Policies, T, lua_to_cpp> cv;
 
-#ifndef LUABIND_NO_ERROR_CHECKING
 			if(cv.match(interpreter, decorated_type<T>(), -1)<0) {
 				return error_policy.handle_error(interpreter, typeid(T));
 			}
-#endif
 			return cv.to_cpp(interpreter, decorated_type<T>(), -1);
 		}
 
