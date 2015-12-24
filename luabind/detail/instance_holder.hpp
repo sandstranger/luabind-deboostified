@@ -65,7 +65,7 @@ namespace luabind {
 				return p ? true : false;
 			}
 
-			void release()
+			void release() override
 			{
 				weak = const_cast<void*>(static_cast<void const*>(get_pointer(p)));
 				release_ownership(p);
