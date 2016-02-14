@@ -126,7 +126,6 @@ namespace luabind { namespace detail
 	{
 		enum { consumed_args = 1 };
 
-        template<class T>
 		T& to_cpp(lua_State* L, by_reference<T>, int index)
 		{
 			//specialized_converter_policy_n<1, Policies, T, lua_to_cpp> converter;
@@ -157,7 +156,6 @@ namespace luabind { namespace detail
 			return converter_.match(L, decorated_type<T>(), index);
 		}
 
-		template<class T>
 		void converter_postcall(lua_State* L, by_pointer<T>, int)
 		{
 			//specialized_converter_policy_n<2, Policies, T, cpp_to_lua> converter;
