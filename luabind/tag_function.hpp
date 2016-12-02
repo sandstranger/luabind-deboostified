@@ -48,7 +48,7 @@ namespace luabind {
 		//inline int invoke(lua_State* L, function_object const& self, invoke_context& ctx, F& f)
 
 		template < typename PolicyList, typename Signature, typename F >
-		int invoke( lua_State* L, function_object const& self, invoke_context& ctx, tagged_function<Signature, F> /*const*/& tagged )
+		int invoke(lua_State* L, function_object const& self, invoke_context& ctx, tagged_function<Signature, F> /*const*/& tagged)
 		{
 			return invoke<PolicyList, Signature>(L, self, ctx, tagged.f);
 		}

@@ -21,7 +21,7 @@ namespace luabind {
 
 			template<class Key>
 			index_proxy(Next const& next, lua_State* interpreter, Key const& key)
-				: m_interpreter(interpreter), m_key_index(lua_gettop(interpreter)+1), m_next(next)
+				: m_interpreter(interpreter), m_key_index(lua_gettop(interpreter) + 1), m_next(next)
 			{
 				detail::push(m_interpreter, key);
 			}
@@ -101,7 +101,7 @@ namespace luabind {
 		template<class Next>
 		inline void index_proxy<Next>::push(lua_State* interpreter)
 		{
-			assert(interpreter==m_interpreter);
+			assert(interpreter == m_interpreter);
 
 			lua_proxy_traits<Next>::unwrap(m_interpreter, m_next);
 

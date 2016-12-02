@@ -9,7 +9,6 @@
 #include <luabind/detail/most_derived.hpp>
 
 namespace luabind {
-
 	namespace detail {
 
 		template< typename, typename > struct tagged_function;

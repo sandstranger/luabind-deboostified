@@ -27,14 +27,13 @@
 #include <luabind/config.hpp>
 #include <luabind/detail/policy.hpp>
 
-namespace luabind { 
-	
-	namespace detail  {
+namespace luabind {
+	namespace detail {
 
 		struct raw_converter
 		{
 			enum { consumed_args = 0 };
-        
+
 			lua_State* to_cpp(lua_State* L, by_pointer<lua_State>, int)
 			{
 				return L;
@@ -58,7 +57,7 @@ namespace luabind {
 		};
 
 	}
-	
+
 	template<unsigned int N>
 	using raw_policy = meta::type_list< converter_policy_injector< N, detail::raw_policy > >();
 

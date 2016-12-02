@@ -35,7 +35,7 @@ namespace luabind {
 		return pointer;
 	}
 
-	template<typename T> 
+	template<typename T>
 	T* get_pointer(const std::unique_ptr<T>& pointer)
 	{
 		return pointer.get();
@@ -129,7 +129,7 @@ namespace luabind {
 			struct impl
 			{
 				static typename std::add_lvalue_reference<T>::type x;
-				static const bool value = (sizeof(has_get_pointer_::check((get_pointer(x), 0)))==1);
+				static const bool value = (sizeof(has_get_pointer_::check((get_pointer(x), 0))) == 1);
 				typedef std::integral_constant<bool, value> type;
 			};
 

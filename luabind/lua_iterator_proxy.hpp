@@ -23,7 +23,7 @@ namespace luabind {
 		{
 		public:
 			iterator_proxy(lua_State* interpreter, handle const& table, handle const& key)
-				: m_interpreter(interpreter), m_table_index(lua_gettop(interpreter)+1), m_key_index(m_table_index+1)
+				: m_interpreter(interpreter), m_table_index(lua_gettop(interpreter) + 1), m_key_index(m_table_index + 1)
 			{
 				table.push(m_interpreter);
 				key.push(m_interpreter);
@@ -78,7 +78,7 @@ namespace luabind {
 			// TODO: Why is it non-const?
 			void push(lua_State* interpreter)
 			{
-				assert(interpreter==m_interpreter);
+				assert(interpreter == m_interpreter);
 				lua_pushvalue(m_interpreter, m_key_index);
 				AccessPolicy::get(m_interpreter, m_table_index);
 			}
@@ -155,10 +155,11 @@ namespace luabind {
 				lua_proxy_traits<ValueWrapper>::unwrap(m_interpreter, value_wrapper);
 
 				lua_pushnil(m_interpreter);
-				if(lua_next(m_interpreter, -2)!=0) {
+				if(lua_next(m_interpreter, -2) != 0) {
 					detail::stack_pop pop(m_interpreter, 2);
 					handle(m_interpreter, -2).swap(m_key);
-				} else {
+				}
+				else {
 					m_interpreter = 0;
 					return;
 				}
@@ -180,10 +181,11 @@ namespace luabind {
 
 				detail::stack_pop pop(m_interpreter, 1);
 
-				if(lua_next(m_interpreter, -2)!=0) {
+				if(lua_next(m_interpreter, -2) != 0) {
 					m_key.replace(m_interpreter, -2);
 					lua_pop(m_interpreter, 2);
-				} else {
+				}
+				else {
 					m_interpreter = 0;
 					handle().swap(m_table);
 					handle().swap(m_key);
@@ -192,16 +194,16 @@ namespace luabind {
 
 			bool equal(basic_iterator const& other) const
 			{
-				if(m_interpreter==0&&other.m_interpreter==0)
+				if(m_interpreter == 0 && other.m_interpreter == 0)
 					return true;
 
-				if(m_interpreter!=other.m_interpreter)
+				if(m_interpreter != other.m_interpreter)
 					return false;
 
 				detail::stack_pop pop(m_interpreter, 2);
 				m_key.push(m_interpreter);
 				other.m_key.push(m_interpreter);
-				return lua_compare(m_interpreter, -2, -1, LUA_OPEQ)!=0;
+				return lua_compare(m_interpreter, -2, -1, LUA_OPEQ) != 0;
 			}
 
 			adl::iterator_proxy<AccessPolicy> dereference() const

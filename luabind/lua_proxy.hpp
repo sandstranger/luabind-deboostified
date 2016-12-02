@@ -39,7 +39,7 @@ namespace luabind {
 
 	template<class T>
 	struct is_lua_proxy_type
-	  : lua_proxy_traits<T>::is_specialized
+		: lua_proxy_traits<T>::is_specialized
 	{};
 
 	template< class T >

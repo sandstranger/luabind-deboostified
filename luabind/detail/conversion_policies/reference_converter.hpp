@@ -39,7 +39,7 @@ namespace luabind {
 			template<class T>
 			void to_lua(lua_State* L, T& ref)
 			{
-				if (luabind::get_back_reference(L, ref))
+				if(luabind::get_back_reference(L, ref))
 					return;
 
 				make_pointee_instance(L, ref, std::false_type());
@@ -56,9 +56,9 @@ namespace luabind {
 			int match(lua_State* L, by_reference<T>, int index)
 			{
 				object_rep* obj = get_instance(L, index);
-				if (obj == 0) return no_match;
+				if(obj == 0) return no_match;
 
-				if (obj->is_const())
+				if(obj->is_const())
 					return no_match;
 
 				std::pair<void*, int> s = obj->get_instance(registered_class<T>::id);
@@ -86,7 +86,7 @@ namespace luabind {
 			template<class T>
 			void to_lua(lua_State* L, T const& ref)
 			{
-				if (luabind::get_back_reference(L, ref))
+				if(luabind::get_back_reference(L, ref))
 					return;
 
 				make_pointee_instance(L, ref, std::false_type());
@@ -102,10 +102,10 @@ namespace luabind {
 			int match(lua_State* L, by_const_reference<T>, int index)
 			{
 				object_rep* obj = get_instance(L, index);
-				if (obj == 0) return no_match; // if the type is not one of our own registered types, classify it as a non-match
+				if(obj == 0) return no_match; // if the type is not one of our own registered types, classify it as a non-match
 
 				std::pair<void*, int> s = obj->get_instance(registered_class<T>::id);
-				if (s.second >= 0 && !obj->is_const())
+				if(s.second >= 0 && !obj->is_const())
 					s.second += 10;
 				result = s.first;
 				return s.second;
@@ -118,7 +118,6 @@ namespace luabind {
 		};
 
 	}
-
 }
 
 #endif

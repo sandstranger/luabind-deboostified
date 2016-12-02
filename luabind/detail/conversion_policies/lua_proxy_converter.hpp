@@ -21,7 +21,6 @@
 #include <type_traits>
 
 namespace luabind {
-
 	namespace detail {
 
 		template <class U>
@@ -68,7 +67,6 @@ namespace luabind {
 		};
 
 	}
-
 }
 
 #endif

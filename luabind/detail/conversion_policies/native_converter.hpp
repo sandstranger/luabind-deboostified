@@ -43,7 +43,7 @@ namespace luabind {
 		typedef typename detail::call_traits<T>::param_type param_type;
 
 		enum { consumed_args = 1 };
-		
+
 		template <class U>
 		void converter_postcall(lua_State*, U const&, int)
 		{}
@@ -100,19 +100,21 @@ namespace luabind {
 
 		static value_type to_cpp_deferred(lua_State* L, int index)
 		{
-			if((std::is_unsigned<value_type>::value && sizeof(value_type)>=sizeof(lua_Integer))||(sizeof(value_type)>sizeof(lua_Integer))) {
+			if((std::is_unsigned<value_type>::value && sizeof(value_type) >= sizeof(lua_Integer)) || (sizeof(value_type) > sizeof(lua_Integer))) {
 				return static_cast<T>(lua_tonumber(L, index));
-			} else {
+			}
+			else {
 				return static_cast<T>(lua_tointeger(L, index));
 			}
 		}
 
 		void to_lua_deferred(lua_State* L, param_type value)
 		{
-			if((std::is_unsigned<value_type>::value && sizeof(value_type)>=sizeof(lua_Integer))||(sizeof(value_type)>sizeof(lua_Integer)))
+			if((std::is_unsigned<value_type>::value && sizeof(value_type) >= sizeof(lua_Integer)) || (sizeof(value_type) > sizeof(lua_Integer)))
 			{
 				lua_pushnumber(L, value);
-			} else {
+			}
+			else {
 				lua_pushinteger(L, static_cast<lua_Integer>(value));
 			}
 		}
@@ -128,7 +130,7 @@ namespace luabind {
 
 		static int compute_score(lua_State* L, int index)
 		{
-			return lua_type(L, index)==LUA_TNUMBER ? 0 : no_match;
+			return lua_type(L, index) == LUA_TNUMBER ? 0 : no_match;
 		}
 
 		static value_type to_cpp_deferred(lua_State* L, int index)
@@ -148,7 +150,7 @@ namespace luabind {
 	{
 		static int compute_score(lua_State* L, int index)
 		{
-			return lua_type(L, index)==LUA_TBOOLEAN ? 0 : no_match;
+			return lua_type(L, index) == LUA_TBOOLEAN ? 0 : no_match;
 		}
 
 		static bool to_cpp_deferred(lua_State* L, int index)
@@ -179,7 +181,7 @@ namespace luabind {
 	{
 		static int compute_score(lua_State* L, int index)
 		{
-			return lua_type(L, index)==LUA_TSTRING ? 0 : no_match;
+			return lua_type(L, index) == LUA_TSTRING ? 0 : no_match;
 		}
 
 		static std::string to_cpp_deferred(lua_State* L, int index)
@@ -268,10 +270,10 @@ namespace luabind {
 		: default_converter<char const*>
 	{};
 
-    template <std::size_t N>
-    struct default_converter <char(&)[N]>
-        : default_converter<char const*>
-    {};
+	template <std::size_t N>
+	struct default_converter <char(&)[N]>
+		: default_converter<char const*>
+	{};
 
 	template <std::size_t N>
 	struct default_converter <const char(&)[N]>
@@ -280,7 +282,7 @@ namespace luabind {
 
 	template <typename T>
 	struct default_converter < T, typename std::enable_if< std::is_integral<typename std::remove_reference<T>::type>::value >::type >
-		: integer_converter<T> 
+		: integer_converter<T>
 	{
 	};
 

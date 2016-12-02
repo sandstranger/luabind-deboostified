@@ -8,7 +8,7 @@
 # include <luabind/detail/inheritance.hpp>
 # include <luabind/detail/object_rep.hpp>
 
-namespace luabind { 
+namespace luabind {
 	namespace detail {
 
 		template <class T>
@@ -19,7 +19,7 @@ namespace luabind {
 			class_id_map& class_ids = *static_cast<class_id_map*>(lua_touserdata(L, -1));
 			lua_pop(L, 1);
 
-			return std::make_pair( class_ids.get_local(typeid(*p)), dynamic_cast<void*>(const_cast<T*>(p)) );
+			return std::make_pair(class_ids.get_local(typeid(*p)), dynamic_cast<void*>(const_cast<T*>(p)));
 		}
 
 		template <class T>
@@ -67,7 +67,7 @@ namespace luabind {
 
 			class_rep* cls = get_pointee_class(L, p, dynamic.first);
 
-			if (!cls)
+			if(!cls)
 			{
 				throw std::runtime_error("Trying to use unregistered class: " + std::string(typeid(P).name()));
 			}
@@ -83,7 +83,7 @@ namespace luabind {
 			{
 				new (storage) holder_type(std::move(p), dynamic.first, dynamic.second);
 			}
-			catch (...)
+			catch(...)
 			{
 				instance->deallocate(storage);
 				lua_pop(L, 1);
@@ -114,7 +114,7 @@ namespace luabind {
 			void* storage = instance->allocate(sizeof(holder_type));
 
 			try {
-				new (storage) holder_type(L, std::forward<ValueType>(val), dynamic.first, dynamic.second );
+				new (storage) holder_type(L, std::forward<ValueType>(val), dynamic.first, dynamic.second);
 			}
 			catch(...) {
 				instance->deallocate(storage);
@@ -126,17 +126,17 @@ namespace luabind {
 		}
 
 		template< typename ValueType >
-		void make_value_instance(lua_State* L, ValueType&& val, std::false_type /* smart ptr */ )
+		void make_value_instance(lua_State* L, ValueType&& val, std::false_type /* smart ptr */)
 		{
 			const auto value_type_id = detail::registered_class<ValueType>::id;
 			class_rep* cls = get_pointee_class(L, &val, value_type_id);
 
 			if(!cls) {
-				throw std::runtime_error("Trying to use unregistered class: "+ std::string(typeid(ValueType).name()));
+				throw std::runtime_error("Trying to use unregistered class: " + std::string(typeid(ValueType).name()));
 			}
 
 			object_rep* instance = push_new_instance(L, cls);
-			
+
 			typedef typename std::remove_reference<ValueType>::type value_type;
 			typedef value_holder<value_type> holder_type;
 
@@ -161,7 +161,7 @@ namespace luabind {
 		}
 
 	} // namespace luabind::detail
-} 
+}
 
 #endif // LUABIND_DETAIL_MAKE_INSTANCE_090310_HPP
 

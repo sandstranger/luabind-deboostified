@@ -28,7 +28,6 @@
 #include <luabind/detail/conversion_policies/conversion_base.hpp>
 
 namespace luabind {
-
 	namespace detail {
 
 		struct enum_converter
@@ -52,7 +51,7 @@ namespace luabind {
 			template<class T>
 			static int match(lua_State* L, by_value<T>, int index)
 			{
-				if (lua_isnumber(L, index)) {
+				if(lua_isnumber(L, index)) {
 					return 0;
 				}
 				else {
@@ -69,7 +68,7 @@ namespace luabind {
 			template<class T>
 			static int match(lua_State* L, by_const_reference<T>, int index)
 			{
-				if (lua_isnumber(L, index)) return 0; else return no_match;
+				if(lua_isnumber(L, index)) return 0; else return no_match;
 			}
 
 			template<class T>
