@@ -116,10 +116,8 @@ namespace luabind {
 		object result = newtable(L);
 		std::size_t index = 1;
 
-		for(std::map<type_id, detail::class_rep*>::const_iterator iter = classes.begin();
-			iter != classes.end(); ++iter)
-		{
-			result[index++] = iter->second->name();
+		for(const auto& cl : classes) {
+			result[index++] = cl.second->name();
 		}
 
 		return result;

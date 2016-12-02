@@ -171,11 +171,11 @@ namespace luabind {
 				casts->insert(e.src, e.target, e.cast);
 			}
 
-			for(std::vector<base_desc>::iterator i = m_bases.begin(); i != m_bases.end(); ++i) {
+			for(const auto& base_pair : m_bases) {
 				LUABIND_CHECK_STACK(L);
 
 				// the baseclass' class_rep structure
-				detail::class_rep* bcrep = registry->find_class(i->first);
+				detail::class_rep* bcrep = registry->find_class(base_pair.first);
 
 				detail::class_rep::base_info base;
 				base.pointer_offset = 0;

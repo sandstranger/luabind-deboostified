@@ -103,9 +103,8 @@ namespace luabind {
 
 			From& operator[](const value_vector& values)
 			{
-				for(value_vector::const_iterator i = values.begin(); i != values.end(); ++i)
-				{
-					from_.add_static_constant(i->name_, i->val_);
+				for(const auto& val : values) {
+					from_.add_static_constant(val.name_, val.val_);
 				}
 
 				return from_;
