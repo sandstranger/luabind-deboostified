@@ -37,7 +37,6 @@ namespace luabind { namespace detail
 	object_rep::object_rep(instance_holder* instance, class_rep* crep)
 		: m_instance(instance)
 		, m_classrep(crep)
-		, m_dependency_cnt(1)
 	{
 	}
 
@@ -57,10 +56,11 @@ namespace luabind { namespace detail
             m_dependency_ref.set(L);
         }
         m_dependency_ref.get(L);
+
         lua_pushvalue(L, index);
-        lua_rawseti(L, -2, m_dependency_cnt);
+        lua_pushnumber(L, 0);
+        lua_rawset(L, -3);
         lua_pop(L, 1);
-        ++m_dependency_cnt;
 	}
 
     int destroy_instance(lua_State* L)
