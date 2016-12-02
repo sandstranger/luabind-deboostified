@@ -74,7 +74,7 @@ namespace luabind {
 
 		struct iterator_converter
 		{
-			typedef iterator_converter type;
+			using type = iterator_converter;
 
 			template <class Container>
 			void to_lua(lua_State* L, Container& container)
@@ -95,7 +95,7 @@ namespace luabind {
 			struct specialize
 			{
 				static_assert(std::is_same<Direction, cpp_to_lua>::value, "Iterator policy can only convert from cpp to lua.");
-				typedef iterator_converter type;
+				using type = iterator_converter;
 			};
 		};
 

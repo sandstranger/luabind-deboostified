@@ -26,6 +26,7 @@
 namespace luabind {
 	namespace detail {
 
+		///@TODO: check if removable
 		typedef char(&yes_t)[1];
 		typedef char(&no_t)[2];
 

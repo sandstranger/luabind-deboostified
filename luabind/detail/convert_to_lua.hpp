@@ -34,7 +34,7 @@ namespace luabind {
 		template< typename T >
 		struct unwrapped {
 			static const bool is_wrapped_ref = false;
-			typedef T type;
+			using type = T;
 
 			static const T& get(const T& t) {
 				return t;
@@ -45,7 +45,7 @@ namespace luabind {
 		struct unwrapped< std::reference_wrapper< T > >
 		{
 			static const bool is_wrapped_ref = true;
-			typedef T& type;
+			using type = T&;
 
 			static T& get(const std::reference_wrapper<T>& refwrap)
 			{

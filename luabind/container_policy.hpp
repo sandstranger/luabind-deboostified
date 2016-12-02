@@ -39,7 +39,7 @@ namespace luabind {
 			template<class T>
 			T to_cpp(lua_State* L, by_const_reference<T>, int index)
 			{
-				typedef typename T::value_type value_type;
+				using value_type = typename T::value_type;
 				specialized_converter_policy_n<1, Policies, value_type, lua_to_cpp> converter;
 
 				T container;
@@ -82,7 +82,7 @@ namespace luabind {
 			template<class T>
 			void to_lua(lua_State* L, const T& container)
 			{
-				typedef typename T::value_type value_type;
+				using value_type = typename T::value_type;
 				specialized_converter_policy_n<1, Policies, value_type, lua_to_cpp> converter;
 
 				lua_newtable(L);

@@ -289,13 +289,13 @@ namespace luabind {
 		template <class P, class T>
 		struct default_pointer
 		{
-			typedef P type;
+			using type = P;
 		};
 
 		template <class T>
 		struct default_pointer<null_type, T>
 		{
-			typedef std::unique_ptr<T> type;
+			using type = std::unique_ptr<T>;
 		};
 
 		template <class Class, class Pointer, class Signature, class Policies>
@@ -306,7 +306,7 @@ namespace luabind {
 
 			void register_(lua_State* L) const
 			{
-				typedef typename default_pointer<Pointer, Class>::type pointer;
+				using pointer = typename default_pointer<Pointer, Class>::type;
 				object fn = make_function(L, construct<Class, pointer, Signature>(), Signature(), Policies());
 				add_overload(object(from_stack(L, -1)), "__init", fn);
 			}
@@ -364,8 +364,8 @@ namespace luabind {
 			template <class T, class D>
 			object make_set(lua_State* L, D T::* mem_ptr, std::true_type /*member_ptr*/) const
 			{
-				using argument_type = typename reference_argument<D>::type;
-				typedef meta::type_list<void, Class&, argument_type> signature_type;
+				using argument_type  = typename reference_argument<D>::type;
+				using signature_type = meta::type_list<void, Class&, argument_type>;
 
 				return make_function(L, access_member_ptr<T, D>(mem_ptr), signature_type(), SetPolicies());
 			}

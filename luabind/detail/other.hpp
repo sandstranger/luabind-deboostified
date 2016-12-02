@@ -39,7 +39,7 @@ namespace luabind {
 	template<class T>
 	struct other
 	{
-		typedef T type;
+		using type = T;
 	};
 
 } // namespace luabind
@@ -50,14 +50,14 @@ namespace luabind {
 		class unwrap_other
 		{
 		public:
-			typedef T type;
+			using type = T;
 		};
 
 		template<typename T>
 		class unwrap_other<other<T> >
 		{
 		public:
-			typedef T type;
+			using type = T;
 		};
 	}
 } // namespace luabind::detail

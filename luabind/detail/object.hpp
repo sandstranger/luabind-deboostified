@@ -121,7 +121,7 @@ namespace luabind {
 	template<>
 	struct lua_proxy_traits<object>
 	{
-		typedef std::true_type is_specialized;
+		using is_specialized = std::true_type;
 
 		static lua_State* interpreter(object const& value)
 		{

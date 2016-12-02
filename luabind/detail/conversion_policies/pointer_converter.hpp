@@ -32,8 +32,8 @@ namespace luabind {
 
 		struct pointer_converter
 		{
-			typedef pointer_converter type;
-			typedef std::false_type is_native;
+			using type      = pointer_converter;
+			using is_native = std::false_type;
 
 			pointer_converter()
 				: result(0)
@@ -86,8 +86,8 @@ namespace luabind {
 
 		struct const_pointer_converter
 		{
-			typedef const_pointer_converter type;
-			typedef std::false_type is_native;
+			using type      = const_pointer_converter;
+			using is_native = std::false_type;
 
 			enum { consumed_args = 1 };
 

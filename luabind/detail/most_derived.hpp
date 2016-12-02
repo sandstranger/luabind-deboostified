@@ -31,11 +31,11 @@ namespace luabind {
 		template<class Class, class WrappedClass>
 		struct most_derived
 		{
-			typedef typename std::conditional<
+			using type = typename std::conditional<
 				std::is_base_of<Class, WrappedClass>::value
 				, WrappedClass
 				, Class
-			>::type type;
+			>::type;
 		};
 
 	}

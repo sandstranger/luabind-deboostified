@@ -45,13 +45,13 @@ namespace luabind {
 				std::vector<edge> edges;
 			};
 
-			typedef std::pair<std::ptrdiff_t, int> cache_entry;
+			using cache_entry = std::pair<std::ptrdiff_t, int>;
 
 			class cache
 			{
 			public:
-				static std::ptrdiff_t const unknown;
-				static std::ptrdiff_t const invalid;
+				static constexpr std::ptrdiff_t unknown = std::numeric_limits<std::ptrdiff_t>::max();
+				static constexpr std::ptrdiff_t invalid = unknown - 1;
 
 				cache_entry get(class_id src, class_id target, class_id dynamic_id, std::ptrdiff_t object_offset) const;
 
@@ -59,13 +59,10 @@ namespace luabind {
 				void invalidate();
 
 			private:
-				typedef std::tuple<class_id, class_id, class_id, std::ptrdiff_t> key_type;
-				typedef std::map<key_type, cache_entry> map_type;
+				using key_type = std::tuple<class_id, class_id, class_id, std::ptrdiff_t>;
+				using map_type = std::map<key_type, cache_entry>;
 				map_type m_cache;
 			};
-
-			std::ptrdiff_t const cache::unknown = std::numeric_limits<std::ptrdiff_t>::max();
-			std::ptrdiff_t const cache::invalid = cache::unknown - 1;
 
 			cache_entry cache::get(class_id src, class_id target, class_id dynamic_id, std::ptrdiff_t object_offset) const
 			{
@@ -215,7 +212,7 @@ namespace luabind {
 
 		LUABIND_API class_id allocate_class_id(type_id const& cls)
 		{
-			typedef std::map<type_id, class_id> map_type;
+			using map_type = std::map<type_id, class_id>;
 
 			static map_type registered;
 			static class_id id = 0;

@@ -11,7 +11,7 @@
 namespace luabind {
 	namespace detail {
 
-		typedef void(*destruction_function)(void*);
+		using destruction_function = void(*)(void*);
 
 		// This is used by the converters in policy.hpp, and
 		// class_rep::convert_to as temporary storage when constructing

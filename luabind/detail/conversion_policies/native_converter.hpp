@@ -38,9 +38,9 @@ namespace luabind {
 	template <class T, class Derived = default_converter<T> >
 	struct native_converter_base
 	{
-		typedef std::true_type is_native;
-		typedef typename detail::call_traits<T>::value_type value_type;
-		typedef typename detail::call_traits<T>::param_type param_type;
+		using is_native  = std::true_type;
+		using value_type = typename detail::call_traits<T>::value_type;
+		using param_type = typename detail::call_traits<T>::param_type;
 
 		enum { consumed_args = 1 };
 
@@ -89,9 +89,9 @@ namespace luabind {
 	struct integer_converter
 		: native_converter_base<typename std::remove_const<typename std::remove_reference<QualifiedT>::type>::type>
 	{
-		typedef typename std::remove_const<typename std::remove_reference<QualifiedT>::type>::type T;
-		typedef typename native_converter_base<T>::param_type param_type;
-		typedef typename native_converter_base<T>::value_type value_type;
+		using T          = typename std::remove_const<typename std::remove_reference<QualifiedT>::type>::type;
+		using value_type = typename native_converter_base<T>::value_type;
+		using param_type = typename native_converter_base<T>::param_type;
 
 		static int compute_score(lua_State* L, int index)
 		{
@@ -124,9 +124,9 @@ namespace luabind {
 	struct number_converter
 		: native_converter_base<typename std::remove_const<typename std::remove_reference<QualifiedT>::type>::type>
 	{
-		typedef typename std::remove_const<typename std::remove_reference<QualifiedT>::type>::type T;
-		typedef typename native_converter_base<T>::param_type param_type;
-		typedef typename native_converter_base<T>::value_type value_type;
+		using T          = typename std::remove_const<typename std::remove_reference<QualifiedT>::type>::type;
+		using value_type = typename native_converter_base<T>::value_type;
+		using param_type = typename native_converter_base<T>::param_type;
 
 		static int compute_score(lua_State* L, int index)
 		{
@@ -213,7 +213,7 @@ namespace luabind {
 	template <>
 	struct default_converter<char const*>
 	{
-		typedef std::true_type is_native;
+		using is_native = std::true_type;
 
 		enum { consumed_args = 1 };
 

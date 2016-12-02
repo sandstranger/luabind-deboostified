@@ -124,7 +124,6 @@ namespace luabind {
 		template <class Signature>
 		void format_signature(lua_State* L, char const* function, Signature)
 		{
-			//typedef typename mpl::begin<Signature>::type first;
 			using first = typename meta::front<Signature>::type;
 
 			type_to_string<first>::get(L);

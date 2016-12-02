@@ -129,11 +129,11 @@ namespace luabind {
 		template<class W, class T>
 		struct unwrap_parameter_type
 		{
-			typedef typename meta::select_ <
+			using type = typename meta::select_ <
 				meta::case_< std::is_same<T, self_type>, W& >,
 				meta::case_< std::is_same<T, const_self_type >, W const& >,
 				meta::default_< typename unwrap_other<T>::type >
-			> ::type type;
+			> ::type;
 		};
 
 		template<class Derived, class A, class B>
@@ -145,8 +145,8 @@ namespace luabind {
 			template<class T, class Policies>
 			struct apply
 			{
-				typedef typename unwrap_parameter_type<T, A>::type arg0;
-				typedef typename unwrap_parameter_type<T, B>::type arg1;
+				using arg0 = typename unwrap_parameter_type<T, A>::type;
+				using arg1 = typename unwrap_parameter_type<T, B>::type;
 
 				static void execute(lua_State* L, arg0 _0, arg1 _1)
 				{
@@ -170,7 +170,7 @@ namespace luabind {
 			template<class T, class Policies>
 			struct apply
 			{
-				typedef typename unwrap_parameter_type<T, A>::type arg0;
+				using arg0 = typename unwrap_parameter_type<T, A>::type;
 
 				static void execute(lua_State* L, arg0 _0)
 				{
@@ -336,7 +336,7 @@ namespace luabind {
 #undef LUABIND_UNARY_OPERATOR
 
 
-		extern LUABIND_API self_type self;
+	extern LUABIND_API self_type self;
 	extern LUABIND_API const_self_type const_self;
 
 

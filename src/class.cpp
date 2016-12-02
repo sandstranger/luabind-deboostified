@@ -76,13 +76,13 @@ namespace luabind {
 
 			mutable std::map<const char*, int, detail::ltstr> m_static_constants;
 
-			typedef std::pair<type_id, cast_function> base_desc;
+			using base_desc = std::pair<type_id, cast_function>;
 			mutable std::vector<base_desc> m_bases;
 
-			type_id m_type;
+			type_id  m_type;
 			class_id m_id;
 			class_id m_wrapper_id;
-			type_id m_wrapper_type;
+			type_id  m_wrapper_type;
 			std::vector<cast_entry> m_casts;
 
 			scope m_scope;

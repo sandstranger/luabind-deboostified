@@ -16,10 +16,10 @@ namespace luabind {
 
 	namespace detail {
 
-		typedef void*(*cast_function)(void*);
-		typedef std::size_t class_id;
+		using cast_function = void*(*)(void*);
+		using class_id      = std::size_t;
 
-		class_id const unknown_class = (std::numeric_limits<class_id>::max)();
+		constexpr class_id unknown_class = std::numeric_limits<class_id>::max();
 
 		class class_rep;
 
@@ -55,7 +55,7 @@ namespace luabind {
 			void put(class_id id, type_id const& type);
 
 		private:
-			typedef std::map<type_id, class_id> map_type;
+			using map_type = std::map<type_id, class_id>;
 			map_type m_classes;
 			class_id m_local_id;
 

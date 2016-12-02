@@ -94,7 +94,7 @@ namespace luabind {
 	template<class AccessPolicy>
 	struct lua_proxy_traits<adl::iterator_proxy<AccessPolicy> >
 	{
-		typedef std::true_type is_specialized;
+		using is_specialized = std::true_type;
 
 		template<class Proxy>
 		static lua_State* interpreter(Proxy const& p)
@@ -218,8 +218,8 @@ namespace luabind {
 
 	} // namespace detail
 
-	typedef detail::basic_iterator<detail::basic_access> iterator;
-	typedef detail::basic_iterator<detail::raw_access> raw_iterator;
+	using iterator     = detail::basic_iterator<detail::basic_access>;
+	using raw_iterator = detail::basic_iterator<detail::raw_access>;
 
 }
 

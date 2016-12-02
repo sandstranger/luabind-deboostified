@@ -45,7 +45,7 @@ namespace luabind {
 			struct specialize
 			{
 				static_assert(std::is_same< Direction, cpp_to_lua >::value, "Can only convert from cpp to lua");
-				typedef discard_converter type;
+				using type = discard_converter;
 			};
 		};
 

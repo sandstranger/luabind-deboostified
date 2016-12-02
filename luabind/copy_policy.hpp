@@ -34,7 +34,7 @@ namespace luabind {
 			struct specialize
 			{
 				static_assert(std::is_same<Direction, cpp_to_lua>::value, "Copy policy only supports cpp -> lua");
-				typedef copy_converter type;
+				using type = copy_converter;
 			};
 		};
 

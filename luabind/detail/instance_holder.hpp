@@ -53,11 +53,11 @@ namespace luabind {
 				void* naked_ptr = const_cast<void*>(static_cast<void const*>(weak ? weak : get_pointer(p)));
 				if(!naked_ptr) return std::pair<void*, int>(nullptr, 0);
 
-				typedef typename std::remove_cv<typename std::remove_reference<decltype(*get_pointer(p))>::type>::type pointee_type;
+				using pointee_type = typename std::remove_cv<typename std::remove_reference<decltype(*get_pointer(p))>::type>::type;
 
 				return casts.cast(naked_ptr,
-					registered_class< pointee_type >::id
-					, target, dynamic_id, dynamic_ptr);
+					registered_class< pointee_type >::id,
+					target, dynamic_id, dynamic_ptr);
 			}
 
 			explicit operator bool() const
@@ -141,7 +141,7 @@ namespace luabind {
 				if(target == value_id) return std::pair<void*, int>(naked_value_ptr, 0);
 				// If we were to support automatic pointer conversion, this would be the place
 
-				typedef typename std::remove_cv<typename std::remove_reference<decltype(*get_pointer(val_))>::type >::type pointee_type;
+				using pointee_type = typename std::remove_cv<typename std::remove_reference<decltype(*get_pointer(val_))>::type >::type;
 				const auto pointee_id = registered_class< pointee_type >::id;
 				void* const naked_pointee_ptr = const_cast<void*>((const void*)get_pointer(val_));
 				return casts.cast(naked_pointee_ptr, pointee_id, target, dynamic_id_, dynamic_ptr_);

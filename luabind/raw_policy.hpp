@@ -52,7 +52,7 @@ namespace luabind {
 			template<class T, class Direction>
 			struct specialize
 			{
-				typedef raw_converter type;
+				using type = raw_converter;
 			};
 		};
 

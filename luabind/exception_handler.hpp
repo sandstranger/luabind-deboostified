@@ -33,7 +33,7 @@ namespace luabind {
 		template<class E, class Handler>
 		struct exception_handler : exception_handler_base
 		{
-			typedef E const& argument;
+			using argument = E const&;
 
 			exception_handler(Handler handler)
 				: handler(handler)

@@ -59,21 +59,21 @@ namespace luabind {
 		struct pointer_traits<T*>
 		{
 			enum { is_pointer = true };
-			typedef T value_type;
+			using value_type = T;
 		};
 
 		template<typename T>
 		struct pointer_traits<std::unique_ptr<T>>
 		{
 			enum { is_pointer = true };
-			typedef T value_type;
+			using value_type = T;
 		};
 
 		template<typename T>
 		struct pointer_traits<std::shared_ptr<T>>
 		{
 			enum { is_pointer = true };
-			typedef T value_type;
+			using value_type = T;
 		};
 
 		template<typename T>
@@ -120,7 +120,7 @@ namespace luabind {
 			detail::has_get_pointer_::no_overload_tag
 				get_pointer(detail::has_get_pointer_::any);
 
-
+			///@TODO: Rework
 			template<class T>
 			yes check(T const&);
 			no check(no_overload_tag);

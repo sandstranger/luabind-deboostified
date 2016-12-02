@@ -53,7 +53,7 @@ namespace luabind {
 		template <class Pointer, class Direction = lua_to_cpp>
 		struct adopt_pointer : pointer_converter
 		{
-			typedef adopt_pointer type;
+			using type = adopt_pointer;
 
 			enum { consumed_args = 1 };
 
@@ -85,19 +85,19 @@ namespace luabind {
 		template <class Pointer, class T>
 		struct pointer_or_default
 		{
-			typedef Pointer type;
+			using type = Pointer;
 		};
 
 		template <class T>
 		struct pointer_or_default<void, T>
 		{
-			typedef std::unique_ptr<T> type;
+			using type = std::unique_ptr<T>;
 		};
 
 		template <class Pointer>
 		struct adopt_pointer<Pointer, cpp_to_lua>
 		{
-			typedef adopt_pointer type;
+			using type = adopt_pointer;
 
 			template<class T>
 			void to_lua(lua_State* L, T* ptr)
@@ -114,8 +114,7 @@ namespace luabind {
 				if(luabind::move_back_reference(L, ptr))
 					return;
 
-				typedef typename pointer_or_default<Pointer, T>::type
-					pointer_type;
+				using pointer_type = typename pointer_or_default<Pointer, T>::type;
 
 				make_pointer_instance(L, pointer_type(ptr));
 			}

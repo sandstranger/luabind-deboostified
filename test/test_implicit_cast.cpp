@@ -32,7 +32,7 @@ struct B : A, counted_type<B>
 
 
 struct enum_placeholder {};
-typedef enum { VAL1 = 1, VAL2 = 2 } LBENUM_t;
+enum LBENUM_t { VAL1 = 1, VAL2 = 2 };
 LBENUM_t enum_by_val(LBENUM_t e)    { return e; }
 LBENUM_t enum_by_const_ref(const LBENUM_t &e)   { return e; }
 
@@ -73,8 +73,8 @@ void test_main(lua_State* L)
 {
     using namespace luabind;
 
-    typedef char const*(test_implicit::*f1)(A*);
-    typedef char const*(test_implicit::*f2)(B*);
+    using f1 = char const*(test_implicit::*)(A*);
+    using f2 = char const*(test_implicit::*)(B*);
 
     module(L)
     [

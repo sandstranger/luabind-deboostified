@@ -61,7 +61,7 @@ namespace luabind {
 		template <typename R, typename... Args >
 		struct signature_from_function<R(Args...)>
 		{
-			typedef meta::type_list<R, Args...> type;
+			using type = meta::type_list<R, Args...>;
 		};
 
 	} // namespace detail

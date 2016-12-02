@@ -73,13 +73,13 @@ namespace luabind {
 			template< unsigned int Consumed0, unsigned int... Consumeds, unsigned int CurrentSum, unsigned int... StackIndices >
 			struct compute_stack_indices< meta::index_list< Consumed0, Consumeds... >, CurrentSum, StackIndices... >
 			{
-				typedef typename compute_stack_indices< meta::index_list< Consumeds... >, CurrentSum + Consumed0, StackIndices..., CurrentSum >::type type;
+				using type = typename compute_stack_indices< meta::index_list< Consumeds... >, CurrentSum + Consumed0, StackIndices..., CurrentSum >::type;
 			};
 
 			template< unsigned int CurrentSum, unsigned int... StackIndices >
 			struct compute_stack_indices< meta::index_list< >, CurrentSum, StackIndices... >
 			{
-				typedef meta::index_list< StackIndices... > type;
+				using type = meta::index_list< StackIndices... >;
 			};
 
 			template< typename Foo >
@@ -232,9 +232,9 @@ namespace luabind {
 				PolicyList, meta::index_list< Index0, Indices... > index_list, meta::type_list<ReturnType, Arguments...> signature_list,
 				ReturnConverter return_converter, ArgumentConverters... argument_converters)
 		{
-			typedef typename call_detail_new::compute_invoke_values< ArgumentConverters... > invoke_values;
-			typedef meta::type_list<Arguments...> argument_list_type;
-			typedef meta::index_list<Indices...> argument_index_list;
+			using invoke_values       = typename call_detail_new::compute_invoke_values< ArgumentConverters... >;
+			using argument_list_type  = meta::type_list<Arguments...>;
+			using argument_index_list = meta::index_list<Indices...>;
 
 			int const arguments = lua_gettop(L);
 			int score = no_match;
@@ -280,7 +280,7 @@ namespace luabind {
 		int invoke2(lua_State* L, function_object const& self, invoke_context& ctx, F& f,
 			meta::type_list<ReturnType, Arguments...> signature, meta::index_list<Index0, Indices...>, PolicyList)
 		{
-			typedef meta::type_list<ReturnType, Arguments...> signature_type;
+			using signature_type   = meta::type_list<ReturnType, Arguments...>;
 			using return_converter = specialized_converter_policy_n<0, PolicyList, ReturnType, cpp_to_lua>;
 			return invoke3(L, self, ctx, f,
 				PolicyList(), meta::index_list<Index0, Indices...>(), signature,
@@ -308,15 +308,15 @@ namespace luabind {
 		template< typename Argument0, typename... Arguments, typename PolicyList, typename... CurrentConverters, unsigned int Counter >
 		struct compute_argument_converter_list< meta::type_list<Argument0, Arguments... >, PolicyList, meta::type_list<CurrentConverters...>, Counter >
 		{
-			typedef typename policy_detail::get_converter_policy<Counter, PolicyList>::type converter_type;
-			typedef typename converter_type::template specialize<Argument0, lua_to_cpp >::type this_specialized;
-			typedef typename compute_argument_converter_list<meta::type_list<Arguments...>, PolicyList, meta::type_list<CurrentConverters..., this_specialized>, Counter + 1>::type type;
+			using converter_type   = typename policy_detail::get_converter_policy<Counter, PolicyList>::type;
+			using this_specialized = typename converter_type::template specialize<Argument0, lua_to_cpp >::type;
+			using type             = typename compute_argument_converter_list<meta::type_list<Arguments...>, PolicyList, meta::type_list<CurrentConverters..., this_specialized>, Counter + 1>::type;
 		};
 
 		template<typename PolicyList, typename... CurrentConverters, unsigned int Counter >
 		struct compute_argument_converter_list< meta::type_list<>, PolicyList, meta::type_list<CurrentConverters...>, Counter >
 		{
-			typedef meta::type_list<CurrentConverters...> type;
+			using type = meta::type_list<CurrentConverters...>;
 		};
 
 		template< typename ConverterList >
@@ -334,18 +334,19 @@ namespace luabind {
 		template< typename ResultType, typename... Arguments, typename PolicyList >
 		struct invoke_traits< meta::type_list<ResultType, Arguments... >, PolicyList >
 		{
-			typedef meta::type_list<ResultType, Arguments...> signature_list;
-			typedef PolicyList policy_list;
-			typedef ResultType result_type;
-			typedef specialized_converter_policy_n<0, PolicyList, result_type, cpp_to_lua >  result_converter;
-			typedef meta::type_list<Arguments...> argument_list;
-			typedef meta::type_list< decorated_type<Arguments>... > decorated_argument_list;
+			using signature_list   = meta::type_list<ResultType, Arguments...>;
+			using policy_list      = PolicyList;
+			using result_type      = ResultType;
+			using result_converter = specialized_converter_policy_n<0, PolicyList, result_type, cpp_to_lua >;
+			using argument_list    = meta::type_list<Arguments...>;
+
+			using decorated_argument_list = meta::type_list< decorated_type<Arguments>... >;
 			// note that this is 0-based, so whenever you want to fetch from the converter list, you need to add 1
-			typedef typename meta::make_index_range< 0, sizeof...(Arguments) >::type argument_index_list;
-			typedef typename compute_argument_converter_list<argument_list, PolicyList>::type argument_converter_list;
-			typedef typename meta::make_tuple<argument_converter_list>::type argument_converter_tuple_type;
-			typedef typename build_consumed_list<argument_converter_list>::consumed_list consumed_list;
-			typedef typename call_detail_new::compute_stack_indices< consumed_list, 1 >::type stack_index_list;
+			using argument_index_list           = typename meta::make_index_range< 0, sizeof...(Arguments) >::type;
+			using argument_converter_list       = typename compute_argument_converter_list<argument_list, PolicyList>::type;
+			using argument_converter_tuple_type = typename meta::make_tuple<argument_converter_list>::type;
+			using consumed_list                 = typename build_consumed_list<argument_converter_list>::consumed_list;
+			using stack_index_list              = typename call_detail_new::compute_stack_indices< consumed_list, 1 >::type;
 			enum { arity = meta::sum<consumed_list>::value };
 		};
 
@@ -373,7 +374,7 @@ namespace luabind {
 		template< typename PolicyList, typename Signature, typename F >
 		struct invoke_struct
 		{
-			typedef invoke_traits< Signature, PolicyList > traits;
+			using traits = invoke_traits< Signature, PolicyList >;
 
 			template< bool IsMember, bool IsVoid, typename IndexList >
 			struct call_struct;
@@ -383,9 +384,9 @@ namespace luabind {
 			{
 				static void call(lua_State* L, F& f, typename traits::argument_converter_tuple_type& argument_tuple)
 				{
-					typedef typename traits::decorated_argument_list decorated_list;
-					typedef typename traits::stack_index_list stack_indices;
-					typedef typename traits::result_converter result_converter;
+					using decorated_list   = typename traits::decorated_argument_list;
+					using stack_indices    = typename traits::stack_index_list;
+					using result_converter = typename traits::result_converter;
 
 					result_converter().to_lua(L,
 						f((std::get<ArgumentIndices>(argument_tuple).to_cpp(L,
@@ -407,8 +408,8 @@ namespace luabind {
 			{
 				static void call(lua_State* L, F& f, typename traits::argument_converter_tuple_type& argument_tuple)
 				{
-					typedef typename traits::decorated_argument_list decorated_list;
-					typedef typename traits::stack_index_list stack_indices;
+					using decorated_list = typename traits::decorated_argument_list;
+					using stack_indices  = typename traits::stack_index_list;
 
 					// This prevents unused warnings with empty parameter lists
 					(void)L;
@@ -432,9 +433,9 @@ namespace luabind {
 			{
 				static void call(lua_State* L, F& f, typename traits::argument_converter_tuple_type& argument_tuple)
 				{
-					typedef typename traits::decorated_argument_list decorated_list;
-					typedef typename traits::stack_index_list stack_indices;
-					typedef typename traits::result_converter result_converter;
+					using decorated_list   = typename traits::decorated_argument_list;
+					using stack_indices    = typename traits::stack_index_list;
+					using result_converter = typename traits::result_converter;
 
 					auto& object = std::get<0>(argument_tuple).to_cpp(L,
 						typename meta::get<typename traits::decorated_argument_list, 0>::type(), 1);
@@ -459,8 +460,8 @@ namespace luabind {
 			{
 				static void call(lua_State* L, F& f, typename traits::argument_converter_tuple_type& argument_tuple)
 				{
-					typedef typename traits::decorated_argument_list decorated_list;
-					typedef typename traits::stack_index_list stack_indices;
+					using decorated_list = typename traits::decorated_argument_list;
+					using stack_indices  = typename traits::stack_index_list;
 
 					auto& object = std::get<0>(argument_tuple).to_cpp(L, typename meta::get<typename traits::decorated_argument_list, 0>::type(), 1);
 
@@ -490,7 +491,7 @@ namespace luabind {
 					// is the total distance of all arguments to their given types (graph distance).
 					// This is why we can say MaxArguments = 100, MaxDerivationDepth = 100, so no match will be > 100*100=10k and -10k1 absorbs every match.
 					// This gets rid of the awkward checks during converter match traversal.
-					typedef match_struct< typename traits::stack_index_list, typename traits::signature_list > struct_type;
+					using struct_type = match_struct< typename traits::stack_index_list, typename traits::signature_list >;
 					score = struct_type::match(L, converter_tuple);
 				}
 

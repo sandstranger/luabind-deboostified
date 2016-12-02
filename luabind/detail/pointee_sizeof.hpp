@@ -40,8 +40,8 @@ namespace luabind {
 	template<class T>
 	struct pointee_sizeof
 	{
-		static const int value = sizeof(detail::deref_type((T(*)())0), 0L);
-		typedef std::integral_constant<int, value> type;
+		static constexpr int value = sizeof(detail::deref_type((T(*)())0), 0L);
+		using type = std::integral_constant<int, value>;
 	};
 
 } // namespace luabind

@@ -28,8 +28,7 @@ namespace luabind {
 		template< class T, class Pointer, class Signature, typename... Arguments, unsigned int... ArgumentIndices >
 		struct construct_aux_helper< T, Pointer, Signature, meta::type_list< Arguments... >, meta::index_list< ArgumentIndices... > >
 		{
-			typedef pointer_holder<Pointer, T> holder_type;
-			typedef meta::type_list< Arguments... > ArgumentList;
+			using holder_type = pointer_holder<Pointer, T>;
 
 			void operator()(argument const& self_, Arguments... args) const
 			{

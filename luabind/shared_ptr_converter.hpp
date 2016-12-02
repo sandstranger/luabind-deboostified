@@ -37,7 +37,7 @@ namespace luabind {
 	struct default_converter<std::shared_ptr<T> >
 		: default_converter<T*>
 	{
-		typedef std::false_type is_native;
+		using is_native = std::false_type;
 
 		template <class U>
 		int match(lua_State* L, U, int index)

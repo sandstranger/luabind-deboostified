@@ -58,7 +58,7 @@ namespace luabind {
 			template<class T, class Direction>
 			struct specialize
 			{
-				typedef return_reference_to_converter<Direction> type;
+				using type = return_reference_to_converter<Direction>;
 			};
 		};
 

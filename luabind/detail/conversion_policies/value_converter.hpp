@@ -27,8 +27,8 @@ namespace luabind {
 
 		struct value_converter
 		{
-			typedef value_converter type;
-			typedef std::false_type is_native;
+			using type      = value_converter;
+			using is_native = std::false_type;
 
 			enum { consumed_args = 1 };
 

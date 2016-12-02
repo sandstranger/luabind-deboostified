@@ -15,7 +15,7 @@ namespace luabind {
 	template <typename R = object>
 	struct function
 	{
-		typedef R result_type;
+		using result_type = R;
 
 		function(luabind::object const& obj)
 			: m_func(obj)
@@ -43,7 +43,7 @@ namespace luabind {
 		template< typename R, typename... Args, typename WrappedType >
 		struct call_types <std::function< R(Args...) >, WrappedType >
 		{
-			typedef meta::type_list< R, Args... > signature_type;
+			using signature_type = meta::type_list< R, Args... >;
 		};
 
 	}
@@ -52,7 +52,7 @@ namespace luabind {
 	template <typename F>
 	struct default_converter<F, typename std::enable_if<detail::is_function<F>::value>::type>
 	{
-		typedef std::true_type is_native;
+		using is_native = std::true_type;
 
 		enum { consumed_args = 1 };
 

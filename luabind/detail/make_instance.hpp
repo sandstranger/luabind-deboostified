@@ -74,8 +74,8 @@ namespace luabind {
 
 			object_rep* instance = push_new_instance(L, cls);
 
-			typedef typename std::remove_reference<P>::type value_type;
-			typedef pointer_holder<value_type> holder_type;
+			using value_type  = typename std::remove_reference<P>::type;
+			using holder_type = pointer_holder<value_type>;
 
 			void* storage = instance->allocate(sizeof(holder_type));
 
@@ -100,7 +100,7 @@ namespace luabind {
 			std::pair<class_id, void*> dynamic = get_dynamic_class(L, get_pointer(val));
 			class_rep* cls = get_pointee_class(L, val, dynamic.first);
 
-			typedef decltype(*get_pointer(val)) pointee_type;
+			using pointee_type = decltype(*get_pointer(val));
 
 			if(!cls) {
 				throw std::runtime_error("Trying to use unregistered class: " + std::string(typeid(pointee_type).name()));
@@ -108,8 +108,8 @@ namespace luabind {
 
 			object_rep* instance = push_new_instance(L, cls);
 
-			typedef typename std::remove_reference<ValueType>::type value_type;
-			typedef pointer_like_holder<value_type> holder_type;
+			using value_type  = typename std::remove_reference<ValueType>::type;
+			using holder_type = pointer_like_holder<value_type>;
 
 			void* storage = instance->allocate(sizeof(holder_type));
 
@@ -137,8 +137,8 @@ namespace luabind {
 
 			object_rep* instance = push_new_instance(L, cls);
 
-			typedef typename std::remove_reference<ValueType>::type value_type;
-			typedef value_holder<value_type> holder_type;
+			using value_type  = typename std::remove_reference<ValueType>::type;
+			using holder_type = value_holder<value_type>;
 
 			void* storage = instance->allocate(sizeof(holder_type));
 
@@ -160,8 +160,8 @@ namespace luabind {
 			make_value_instance(L, std::forward<ValueType>(val), has_get_pointer<ValueType>());
 		}
 
-	} // namespace luabind::detail
-}
+	} // namespace detail
+} // namespace luabind
 
 #endif // LUABIND_DETAIL_MAKE_INSTANCE_090310_HPP
 

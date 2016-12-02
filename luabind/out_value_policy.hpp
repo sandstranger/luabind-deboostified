@@ -185,7 +185,7 @@ namespace luabind {
 				// Using the size and template members instead of a policy templated for the type seems
 				// to be done to tame template bloat. Need to check if this is worth is.
 				using base_type = typename std::remove_pointer< typename std::remove_reference< T >::type >::type;
-				typedef out_value_converter<base_type, Policies> type;
+				using type = out_value_converter<base_type, Policies>;
 			};
 		};
 
@@ -252,7 +252,7 @@ namespace luabind {
 				static_assert(std::is_same< Direction, lua_to_cpp >::value, "Pure out value policy can only convert from lua to cpp");
 				static_assert(meta::or_< is_nonconst_reference<T>, is_nonconst_pointer<T> >::value, "Pure out value policy only accepts non const references or pointers");
 
-				typedef pure_out_value_converter<indirect_sizeof<T>::value, Policies> type;
+				using type = pure_out_value_converter<indirect_sizeof<T>::value, Policies>;
 			};
 		};
 
