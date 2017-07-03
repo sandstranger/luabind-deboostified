@@ -29,7 +29,7 @@
 #include <luabind/detail/object_rep.hpp>  // for object_rep
 #include <luabind/detail/primitives.hpp>  // for null_type
 
-namespace luabind { namespace detail 
+namespace luabind { namespace detail
 {
 	// makes A dependent on B, meaning B will outlive A.
 	// internally A stores a reference to B
@@ -37,7 +37,7 @@ namespace luabind { namespace detail
 	struct dependency_policy
 	{
 		template< unsigned int... StackIndices >
-		static void postcall(lua_State* L, int results, meta::index_list<StackIndices...> )
+		static void postcall(lua_State* L, int /*results*/, meta::index_list<StackIndices...> )
 		{
 			object_rep* nurse = static_cast<object_rep*>(lua_touserdata(L, meta::get<meta::index_list<StackIndices...>, A>::value));
 

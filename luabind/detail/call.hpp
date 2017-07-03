@@ -45,6 +45,9 @@ namespace luabind {
 		{
 			invoke_context()
 				: best_score((std::numeric_limits<int>::max)())
+				  //This need to avoid static analyzer's treats
+				, candidates{nullptr,nullptr,nullptr,nullptr,nullptr,
+				             nullptr,nullptr,nullptr,nullptr,nullptr}
 				, candidate_index(0)
 			{}
 
@@ -66,7 +69,7 @@ namespace luabind {
 				Compute Stack Indices
 				Given the list of argument converter arities, computes the stack indices that each converter addresses.
 			*/
-			
+
 			template< typename ConsumedList, unsigned int CurrentSum, unsigned int... StackIndices >
 			struct compute_stack_indices;
 
@@ -125,7 +128,7 @@ namespace luabind {
                 static void postcall(lua_State* /*L*/, int /*results*/) {}
 			};
 
-#ifndef LUABIND_NO_INTERNAL_TAG_ARGUMENTS		
+#ifndef LUABIND_NO_INTERNAL_TAG_ARGUMENTS
 			template< typename... ArgumentConverters >
 			struct compute_invoke_values {
 				using consumed_list = meta::index_list< FooFoo<ArgumentConverters>::consumed_args... >;
@@ -341,10 +344,10 @@ namespace luabind {
 			typedef meta::type_list<Arguments...> argument_list;
 			typedef meta::type_list< decorated_type<Arguments>... > decorated_argument_list;
 			// note that this is 0-based, so whenever you want to fetch from the converter list, you need to add 1
-			typedef typename meta::make_index_range< 0, sizeof...(Arguments) >::type argument_index_list;	
+			typedef typename meta::make_index_range< 0, sizeof...(Arguments) >::type argument_index_list;
 			typedef typename compute_argument_converter_list<argument_list, PolicyList>::type argument_converter_list;
 			typedef typename meta::make_tuple<argument_converter_list>::type argument_converter_tuple_type;
-			typedef typename build_consumed_list<argument_converter_list>::consumed_list consumed_list;	
+			typedef typename build_consumed_list<argument_converter_list>::consumed_list consumed_list;
 			typedef typename call_detail_new::compute_stack_indices< consumed_list, 1 >::type stack_index_list;
 			enum { arity = meta::sum<consumed_list>::value };
 		};
@@ -416,7 +419,7 @@ namespace luabind {
                     f(std::get<ArgumentIndices>(argument_tuple).to_cpp(L,
 							typename meta::get<decorated_list, ArgumentIndices>::type(),
 							meta::get<stack_indices, ArgumentIndices>::value)...
-											
+
 					);
 
 					meta::init_order{
@@ -528,7 +531,7 @@ namespace luabind {
 
 				return results;
 			}
-		
+
 		};
 
 		template< typename PolicyList, typename Signature, typename F>
