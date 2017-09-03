@@ -23,7 +23,7 @@ namespace luabind {
 			index_proxy(Next const& next, lua_State* interpreter, Key const& key)
 				: m_interpreter(interpreter), m_key_index(lua_gettop(interpreter) + 1), m_next(next)
 			{
-				detail::push(m_interpreter, key);
+				detail::push_to_lua(m_interpreter, key);
 			}
 
 			index_proxy(index_proxy const& other)
@@ -55,13 +55,13 @@ namespace luabind {
 			}
 
 			template<class T>
-			this_type& operator=(T const& value)
+			this_type& operator=(T&& value)
 			{
 				lua_proxy_traits<Next>::unwrap(m_interpreter, m_next);
 				detail::stack_pop pop(m_interpreter, 1);
 
 				lua_pushvalue(m_interpreter, m_key_index);
-				detail::push(m_interpreter, value);
+				detail::push_to_lua(m_interpreter, std::forward<T>(value));
 				lua_settable(m_interpreter, -3);
 				return *this;
 			}

@@ -26,7 +26,7 @@
 #include <luabind/config.hpp>
 
 #include <luabind/error.hpp>
-#include <luabind/detail/convert_to_lua.hpp>
+#include <luabind/detail/push_to_lua.hpp>
 #include <luabind/detail/pcall.hpp>
 #include <luabind/detail/call_shared.hpp>
 #include <luabind/detail/stack_utils.hpp>
@@ -83,11 +83,11 @@ namespace luabind
 			stack_pop pop(L, lua_gettop(L) - top + m_params);
 
 			specialized_converter_policy_n<0, PolicyList, Ret, lua_to_cpp> converter;
-			if(converter.match(L, decorated_type<Ret>(), -1) < 0) {
+			if(converter.match(L, decorate_type_t<Ret>(), -1) < 0) {
 				cast_error<Ret>(L);
 			}
 
-			return converter.to_cpp(L, decorated_type<Ret>(), -1);
+			return converter.to_cpp(L, decorate_type_t<Ret>(), -1);
 		}
 #else
 		template<typename Ret, typename PolicyList, typename IndexList, unsigned int NumParams, int(*Function)(lua_State*, int, int), bool IsVoid = std::is_void<Ret>::value>
@@ -128,11 +128,11 @@ namespace luabind
 				stack_pop pop(L, lua_gettop(L) - top + NumParams);
 
 				specialized_converter_policy_n<0, PolicyList, Ret, lua_to_cpp> converter;
-				if(converter.match(L, decorated_type<Ret>(), -1) < 0) {
+				if(converter.match(L, decorate_type_t<Ret>(), -1) < 0) {
 					cast_error<Ret>(L);
 				}
 
-				return converter.to_cpp(L, decorated_type<Ret>(), -1);
+				return converter.to_cpp(L, decorate_type_t<Ret>(), -1);
 			}
 		};
 #endif

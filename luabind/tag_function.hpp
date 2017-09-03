@@ -6,32 +6,26 @@
 #define LUABIND_TAG_FUNCTION_081129_HPP
 
 #include <luabind/config.hpp>
-#include <luabind/detail/meta.hpp>
+#include <luabind/detail/type_traits.hpp>
 #include <luabind/lua_state_fwd.hpp>
 
 namespace luabind {
+
+	template <class Signature, class F>
+	struct tagged_function
+	{
+		tagged_function(F f)
+			: f(f)
+		{}
+
+		F f;
+	};
 
 	namespace detail
 	{
 
 		struct invoke_context;
 		struct function_object;
-
-		template <class Signature, class F>
-		struct tagged_function
-		{
-			tagged_function(F f)
-				: f(f)
-			{}
-
-			F f;
-		};
-
-		template <class Signature, class F>
-		Signature deduce_signature(tagged_function<Signature, F> const&, ...)
-		{
-			return Signature();
-		}
 
 #ifndef LUABIND_NO_INTERNAL_TAG_ARGUMENTS
 		template <class Signature, class F, typename... PolicyInjectors>
@@ -54,20 +48,10 @@ namespace luabind {
 		}
 #endif
 
-		template <class Function>
-		struct signature_from_function;
-
-
-		template <typename R, typename... Args >
-		struct signature_from_function<R(Args...)>
-		{
-			using type = meta::type_list<R, Args...>;
-		};
-
 	} // namespace detail
 
 	template <class Signature, class F>
-	detail::tagged_function< typename detail::signature_from_function<Signature>::type, F >
+	tagged_function<deduce_signature_t<Signature>, F >
 		tag_function(F f)
 	{
 		return f;

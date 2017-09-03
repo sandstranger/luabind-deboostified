@@ -81,17 +81,15 @@
 #include <luabind/function.hpp>	// -> object.hpp
 #include <luabind/dependency_policy.hpp>
 #include <luabind/detail/constructor.hpp>	// -> object.hpp
-#include <luabind/detail/deduce_signature.hpp>
 #include <luabind/detail/primitives.hpp>
 #include <luabind/detail/property.hpp>
-#include <luabind/detail/typetraits.hpp>
+#include <luabind/detail/type_traits.hpp>
 #include <luabind/detail/class_rep.hpp>
 #include <luabind/detail/object_rep.hpp>
 #include <luabind/detail/call.hpp>
 #include <luabind/detail/call_member.hpp>
 #include <luabind/detail/enum_maker.hpp>
 #include <luabind/detail/operator_id.hpp>
-#include <luabind/detail/pointee_typeid.hpp>
 #include <luabind/detail/link_compatibility.hpp>
 #include <luabind/detail/inheritance.hpp>
 #include <luabind/detail/signature_match.hpp>
@@ -118,7 +116,7 @@ namespace luabind {
 	struct bases { };
 
 	using no_bases = bases< >;
-	using default_holder = detail::null_type;
+	using default_holder = null_type;
 
 	namespace detail {
 
@@ -169,7 +167,7 @@ namespace luabind {
 	};
 
 	// TODO: Could specialize for certain base classes to make the interface "type safe".
-	template<typename T, typename BaseOrBases = no_bases, typename HolderType = detail::null_type, typename WrapperType = detail::null_type>
+	template<typename T, typename BaseOrBases = no_bases, typename HolderType = null_type, typename WrapperType = null_type>
 	struct class_;
 
 	// TODO: this function will only be invoked if the user hasn't defined a correct overload
@@ -274,7 +272,7 @@ namespace luabind {
 			void register_(lua_State* L) const
 			{
 				// Need to check if the class type of the signature is a base of this class
-				object fn = make_function(L, f, typename call_types< F, Class >::signature_type(), Policies());
+				object fn = make_function(L, f, deduce_signature_t<F, Class>(), Policies());
 				add_overload(object(from_stack(L, -1)), name, fn);
 			}
 
@@ -335,7 +333,7 @@ namespace luabind {
 		template <class Class, class Get, class GetPolicies, class Set = null_type, class SetPolicies = no_policies >
 		struct property_registration : registration
 		{
-			property_registration(char const* name, Get const& get, Set const& set = detail::null_type())
+			property_registration(char const* name, Get const& get, Set const& set = null_type())
 				: name(name), get(get), set(set)
 			{}
 
@@ -358,13 +356,13 @@ namespace luabind {
 			template <class F>
 			object make_set(lua_State* L, F const& f, std::false_type /*member_ptr*/) const
 			{
-				return make_function(L, f, typename call_types< F >::signature_type(), SetPolicies());
+				return make_function(L, f, deduce_signature_t<F>(), SetPolicies());
 			}
 
 			template <class T, class D>
 			object make_set(lua_State* L, D T::* mem_ptr, std::true_type /*member_ptr*/) const
 			{
-				using argument_type  = typename reference_argument<D>::type;
+				using argument_type = typename reference_argument<D>::type;
 				using signature_type = meta::type_list<void, Class&, argument_type>;
 
 				return make_function(L, access_member_ptr<T, D>(mem_ptr), signature_type(), SetPolicies());
@@ -420,7 +418,7 @@ namespace luabind {
 		template<class F, typename... Injectors>
 		class_& def(char const* name, F fn, policy_list< Injectors... > policies = no_policies())
 		{
-			return this->virtual_def(name, fn, policies, detail::null_type());
+			return this->virtual_def(name, fn, policies, null_type());
 		}
 
 		// IntelliSense bug squiggles the code, but it does compile!
@@ -456,7 +454,7 @@ namespace luabind {
 		template <class Getter, typename... Injectors>
 		class_& property(const char* name, Getter g, policy_list< Injectors... > get_injectors = no_policies())
 		{
-			return property(name, g, detail::null_type(), get_injectors);
+			return property(name, g, null_type(), get_injectors);
 		}
 
 		template <class Getter, class Setter, typename... GetInjectors, typename... SetInjectors>
@@ -542,7 +540,7 @@ namespace luabind {
 
 		void operator=(class_ const&);
 
-		void add_wrapper_cast(detail::null_type*)
+		void add_wrapper_cast(null_type*)
 		{}
 
 		template <class U>
@@ -563,7 +561,7 @@ namespace luabind {
 		}
 
 		template<class F, typename... Injectors>
-		class_& virtual_def(char const* name, F const& fn, policy_list< Injectors... >, detail::null_type)
+		class_& virtual_def(char const* name, F const& fn, policy_list< Injectors... >, null_type)
 		{
 			using policy_list_type = policy_list< Injectors... >;
 			this->add_member(new detail::memfun_registration<T, F, policy_list_type>(name, fn));
@@ -577,7 +575,7 @@ namespace luabind {
 			using policy_list_type = policy_list< Injectors... >;
 
 			using construct_type = typename std::conditional<
-				detail::is_null_type<WrapperType>::value,
+				is_null_type<WrapperType>::value,
 				T,
 				WrapperType
 			>::type;

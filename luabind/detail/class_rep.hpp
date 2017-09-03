@@ -1,4 +1,4 @@
-// Copyright (c) 2003 Daniel Wallin and Arvid Norberg
+﻿// Copyright (c) 2003 Daniel Wallin and Arvid Norberg
 
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
@@ -207,8 +207,6 @@ namespace luabind {
 
 	}
 }
-
-//#include <luabind/detail/overload_rep_impl.hpp>
 
 #endif // LUABIND_CLASS_REP_HPP_INCLUDED
 

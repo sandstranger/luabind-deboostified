@@ -30,7 +30,6 @@ namespace luabind {
 	namespace detail {
 
 		struct cpp_to_lua;
-		struct null_type;
 
 		template<class T>
 		struct return_reference_to_converter;

@@ -24,7 +24,7 @@
 #define LUABIND_CALL_MEMBER_HPP_INCLUDED
 
 #include <luabind/config.hpp>
-#include <luabind/detail/convert_to_lua.hpp>
+#include <luabind/detail/push_to_lua.hpp>
 #include <luabind/detail/pcall.hpp>
 #include <luabind/error.hpp>
 #include <luabind/detail/stack_utils.hpp>
@@ -83,11 +83,11 @@ namespace luabind
 			stack_pop pop(L, lua_gettop(L) - top);
 
 			specialized_converter_policy_n<0, PolicyList, R, lua_to_cpp> converter;
-			if(converter.match(L, decorated_type<R>(), -1) < 0) {
+			if(converter.match(L, decorate_type_t<R>(), -1) < 0) {
 				cast_error<R>(L);
 			}
 
-			return converter.to_cpp(L, decorated_type<R>(), -1);
+			return converter.to_cpp(L, decorate_type_t<R>(), -1);
 		}
 
 

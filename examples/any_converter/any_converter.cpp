@@ -2,14 +2,14 @@
 
 extern "C"
 {
-	#include "lua.h"
-	#include "lauxlib.h"
-	#include "lualib.h"
+#include "lua.h"
+#include "lauxlib.h"
+#include "lualib.h"
 }
 
 bool dostring(lua_State* L, const char* str)
 {
-	if (luaL_loadbuffer(L, str, std::strlen(str), str) || lua_pcall(L, 0, 0, 0))
+	if(luaL_loadbuffer(L, str, std::strlen(str), str) || lua_pcall(L, 0, 0, 0))
 	{
 		const char* a = lua_tostring(L, -1);
 		std::cout << a << "\n";
@@ -20,7 +20,7 @@ bool dostring(lua_State* L, const char* str)
 }
 
 #include <luabind/luabind.hpp>
-#include <luabind/detail/convert_to_lua.hpp>
+#include <luabind/detail/push_to_lua.hpp>
 #include <boost/any.hpp>
 
 template<class T>
@@ -58,7 +58,7 @@ namespace luabind
 
 boost::any f(bool b)
 {
-	if (b) return "foobar";
+	if(b) return "foobar";
 	else return 3.5f;
 }
 
@@ -77,12 +77,12 @@ int main()
 #endif
 
 	using namespace luabind;
-	
+
 	open(L);
 	module(L)
-	[
-		def("f", &f)
-	];
+		[
+			def("f", &f)
+		];
 
 	dostring(L, "print( f(true) )");
 	dostring(L, "print( f(false) )");

@@ -20,8 +20,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
 // OR OTHER DEALINGS IN THE SOFTWARE.
 
-#include <luabind/detail/typetraits.hpp>
-#include <luabind/detail/pointee_sizeof.hpp>
+#include <luabind/detail/type_traits.hpp>
 
 using namespace luabind;
 using namespace luabind::detail;
@@ -45,15 +44,15 @@ int test_main(lua_State*)
 
 	LUABIND_STATIC_ASSERT(!is_const_pointer<int*>::value);
 	LUABIND_STATIC_ASSERT(is_const_pointer<const int*>::value);
-    LUABIND_STATIC_ASSERT(!is_const_pointer<tester*>::value);
-    LUABIND_STATIC_ASSERT(is_const_pointer<const tester*>::value);
+	LUABIND_STATIC_ASSERT(!is_const_pointer<tester*>::value);
+	LUABIND_STATIC_ASSERT(is_const_pointer<const tester*>::value);
 
-    LUABIND_STATIC_ASSERT(is_nonconst_pointer<int*>::value);
-    LUABIND_STATIC_ASSERT(!is_nonconst_pointer<const int*>::value);
-    LUABIND_STATIC_ASSERT(is_nonconst_pointer<tester*>::value);
-    LUABIND_STATIC_ASSERT(!is_nonconst_pointer<const tester*>::value);
+	LUABIND_STATIC_ASSERT(is_nonconst_pointer<int*>::value);
+	LUABIND_STATIC_ASSERT(!is_nonconst_pointer<const int*>::value);
+	LUABIND_STATIC_ASSERT(is_nonconst_pointer<tester*>::value);
+	LUABIND_STATIC_ASSERT(!is_nonconst_pointer<const tester*>::value);
 
-    LUABIND_STATIC_ASSERT(!is_const_reference<const tester>::value);
+	LUABIND_STATIC_ASSERT(!is_const_reference<const tester>::value);
 
 	return 0;
 }

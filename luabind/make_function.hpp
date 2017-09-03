@@ -114,13 +114,13 @@ namespace luabind {
 	template <class F, typename... PolicyInjectors >
 	object make_function(lua_State* L, F f, meta::type_list< PolicyInjectors... >)
 	{
-		return make_function(L, f, typename detail::call_types<F>::signature_type(), meta::type_list< PolicyInjectors... >());
+		return make_function(L, f, deduce_signature_t<F>(), meta::type_list< PolicyInjectors... >());
 	}
 
 	template <class F>
 	object make_function(lua_State* L, F f)
 	{
-		return make_function(L, f, typename detail::call_types<F>::signature_type(), no_policies());
+		return make_function(L, f, deduce_signature_t<F>(), no_policies());
 	}
 
 } // namespace luabind

@@ -18,7 +18,7 @@ set(LUABIND_SRCS
 	object_rep.cpp
 	open.cpp
 	operator.cpp
-  pcall.cpp
+	pcall.cpp
 	scope.cpp
 	set_package_preload.cpp
 	stack_content_by_name.cpp
@@ -77,7 +77,7 @@ set(LUABIND_DETAIL_API
 	../luabind/detail/class_rep.hpp
 	../luabind/detail/constructor.hpp
 	../luabind/detail/conversion_storage.hpp
-	../luabind/detail/convert_to_lua.hpp
+	../luabind/detail/push_to_lua.hpp
 	../luabind/detail/debug.hpp
 	../luabind/detail/decorate_type.hpp
 	../luabind/detail/deduce_signature.hpp
@@ -88,27 +88,24 @@ set(LUABIND_DETAIL_API
 	../luabind/detail/instance_holder.hpp
 	../luabind/detail/link_compatibility.hpp
 	../luabind/detail/make_instance.hpp
-	../luabind/detail/most_derived.hpp
 	../luabind/detail/object.hpp
 	../luabind/detail/object_rep.hpp
 	../luabind/detail/open.hpp
 	../luabind/detail/operator_id.hpp
 	../luabind/detail/other.hpp
 	../luabind/detail/pcall.hpp
-	../luabind/detail/pointee_sizeof.hpp
-	../luabind/detail/pointee_typeid.hpp
 	../luabind/detail/policy.hpp
 	../luabind/detail/primitives.hpp
 	../luabind/detail/property.hpp
 	../luabind/detail/ref.hpp
 	../luabind/detail/signature_match.hpp
 	../luabind/detail/stack_utils.hpp
-	../luabind/detail/typetraits.hpp
-	../luabind/detail/yes_no.hpp)
+	../luabind/detail/type_traits.hpp
+)
 source_group(Internal FILES ${LUABIND_DETAIL_API})
 
 set(LUABIND_DEFAULT_POLICIES
-    ../luabind/detail/conversion_policies/pointer_converter.hpp
+	../luabind/detail/conversion_policies/pointer_converter.hpp
 	../luabind/detail/conversion_policies/reference_converter.hpp
 	../luabind/detail/conversion_policies/value_converter.hpp
 	../luabind/detail/conversion_policies/enum_converter.hpp
@@ -144,16 +141,9 @@ endif()
 
 add_library(luabind ${LUABIND_SRCS} ${LUABIND_API} ${LUABIND_DETAIL_API} ${LUABIND_DEFAULT_POLICIES} ${LUABIND_USER_POLICIES})
 target_link_libraries(luabind ${LUA_LIBRARIES} ${LUABIND_EXTRA_LIBS})
-set_property(TARGET
-	luabind PROPERTY
-	COMPILE_FLAGS
-	${CMAKE_SHARED_LIBRARY_C_FLAGS})
 
-set_property(TARGET
-	luabind
-	PROPERTY
-	PROJECT_LABEL
-	"LuaBind Library")
+set_property(TARGET luabind PROPERTY COMPILE_FLAGS ${CMAKE_SHARED_LIBRARY_C_FLAGS})
+set_property(TARGET luabind PROPERTY PROJECT_LABEL "LuaBind Library")
 
 set(ALLHEADERS ${LUABIND_API} ${LUABIND_DETAIL_API} PARENT_SCOPE)
 set(APIHEADERS ${LUABIND_API} PARENT_SCOPE)
