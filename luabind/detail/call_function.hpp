@@ -103,7 +103,9 @@ namespace luabind
 				push_arguments<PolicyList, 1>(L, std::forward<Args>(args)...);
 
 				if(Function(L, sizeof...(Args), 0)) {
-					assert(lua_gettop(L) == int(top - NumParams + 1));
+					if(Function == &detail::pcall) {
+						assert(lua_gettop(L) == static_cast<int>(top - NumParams + 1));
+					}
 					call_error(L);
 				}
 				// pops the return values from the function call
@@ -121,7 +123,9 @@ namespace luabind
 				push_arguments<PolicyList, 1>(L, std::forward<Args>(args)...);
 
 				if(Function(L, sizeof...(Args), 1)) {
-					assert(lua_gettop(L) == static_cast<int>(top - NumParams + 1));
+					if(Function == &detail::pcall) {
+						assert(lua_gettop(L) == static_cast<int>(top - NumParams + 1));
+					}
 					call_error(L);
 				}
 				// pops the return values from the function call
