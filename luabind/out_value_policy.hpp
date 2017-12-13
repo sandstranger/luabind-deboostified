@@ -130,13 +130,13 @@ namespace luabind {
 			T& to_cpp(lua_State* L, by_reference<T>, int index)
 			{
 				//specialized_converter_policy_n<1, Policies, T, lua_to_cpp> converter;
-				storage_.construct(converter_.to_cpp(L, decorated_type<T>(), index));
+				storage_.construct(converter_.to_cpp(L, decorate_type_t<T>(), index));
 				return storage_.get();
 			}
 
 			int match(lua_State* L, by_reference<T>, int index)
 			{
-				return converter_.match(L, decorated_type<T>(), index);
+				return converter_.match(L, decorate_type_t<T>(), index);
 			}
 
 			void converter_postcall(lua_State* L, by_reference<T>, int)
