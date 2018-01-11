@@ -32,11 +32,13 @@ namespace luabind {
 			throw luabind::error(L);
 #else
 			error_callback_fun e = get_error_callback();
-			if(e) e(L);
-
-			assert(0 && "the lua function threw an error and exceptions are disabled."
-				" If you want to handle the error you can use luabind::set_error_callback()");
-			std::terminate();
+			if(e)
+				e(L);
+			else
+			{
+				assert(false && "the lua function threw an error and error callback is not set.");
+				std::terminate();
+			}
 #endif
 		}
 
@@ -47,11 +49,13 @@ namespace luabind {
 			throw cast_failed(L, typeid(T));
 #else
 			cast_failed_callback_fun e = get_cast_failed_callback();
-			if(e) e(L, typeid(T));
-
-			assert(0 && "the lua function's return value could not be converted."
-				" If you want to handle the error you can use luabind::set_cast_failed_callback()");
-			std::terminate();
+			if(e)
+				e(L, typeid(T));
+			else
+			{
+				assert(false && "the lua function threw an error and error callback is not set.");
+				std::terminate();
+			}
 #endif
 		}
 
