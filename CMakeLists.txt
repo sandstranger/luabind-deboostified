@@ -20,17 +20,18 @@ if(NOT LUA_FOUND AND NOT LUA51_FOUND)
 	set(LUA_INCLUDE_DIRS "${LUA_INCLUDE_DIR}")
 endif()
 
+option(BUILD_TESTING "Build luabind testing" OFF)
 if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
 	# We are the top-level project
 	include(CTest)
 	option(LUABIND_INSTALL "Install the LuaBind library and headers" ON)
 	option(LUABIND_BUILD_DOCS "Build documentation files" OFF)
-	option(LUABIND_BUILD_SHARED "Build luabind as a shared library?" OFF)
+	option(LUABIND_BUILD_SHARED "Build luabind as a shared library?" ON)
 endif()
 
-if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+if(CMAKE_COMPILER_IS_GNUCXX OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 	# Requiring C++11
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fpermissive")
 endif()
 
 if(MSVC)
