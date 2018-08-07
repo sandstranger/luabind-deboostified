@@ -106,6 +106,14 @@
 # define LUABIND_API
 #endif
 
+#ifndef _WIN32
+#include <cstddef>
+#define __cdecl
+#endif // _WIN32
+#ifndef _FARQ
+#define _FARQ
+#endif // _FARQ
+
 // This switches between using tag arguments / structure specialization for code size tests
 #define LUABIND_NO_INTERNAL_TAG_ARGUMENTS
 
