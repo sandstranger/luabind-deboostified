@@ -1,62 +1,39 @@
-# Build for LuaBind
-# Ryan Pavlik <rpavlik@iastate.edu>
-# http://academic.cleardefinition.com/
-# Iowa State University HCI Graduate Program/VRAC
+cmake_minimum_required(VERSION 2.8)
+project(luabind)
 
-cmake_minimum_required(VERSION 3.0)
-project(LuaBind)
+option(LUABIND_BUILD_TESTING "Build luabind testing" OFF)
+option(LUABIND_BUILD_SHARED "Build luabind as a shared library?" ON)
 
-set(CPACK_PACKAGE_VERSION_MAJOR "0")
-set(CPACK_PACKAGE_VERSION_MINOR "9")
-set(CPACK_PACKAGE_VERSION_PATCH "1")
-set(CPACK_PACKAGE_VERSION "${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}")
-
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" "${CMAKE_SOURCE_DIR}/cmake")
 
 if(NOT LUA_FOUND AND NOT LUA51_FOUND)
 	find_package(Lua51 REQUIRED)
 	set(LUA_INCLUDE_DIRS "${LUA_INCLUDE_DIR}")
 endif()
 
-option(BUILD_TESTING "Build luabind testing" OFF)
-if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
-	# We are the top-level project
-	include(CTest)
-	option(LUABIND_INSTALL "Install the LuaBind library and headers" ON)
-	option(LUABIND_BUILD_DOCS "Build documentation files" OFF)
-	option(LUABIND_BUILD_SHARED "Build luabind as a shared library?" ON)
+if(MSVC)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
 endif()
 
 if(CMAKE_COMPILER_IS_GNUCXX OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-	# Requiring C++11
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fpermissive")
 endif()
 
-if(MSVC)
-	# Requiring C++11
-#	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++11")
-#	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /std:c++11")
-endif()
-
-set(BUILD_SHARED_LIBS ${LUABIND_BUILD_SHARED})
-if(BUILD_SHARED_LIBS)
+if(LUABIND_BUILD_SHARED)
 	add_definitions(-DLUABIND_DYNAMIC_LINK)
 endif()
 
-include_directories(
-	"${CMAKE_CURRENT_SOURCE_DIR}"
-	${LUA_INCLUDE_DIRS}
+add_definitions(-DNDEBUG) #TODO: Add toggle for debug mode
+
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}
+	${LUA_INCLUDE_DIR}
 )
 
 add_subdirectory(src)
 
-if(BUILD_TESTING)
-	add_subdirectory(test)
-endif()
-
-if(LUABIND_BUILD_DOCS)
+if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
+	if(LUABIND_BUILD_TESTING)
+		add_subdirectory(test)
+	endif()
 	add_subdirectory(doc)
 endif()
-
