@@ -33,9 +33,9 @@ namespace luabind {
 				: function_object(&entry_point), f(f)
 			{}
 
-			int call(lua_State* L, invoke_context& ctx) /*const*/
+			int call(lua_State* L, invoke_context& ctx, const int args) const
 			{
-				return invoke<InjectorList, Signature>(L, *this, ctx, f);
+				return call_best_match<InjectorList, Signature>(L, *this, ctx, f, args);
 			}
 
 			int format_signature(lua_State* L, char const* function, bool concat = true) const
@@ -75,10 +75,12 @@ namespace luabind {
 # else
 				results = invoke<InjectorList, Signature>(L, *impl, ctx, impl->f);
 # endif
+#ifdef XRAY_SCRIPTS_NO_BACKWARDS_COMPATIBILITY
 				if(!ctx) {
 					ctx.format_error(L, impl);
 					lua_error(L);
 				}
+#endif
 
 				return results;
 			}

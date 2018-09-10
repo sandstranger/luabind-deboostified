@@ -95,7 +95,9 @@ namespace luabind
 
 				specialized_converter_policy_n<0, PolicyList, Ret, lua_to_cpp> converter;
 				if(converter.match(L, decorate_type_t<Ret>(), -1) < 0) {
+#ifdef XRAY_SCRIPTS_NO_BACKWARDS_COMPATIBILITY
 					cast_error<Ret>(L);
+#endif
 				}
 
 				return converter.to_cpp(L, decorate_type_t<Ret>(), -1);
