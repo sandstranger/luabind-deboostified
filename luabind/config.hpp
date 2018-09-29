@@ -77,10 +77,17 @@
 // C code has undefined behavior, lua is written in C).
 
 // LUABIND_XRAY_NO_BACKWARDS_COMPATIBILITY
-// In VS2015: Go to Property Manager -> Common.props -> C\C++ -> Preprocessor to turn it on\off
+// In VS2017: Go to Property Manager -> Common.props -> C\C++ -> Preprocessor to turn it on\off
 // this define will turn OFF some code for backward compability with some original .lua-code
 // from XRay 1.6 Engine, like:
 //  - native converter from number to string\char*
+
+// XRAY_SCRIPTS_NO_BACKWARDS_COMPATIBILITY
+// In VS2017: Go to Property Manager -> Common.props -> C\C++ -> Preprocessor to turn it on\off
+// this define will turn OFF some code for backward compability with some original .lua-code
+// from XRay 1.6 Engine, like:
+//  - original script behaviour when you didn't pass some parametres
+//  - turn off "LUA error: cannot cast lua value to ..." 
 
 #ifdef LUABIND_DYNAMIC_LINK
 # if defined (_WIN32)
@@ -113,9 +120,6 @@
 #ifndef _FARQ
 #define _FARQ
 #endif // _FARQ
-
-// This switches between using tag arguments / structure specialization for code size tests
-#define LUABIND_NO_INTERNAL_TAG_ARGUMENTS
 
 namespace luabind {
 
