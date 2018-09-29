@@ -89,6 +89,10 @@
 //  - original script behaviour when you didn't pass some parametres
 //  - turn off "LUA error: cannot cast lua value to ..." 
 
+#ifdef DEBUG
+#define XRAY_SCRIPTS_NO_BACKWARDS_COMPATIBILITY
+#endif
+
 #ifdef LUABIND_DYNAMIC_LINK
 # if defined (_WIN32)
 #  ifdef LUABIND_BUILDING
