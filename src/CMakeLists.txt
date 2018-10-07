@@ -59,7 +59,6 @@ set(LUABIND_API_HEADERS
 	../luabind/scope.hpp
 	../luabind/set_package_preload.hpp
 	../luabind/shared_ptr_converter.hpp
-	../luabind/tag_function.hpp
 	../luabind/typeid.hpp
 	../luabind/types.hpp
 	../luabind/version.hpp
