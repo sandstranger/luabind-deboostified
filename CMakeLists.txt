@@ -23,8 +23,6 @@ if(LUABIND_BUILD_SHARED)
 	add_definitions(-DLUABIND_DYNAMIC_LINK)
 endif()
 
-add_definitions(-fvisibility=default)
-#add_definitions(-DNDEBUG) #TODO: Add toggle for debug mode
 if(NOT ${CMAKE_BUILD_TYPE} STREQUAL "Debug")
     add_definitions(-DNDEBUG)
 endif()
