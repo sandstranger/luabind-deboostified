@@ -100,7 +100,7 @@ void test_main(lua_State* L)
 
         def("f", (int(*)(int)) &f),
         def("f", (int(*)(int, int)) &f),
-        def("create", &create_base, adopt_policy<0>()),
+        def("create", &create_base, policy::adopt<0>()),
 		def("string_length", &string_length),
         def("test_value_converter", &test_value_converter),
         def("test_pointer_converter", &test_pointer_converter)
@@ -122,7 +122,7 @@ void test_main(lua_State* L)
 //    DOSTRING(L, "set_functor(nil)");
 
     DOSTRING(L, "function lua_create() return create() end");
-    base* ptr = call_function<base*,adopt_policy<0>>(L, "lua_create");
+    base* ptr = call_function<base*, policy::adopt<0>>(L, "lua_create");
     delete ptr;
 
 	int Arg0=1;

@@ -331,7 +331,7 @@ void test_main(lua_State* L)
 	obj = luabind::object();
 
 	// call the function and tell lua to adopt the pointer passed as first argument
-	test_param_policies.call<adopt_policy<2>>(5, new test_param());
+	test_param_policies.call<policy::adopt<2>>(5, new test_param());
 
 	DOSTRING(L, "assert(test_match(7) == 1)");
 	DOSTRING(L, "assert(test_match('oo') == 0)");

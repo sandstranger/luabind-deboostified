@@ -267,7 +267,7 @@ void test_main(lua_State* L)
 	{
 		LUABIND_CHECK_STACK(L);
 
-		try { call_function<void, adopt_policy<0>>(L, "gen_error"); }
+		try { call_function<void, policy::adopt<0>>(L, "gen_error"); }
 		catch (luabind::error const& e)
 		{
             bool result(
@@ -304,7 +304,7 @@ void test_main(lua_State* L)
 
 		TEST_NOTHROW(
 		    own_ptr = std::unique_ptr<base>(
-                call_function<base*,adopt_policy<0>>(L, "make_derived"))
+                call_function<base*,policy::adopt<0>>(L, "make_derived"))
 			);
 	}
 
@@ -325,13 +325,13 @@ void test_main(lua_State* L)
 	// test virtual functions that are not overridden by lua
     TEST_NOTHROW(
         own_ptr = std::unique_ptr<base>(
-            call_function<base*,adopt_policy<0>>(L, "make_empty_derived"))
+            call_function<base*,policy::adopt<0>>(L, "make_empty_derived"))
         );
     TEST_NOTHROW(
         TEST_CHECK(own_ptr->f() == "base:f()")
 	);
     TEST_NOTHROW(
-        (call_function<void,adopt_policy<1>>(L, "adopt_ptr", own_ptr.get()))
+        (call_function<void,policy::adopt<1>>(L, "adopt_ptr", own_ptr.get()))
     );
 	own_ptr.release();
 
