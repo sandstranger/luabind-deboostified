@@ -42,13 +42,6 @@
 #define LUABIND_MAX_BASES 1
 #endif
 
-#ifdef NDEBUG
-# ifndef LUABIND_NO_ERROR_CHECKING
-#  define LUABIND_NO_ERROR_CHECKING
-# endif
-#define LUABIND_NO_EXCEPTIONS
-#endif
-
 // LUABIND_NO_ERROR_CHECKING
 // define this to remove all error checks
 // this will improve performance and memory
@@ -88,10 +81,6 @@
 // from XRay 1.6 Engine, like:
 //  - original script behaviour when you didn't pass some parametres
 //  - turn off "LUA error: cannot cast lua value to ..." 
-
-#ifdef DEBUG
-#define XRAY_SCRIPTS_NO_BACKWARDS_COMPATIBILITY
-#endif
 
 #ifdef LUABIND_DYNAMIC_LINK
 # if defined (_WIN32)
