@@ -44,11 +44,16 @@ target_link_libraries(xrLuabind
 	xrLuabindApi
 )
 
-if (XRAY_USE_LUAJIT)
-    target_link_libraries(xrLuabind PUBLIC xrLuaJIT)
-else()
-    target_link_libraries(xrLuabind PUBLIC Lua51)
-endif()
+if (NOT ANDROID)
+
+	if (XRAY_USE_LUAJIT)
+    	target_link_libraries(xrLuabind PUBLIC xrLuaJIT)
+	else()
+    	target_link_libraries(xrLuabind PUBLIC Lua51)
+	endif()
+else ()
+	target_link_libraries(xrLuabind PUBLIC ${LUA_LIBRARIES})
+endif ()
 
 if (MASTER_GOLD)
     target_compile_definitions(xrLuabind
