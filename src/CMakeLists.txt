@@ -45,11 +45,11 @@ target_link_libraries(xrLuabind
 )
 
 if (NOT ANDROID)
-
 	if (XRAY_USE_LUAJIT)
-    	target_link_libraries(xrLuabind PUBLIC xrLuaJIT)
+		target_link_libraries(xrLuabind PUBLIC xrLuaJIT)
 	else()
-    	target_link_libraries(xrLuabind PUBLIC Lua51)
+		find_package(Lua REQUIRED)
+		target_link_libraries(xrLuabind PUBLIC ${LUA_LIBRARIES})
 	endif()
 else ()
 	target_link_libraries(xrLuabind PUBLIC ${LUA_LIBRARIES})
