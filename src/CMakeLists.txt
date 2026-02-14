@@ -51,6 +51,7 @@ target_compile_definitions(xrLuabind
 	$<$<BOOL:${BUILD_SHARED_LIBS}>:LUABIND_DYNAMIC_LINK>
 )
 
+if (NOT ANDROID)
 set_target_properties(xrLuabind PROPERTIES
 	PREFIX ""
 )
@@ -60,3 +61,4 @@ if (BUILD_SHARED_LIBS)
 		DESTINATION "${CMAKE_INSTALL_LIBDIR}"
 	)
 endif()
+endif ()
